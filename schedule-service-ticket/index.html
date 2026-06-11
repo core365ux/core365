@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Core365 — Scheduling · Developer Handoff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --brand-orange:#F56B0F; --brand-orange-hover:#E25E07; --brand-orange-tint:#FFF4EC; --brand-orange-soft:#FFE9D8;
+    --brand-green:#22A85A; --brand-tile:#0F1B2D; --brand-tile-2:#142339;
+    --bg:#F4F5F7; --surface:#FFFFFF; --surface-2:#FAFBFC;
+    --ink-1:#0F172A; --ink-2:#334155; --ink-3:#64748B; --ink-4:#94A3B8;
+    --line:#E5E7EB; --line-2:#EEF0F3;
+    --card-radius:8px; --ctrl-radius:6px;
+    --font-ui:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink-1);font-family:var(--font-ui);-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 28px 64px;}
+
+  /* Hero */
+  .hero{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px 30px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:14px;letter-spacing:-0.01em;color:var(--ink-2);}
+  .brand .dot{width:10px;height:10px;border-radius:3px;background:var(--brand-orange);}
+  .hero h1{margin:14px 0 0;font-size:34px;font-weight:800;letter-spacing:-0.025em;line-height:1.08;}
+  .hero .lede{margin:10px 0 0;max-width:64ch;color:var(--ink-2);font-size:15px;line-height:1.55;}
+  .row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:22px;}
+  .download{display:inline-flex;align-items:center;gap:10px;background:var(--brand-orange);color:#fff;text-decoration:none;
+    font-weight:700;font-size:15px;padding:13px 20px;border-radius:9px;transition:background .15s,transform .05s;box-shadow:0 1px 2px rgba(245,107,15,.35);}
+  .download:hover{background:var(--brand-orange-hover);}
+  .download:active{transform:translateY(1px);}
+  .download svg{width:17px;height:17px;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink-2);
+    background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:6px 12px;}
+  .chip .mono{font-family:var(--font-mono);font-weight:500;color:var(--ink-3);}
+  .chip .sw{width:9px;height:9px;border-radius:50%;background:var(--brand-orange);}
+
+  /* Sections */
+  section{margin-top:42px;}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;}
+  .sec-head h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-3);}
+  .sec-head .count{font-size:12px;color:var(--ink-4);font-family:var(--font-mono);}
+  .sec-head .rule{flex:1;height:1px;background:var(--line);}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:16px;}
+  .card{display:flex;flex-direction:column;text-decoration:none;color:inherit;background:var(--surface);
+    border:1px solid var(--line);border-radius:var(--card-radius);overflow:hidden;transition:border-color .15s,box-shadow .15s,transform .08s;}
+  .card:hover{border-color:#D2D6DD;box-shadow:0 8px 24px rgba(15,23,42,.09);transform:translateY(-2px);}
+  .thumb{height:148px;background:repeating-linear-gradient(135deg,#F7F8FA,#F7F8FA 9px,#F2F4F7 9px,#F2F4F7 18px);
+    display:grid;place-items:center;border-bottom:1px solid var(--line);}
+  .device{background:var(--brand-tile);border-radius:7px;height:104px;max-width:188px;
+    box-shadow:inset 0 0 0 3px rgba(255,255,255,.06),0 6px 16px rgba(15,27,45,.28);
+    display:grid;place-items:center;position:relative;}
+  .device::before{content:"";position:absolute;top:7px;left:7px;right:7px;height:9px;border-radius:3px;background:rgba(255,255,255,.10);}
+  .device .glyph{width:11px;height:11px;border-radius:3px;background:var(--brand-orange);box-shadow:0 0 0 4px rgba(245,107,15,.18);}
+  .meta{padding:13px 14px 15px;display:flex;flex-direction:column;gap:3px;}
+  .meta .name{font-weight:700;font-size:15px;letter-spacing:-0.01em;}
+  .meta .dims{font-family:var(--font-mono);font-size:12px;color:var(--ink-3);}
+  .meta .open{margin-top:8px;font-size:12px;font-weight:600;color:var(--brand-orange);display:inline-flex;align-items:center;gap:5px;}
+
+  footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);color:var(--ink-4);font-size:12px;line-height:1.6;}
+  footer .mono{font-family:var(--font-mono);}
+  @media (max-width:560px){ .hero h1{font-size:27px;} .wrap{padding:24px 16px 48px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="brand"><span class="dot"></span> Core365</div>
+    <h1>Scheduling — Service Tickets</h1>
+    <p class="lede">Developer handoff package for the redesigned scheduling workspace. Each link below is a fully self-contained, offline build locked to a specific device size — no server, no network required. In-page controls (tabs, calendar, forms) stay live.</p>
+    <div class="row">
+      <a class="download" href="Core365-Scheduling-Builds.zip" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        Download all builds (.zip)
+      </a>
+      <div class="chips">
+        <span class="chip">8 device builds</span>
+        <span class="chip">Offline-ready</span>
+        <span class="chip">React prototype</span>
+        <span class="chip"><span class="sw"></span><span class="mono">#F56B0F</span></span>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head"><h2>Desktop</h2><span class="count">3</span><span class="rule"></span></div>
+    <div class="grid">
+      <a class="card" href="Design%20-%20Desktop%201920x1080.html">
+        <div class="thumb"><div class="device" style="aspect-ratio:1920/1080"><span class="glyph"></span></div></div>
+        <div class="meta"><span class="name">Desktop</span><span class="dims">1920 × 1080</span><span class="open">Open preview →</span></div>
+      </a>
+      <a class="card" href="Design%20-%2014in%20MacBook%201512x982.html">
+        <div class="thumb"><div class="device" style="aspect-ratio:1512/982"><span class="glyph"></span></div></div>
+        <div class="meta"><span class="name">14″ MacBook</span><span class="dims">1512 × 982</span><span class="open">Open preview →</span></div>
+      </a>
+      <a class="card" href="Design%20-%2013in%20MacBook%201280x800.html">
+        <div class="thumb"><div class="device" style="aspect-ratio:1280/800"><span class="glyph"></span></div></div>
+        <div class="meta"><span class="name">13″ MacBook</span><span class="dims">1280 × 800</span><span class="open">Open preview →</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Tablet</h2><span class="count">2</span><span class="rule"></span></div>
+    <div class="grid">
+      <a class="card" href="Design%20-%20Tablet%20Landscape%201180x820.html">
+        <div class="thumb"><div class="device" style="aspect-ratio:1180/820"><span class="glyph"></span></div></div>
+        <div class="meta"><span class="name">Tablet Landscape</span><span class="dims">1180 × 820</span><span class="open">Open preview →</span></div>
+      </a>
+      <a class="card" href="Design%20-%20Tablet%20Portrait%20820x1180.html">
+        <div class="thumb"><div class="device" style="aspect-ratio:820/1180;height:124px"><span class="glyph"></span></div></div>
+        <div class="meta"><span class="name">Tablet Portrait</span><span class="dims">820 × 1180</span><span class="open">Open preview →</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Mobile</h2><span class="count">3</span><span class="rule"></span></div>
+    <div class="grid">
+      <a class="card" href="Design%20-%20iPhone%20Pro%20Max%20430x932.html">
+        <div class="thumb"><div class="device" style="aspect-ratio:430/932;height:124px"><span class="glyph"></span></div></div>
+        <div class="meta"><span class="name">iPhone Pro Max</span><span class="dims">430 × 932</span><span class="open">Open preview →</span></div>
+      </a>
+      <a class="card" href="Design%20-%20iPhone%20393x852.html">
+        <div class="thumb"><div class="device" style="aspect-ratio:393/852;height:124px"><span class="glyph"></span></div></div>
+        <div class="meta"><span class="name">iPhone</span><span class="dims">393 × 852</span><span class="open">Open preview →</span></div>
+      </a>
+      <a class="card" href="Design%20-%20iPhone%20SE%20375x667.html">
+        <div class="thumb"><div class="device" style="aspect-ratio:375/667;height:124px"><span class="glyph"></span></div></div>
+        <div class="meta"><span class="name">iPhone SE</span><span class="dims">375 × 667</span><span class="open">Open preview →</span></div>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    Core365 · Scheduling — Service Tickets &nbsp;·&nbsp; <span class="mono">8 self-contained builds</span> &nbsp;·&nbsp; Each file works offline by double-clicking — no server needed.
+  </footer>
+
+</div>
+</body>
+</html>
