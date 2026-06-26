@@ -1,0 +1,2362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inside Sales Queue — Sam 2.0</title>
+<style>
+  :root{
+    /* Safe Home Direct — internal CRM palette (Brand Standards 2026) */
+    --bg:#f9f9fa;            /* SHD Cultured */
+    --card:#ffffff;
+    --line:#dcdce0;          /* light-gray border, ~Light Gray tint */
+    --line2:#ececed;
+    --ink:#3b3c3e;           /* SHD Onyx */
+    --ink2:#5f636a;
+    --ink3:#9a9da3;          /* muted gray */
+    /* primary action = SHD Cyan (mapped onto the existing --orange tokens so all components recolor) */
+    --orange:#23ade8; --orange-soft:#e8f7fd; --orange-line:#a9e0f5;
+    --cyan:#4dbdec; --cyan-anchor:#23ade8; --cyan-deep:#1593c9;
+    --blue:#4b50ec; --blue-soft:#ecedfd;          /* Analog Indigo */
+    --green:#1fb87f; --green-soft:#e4f8f1;         /* Analog Green family */
+    --amber:#c98a16; --amber-soft:#fbf1dc;
+    --red:#e0584a; --red-soft:#fcebe9;             /* warm red, brand-adjacent */
+    --accent-orange:#ec7b4b;                       /* SHD Accent Orange — sparing use */
+    --slate:#5f636a;
+    --shadow:0 1px 2px rgba(59,60,62,.06), 0 1px 3px rgba(59,60,62,.05);
+    --shadow-lg:0 20px 50px rgba(40,45,55,.20);
+    --r:5px;                 /* brand: 5px corner radius */
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"SF Pro",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:13px; -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  button{font-family:inherit;cursor:pointer}
+  /* ---------- Top bar ---------- */
+  .topbar{
+    height:52px; background:var(--bg); display:flex; align-items:center;
+    padding:0 22px; gap:14px; border-bottom:1px solid var(--line);
+    position:sticky; top:0; z-index:20;
+  }
+  .topbar h1{font-size:13px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; margin:0; color:#2b3banaa}
+  .topbar h1{color:#2b3340}
+  .top-right{margin-left:auto; display:flex; align-items:center; gap:12px}
+  .sel{
+    background:#fff;border:1px solid var(--line);border-radius:8px;height:30px;
+    padding:0 26px 0 10px;font-size:12px;color:var(--ink2);min-width:96px;
+    -webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M2 3.5L5 6.5L8 3.5' stroke='%238a93a6' fill='none' stroke-width='1.4'/></svg>");
+    background-repeat:no-repeat;background-position:right 9px center;
+  }
+  .ic{width:30px;height:30px;border-radius:8px;border:1px solid transparent;display:grid;place-items:center;color:var(--ink2);background:transparent}
+  .ic:hover{background:#e9eb0f;background:#e8eaed}
+  .who{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink);font-weight:600}
+  .avatar{width:30px;height:30px;border-radius:8px;background:var(--orange);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+  /* ---------- Layout ---------- */
+  .wrap{padding:18px 22px 40px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow);min-height:212px}
+  .kpi-h{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;color:#2b3340;margin-bottom:4px}
+  .kpi-h .gi{color:var(--ink3)}
+  .kpi-h .pill-leg{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink3);font-weight:600}
+  .dot{width:9px;height:9px;border-radius:3px;display:inline-block}
+  /* donut + legend layout */
+  .donut-row{display:flex;align-items:center;gap:18px;margin-top:10px}
+  .donut-wrap{position:relative;width:108px;height:108px;flex:none}
+  .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .donut-center b{font-size:22px;line-height:1;color:var(--ink)}
+  .donut-center span{font-size:9px;letter-spacing:.08em;color:var(--ink3);font-weight:700;margin-top:3px}
+  .legend{flex:1;display:flex;flex-direction:column;gap:9px}
+  .legend .row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2)}
+  .legend .row .nm{display:flex;align-items:center;gap:8px}
+  .legend .row .vl{margin-left:auto;font-weight:700;color:var(--ink)}
+  /* projected pay */
+  .big{font-size:34px;font-weight:800;color:var(--orange);line-height:1;letter-spacing:-.5px}
+  .big small{font-size:12px;font-weight:600;color:var(--ink3);margin-left:8px;letter-spacing:0}
+  .sub{font-size:11px;color:var(--ink3);margin-top:6px}
+  .ledger{margin-top:16px;display:flex;flex-direction:column;gap:0}
+  .ledger .row{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line2);font-size:12.5px;color:var(--ink2)}
+  .ledger .row b{color:var(--ink);font-weight:700}
+  .ledger .row.warn b{color:var(--red)}
+  /* bar list */
+  .bars{margin-top:14px;display:flex;flex-direction:column;gap:11px}
+  .bar{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink2)}
+  .bar .lab{width:30px;text-align:right;font-weight:600}
+  .bar .track{flex:1;height:9px;border-radius:6px;background:#ececed;overflow:hidden}
+  .bar .fill{height:100%;border-radius:6px}
+  .bar .val{width:18px;font-weight:700;color:var(--ink)}
+  /* line chart */
+  svg.line{width:100%;height:120px;display:block;margin-top:6px}
+  .xlab{display:flex;justify-content:space-between;font-size:10px;color:var(--ink3);margin-top:2px}
+  /* ---------- Controls row ---------- */
+  .controls{display:flex;align-items:center;gap:10px;margin:4px 0 14px;flex-wrap:wrap}
+  .search{position:relative;flex:0 0 290px;max-width:290px}
+  .search input{width:100%;height:38px;border:1px solid var(--line);border-radius:9px;padding:0 12px;font-size:13px;background:#fff;color:var(--ink)}
+  .search .go{position:absolute;right:5px;top:5px;width:28px;height:28px;border:none;border-radius:7px;background:var(--orange);color:#fff;display:grid;place-items:center}
+  .daterange{height:38px;border:1px solid var(--line);border-radius:9px;background:#fff;display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--ink3);font-size:12.5px}
+  .seg{display:flex;align-items:center;gap:16px;margin-left:6px}
+  .seg label{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2);cursor:pointer}
+  .seg input{accent-color:var(--orange)}
+  .spacer{flex:1}
+  .btn{height:38px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink2);padding:0 14px;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{background:#f7f8f9}
+  .btn.primary{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700}
+  .btn.primary:hover{background:#1593c9}
+  /* ---------- Table ---------- */
+  .tablecard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+  .scroll{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;min-width:1180px}
+  thead th{
+    background:#eceef1;color:#5b6577;text-transform:uppercase;font-size:10.5px;letter-spacing:.05em;
+    font-weight:700;text-align:left;padding:12px 14px;white-space:nowrap;border-bottom:1px solid var(--line);user-select:none
+  }
+  thead th .cr{color:#aab2c0;margin-left:4px;font-size:9px}
+  tbody td{padding:13px 14px;border-bottom:1px solid var(--line2);white-space:nowrap;color:var(--ink2);font-size:12.5px}
+  tbody tr{cursor:pointer;transition:background .12s}
+  tbody tr:hover{background:#f6f8fb}
+  tbody tr.flag{background:var(--orange-soft)}
+  tbody tr.flag:hover{background:#d6f0fb}
+  tbody tr.flag-ns{background:#fdf1f2}
+  tbody tr.flag-ns:hover{background:#fbe6e8}
+  tbody tr.flag-cxl{background:#faf0f1}
+  tbody tr.flag-cxl:hover{background:#f5e3e5}
+  .acct{color:var(--blue);font-weight:700}
+  .cust{color:var(--ink);font-weight:600}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;line-height:1}
+  .pill .d{width:7px;height:7px;border-radius:50%}
+  .p-green{background:var(--green-soft);color:#0e8e62}
+  .p-blue{background:var(--blue-soft);color:#3a3fd0}
+  .p-amber{background:var(--amber-soft);color:#9a6a06}
+  .p-red{background:var(--red-soft);color:#b91c2a}
+  .p-slate{background:#eef1f6;color:#475569}
+  .p-orange{background:var(--orange-soft);color:#1176a1}
+  .tag{font-weight:700}
+  .yes{color:#0e8e62}.no{color:#b91c2a}
+  .rmr{font-weight:700;color:var(--ink)}
+  .flagchip{background:var(--red-soft);color:#b91c2a;font-weight:700;padding:3px 9px;border-radius:999px;font-size:11px}
+  /* ---------- Modal ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(20,28,45,.45);backdrop-filter:blur(2px);display:none;z-index:60;padding:26px}
+  .overlay.open{display:block}
+  .modal{
+    background:#f7f8fa;border-radius:16px;box-shadow:var(--shadow-lg);max-width:1320px;margin:0 auto;
+    height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden;position:relative
+  }
+  .m-head{display:flex;align-items:center;gap:14px;padding:16px 22px;background:#fff;border-bottom:1px solid var(--line)}
+  .m-head .t{font-size:17px;font-weight:700}
+  .m-head .acctbadge{font-size:11px;font-weight:700;color:var(--ink3);letter-spacing:.04em}
+  .m-status{margin-left:6px}
+  .m-close{margin-left:auto;width:34px;height:34px;border:none;background:transparent;color:#c0334a;font-size:20px;border-radius:8px}
+  .m-close:hover{background:#fbe9ec}
+  .dryrun-toggle{display:flex;align-items:center;gap:7px;margin-left:auto;margin-right:6px;font-size:12px;font-weight:600;color:var(--ink2);cursor:pointer;background:#f4f6f8;border:1px solid var(--line);padding:5px 11px;border-radius:999px;user-select:none}
+  .dryrun-toggle input{accent-color:var(--orange);width:15px;height:15px}
+  .dryrun-toggle:hover{background:#ececed}
+  .m-head .dryrun-toggle + .m-close{margin-left:0}
+  /* step advance button (dry-run) */
+  .step .adv{margin-left:auto;align-self:center;border:1px solid var(--line);background:#fff;color:var(--ink2);font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:7px;display:none}
+  .step .adv:hover{border-color:var(--green);color:#0e8e62;background:var(--green-soft)}
+  .dryrun-on .step.cur .adv{display:inline-block}
+  /* tabs */
+  .tabs{display:flex;gap:2px;padding:0 22px;background:#fff;border-bottom:1px solid var(--line)}
+  .tab{appearance:none;border:none;background:transparent;padding:13px 16px 11px;font-size:13px;font-weight:600;color:var(--ink2);border-bottom:2.5px solid transparent;display:flex;align-items:center;gap:8px}
+  .tab .n{width:18px;height:18px;border-radius:50%;background:#ececed;color:var(--ink3);font-size:10px;font-weight:700;display:grid;place-items:center}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+  .tab.active .n{background:var(--orange);color:#fff}
+  .tab .ok{color:var(--green)}
+  /* body split */
+  .m-body{flex:1;display:flex;overflow:hidden}
+  .m-main{flex:1;min-width:0;overflow-y:auto;padding:22px 24px}
+  .m-rail{width:312px;min-width:280px;flex:none;border-left:1px solid var(--line);background:#fff;overflow-y:auto;padding:16px 16px 22px}
+  @media (max-width:1180px){ .m-rail{width:288px;min-width:260px} }
+  .panel{display:none}
+  .panel.active{display:block;animation:fade .18s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  /* cards inside modal */
+  .sec{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+  .sec h3{margin:0 0 4px;font-size:14px;font-weight:700;color:#2b3340;display:flex;align-items:center;gap:8px}
+  .sec .hint{font-size:11.5px;color:var(--ink3);margin:0 0 14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .fld{display:flex;flex-direction:column;gap:5px;margin-bottom:2px}
+  .fld label{font-size:11.5px;font-weight:600;color:var(--ink2)}
+  .fld label .req{color:var(--ink3);font-weight:400;opacity:.7}
+  .fld input,.fld select,.fld textarea{
+    height:38px;border:1px solid var(--line);border-radius:8px;padding:0 11px;font-size:13px;background:#fff;color:var(--ink);width:100%;font-family:inherit
+  }
+  .fld textarea{height:auto;padding:9px 11px;resize:vertical;min-height:62px}
+  .fld select{-webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M2 3.5L5 6.5L8 3.5' stroke='%238a93a6' fill='none' stroke-width='1.4'/></svg>");
+    background-repeat:no-repeat;background-position:right 11px center;padding-right:28px}
+  .note{font-size:11.5px;margin-top:5px;display:flex;align-items:center;gap:6px}
+  .note.ok{color:var(--green)}.note.warn{color:var(--amber)}.note.err{color:var(--red)}
+  .radio-line{display:flex;gap:18px;align-items:center;font-size:13px;color:var(--ink2);margin-top:2px}
+  .radio-line label{display:flex;gap:7px;align-items:center;cursor:pointer}
+  .radio-line input{accent-color:var(--orange)}
+  .divider{height:1px;background:var(--line2);margin:16px 0}
+  /* equipment */
+  .eq-group{margin-bottom:6px}
+  .eq-group .gh{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);font-weight:700;margin:14px 0 8px}
+  .eq{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line2)}
+  .eq .nm{flex:1;font-size:13px;color:var(--ink);font-weight:600}
+  .eq .cost{font-size:12px;color:var(--ink3);width:78px}
+  .eq .cost b{color:var(--ink2)}
+  .stepper{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .stepper button{width:30px;height:30px;border:none;background:#f4f6f8;color:var(--ink2);font-size:16px;font-weight:700;display:grid;place-items:center}
+  .stepper button:hover{background:#e9edf1}
+  .stepper .q{width:36px;text-align:center;font-size:13px;font-weight:700;color:var(--ink)}
+  .default-tag{font-size:10px;font-weight:700;color:var(--orange);background:var(--orange-soft);border:1px solid var(--orange-line);padding:2px 7px;border-radius:6px;margin-left:8px}
+  /* financing summary */
+  .finbox{background:#fbfcfd;border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .finrow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;color:var(--ink2)}
+  .finrow + .finrow{border-top:1px solid var(--line2)}
+  .finrow b{color:var(--ink);font-weight:700}
+  .fin-total{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:12px;border-top:2px solid var(--line);font-size:15px;font-weight:800;color:var(--ink)}
+  .fin-total .amt{color:var(--orange)}
+  .minitable{width:100%;border-collapse:collapse;margin-top:6px}
+  .minitable th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);padding:6px 8px;border-bottom:1px solid var(--line)}
+  .minitable td{padding:7px 8px;border-bottom:1px solid var(--line2);font-size:12.5px;color:var(--ink2)}
+  .minitable td b{color:var(--ink)}
+  /* survey + checklist */
+  .survey-q{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-top:1px solid var(--line2)}
+  .survey-q:first-of-type{border-top:none}
+  .survey-q .qx{font-size:13px;color:var(--ink);flex:1;line-height:1.4}
+  .yn{display:flex;gap:6px}
+  .yn button{border:1px solid var(--line);background:#fff;color:var(--ink2);height:30px;padding:0 14px;border-radius:7px;font-size:12px;font-weight:700}
+  .yn button.on-y{background:var(--green-soft);border-color:#9fe6cf;color:#0e8e62}
+  .yn button.on-n{background:var(--red-soft);border-color:#f3b6bd;color:#b91c2a}
+  .gate{font-size:12px;color:var(--amber);display:flex;gap:7px;align-items:center;margin-top:6px}
+  .gate.ok{color:var(--green)}
+  /* docusign tracker */
+  .track{display:flex;flex-direction:column;gap:0;margin-top:4px}
+  .tstep{display:flex;align-items:center;gap:12px;padding:10px 0;position:relative}
+  .tstep .mk{width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:700;background:#ececed;color:var(--ink3);z-index:1}
+  .tstep.done .mk{background:var(--green);color:#fff}
+  .tstep.cur .mk{background:var(--orange);color:#fff;box-shadow:0 0 0 4px var(--orange-soft)}
+  .tstep .lb{font-size:13px;color:var(--ink2);font-weight:600}
+  .tstep.done .lb,.tstep.cur .lb{color:var(--ink)}
+  .tstep::before{content:"";position:absolute;left:11px;top:24px;bottom:-2px;width:2px;background:var(--line);z-index:0}
+  .tstep:last-child::before{display:none}
+  .tstep.done::before{background:var(--green)}
+  /* timeline rail */
+  .rail-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px;color:var(--ink3)}
+  .rail-tabs .ic{width:30px;height:30px}
+  .rail-tabs .ic.active{color:var(--orange);background:var(--orange-soft)}
+  .tl{display:flex;flex-direction:column;gap:2px}
+  .tl .ev{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line2)}
+  .tl .ev .ck{width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;flex:none;font-size:12px}
+  .tl .ev .ck.q{background:#e7ebf1;color:var(--ink3)}
+  .tl .ev .tx b{display:block;font-size:13px;color:var(--ink);font-weight:700}
+  .tl .ev .tx span{font-size:11.5px;color:var(--ink3)}
+  /* ---------- Sales progress tracker ---------- */
+  .prog-meta{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .prog-bar{flex:1;height:7px;border-radius:5px;background:#ececed;overflow:hidden}
+  .prog-fill{height:100%;background:var(--green);border-radius:5px;transition:width .3s ease}
+  .prog-pct{font-size:11.5px;font-weight:700;color:var(--ink2);white-space:nowrap}
+  .steps{display:flex;flex-direction:column}
+  .step{display:flex;gap:11px;padding:9px 0;position:relative}
+  .step .mk{width:23px;height:23px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:700;background:#e7ebf1;color:var(--ink3);z-index:1}
+  .step.done .mk{background:var(--green);color:#fff}
+  .step.cur .mk{background:var(--orange);color:#fff;box-shadow:0 0 0 4px var(--orange-soft)}
+  .step .tx b{display:block;font-size:13px;font-weight:700;color:var(--ink3);line-height:1.25}
+  .step.done .tx b,.step.cur .tx b{color:var(--ink)}
+  .step.done .tx b{color:#0e8e62}
+  .step .tx span{font-size:11px;color:var(--ink3)}
+  .step.cur .tx span{color:var(--orange);font-weight:600}
+  .prog-stopnote{margin-top:12px;background:var(--red-soft);border:1px solid #f3b6bd;border-radius:9px;padding:9px 11px;font-size:11.5px;color:#b91c2a;font-weight:600;display:none}
+  .prog-stopnote.show{display:block}
+  /* Next pointer */
+  .prog-next{display:flex;align-items:center;gap:7px;background:var(--orange-soft);border:1px solid var(--orange-line);border-radius:9px;padding:9px 12px;margin-bottom:14px;font-size:12.5px;font-weight:700;color:#1176a1}
+  .prog-next .nx-lab{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;background:var(--orange);color:#fff;padding:2px 7px;border-radius:5px;font-weight:800}
+  .prog-next.done{background:var(--green-soft);border-color:#9fe6cf;color:#0e8e62}
+  /* phase groups */
+  .phase{margin-bottom:6px}
+  .phase-h{display:flex;align-items:center;gap:8px;width:100%;border:none;background:none;padding:8px 2px;font-family:inherit;cursor:pointer}
+  .phase-nm{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+  .phase-nm.done{color:#0e8e62}
+  .phase-ct{font-size:10.5px;font-weight:700;color:var(--ink3);background:#ececed;padding:2px 8px;border-radius:999px}
+  .phase-chev{margin-left:auto;color:var(--ink3);transition:transform .2s}
+  .phase.collapsed .phase-chev{transform:rotate(-90deg)}
+  .phase.collapsed .phase-body{display:none}
+  .phase-body{padding-left:2px}
+  /* footer */
+  .m-foot{display:flex;align-items:center;gap:10px;padding:13px 22px;background:#fff;border-top:1px solid var(--line)}
+  .m-foot .spacer{flex:1}
+  .ghost{height:38px;border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:9px;padding:0 16px;font-weight:600;font-size:12.5px;display:inline-flex;align-items:center;gap:7px}
+  .ghost:hover{background:#f6f7f9}
+  /* misc */
+  .chkline{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink2);padding:5px 0}
+  .chkline input{accent-color:var(--orange);width:15px;height:15px}
+  .pinfo{background:#fbfcfd;border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;gap:22px;flex-wrap:wrap}
+  .pinfo .it{display:flex;flex-direction:column;gap:2px}
+  .pinfo .it span{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);font-weight:700}
+  .pinfo .it b{font-size:14px;color:var(--ink);font-weight:700}
+  .addbtn{font-size:12px;font-weight:700;color:var(--orange);background:none;border:1px dashed var(--orange-line);padding:8px 12px;border-radius:8px;width:100%;margin-top:8px}
+  .addbtn:hover{background:var(--orange-soft)}
+  /* ---------- Callback scheduler (modal-on-modal) ---------- */
+  .cb-overlay{position:absolute;inset:0;background:rgba(20,28,45,.5);display:none;z-index:80;align-items:center;justify-content:center;padding:24px}
+  .cb-overlay.open{display:flex;animation:fade .15s ease}
+  .cb-dialog{background:#fff;border-radius:14px;box-shadow:var(--shadow-lg);width:560px;max-width:100%;max-height:100%;overflow:auto;display:flex;flex-direction:column}
+  .cb-head{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}
+  .cb-head .t{font-size:15px;font-weight:700;color:#2b3340}
+  .cb-head .sub{font-size:11.5px;color:var(--ink3);margin-top:1px}
+  .cb-x{margin-left:auto;width:30px;height:30px;border:none;background:transparent;color:var(--ink3);font-size:18px;border-radius:8px}
+  .cb-x:hover{background:#f0f1f3;color:var(--ink)}
+  .cb-body{padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+  .cb-for{background:#fbfcfd;border:1px solid var(--line);border-radius:9px;padding:10px 14px;display:flex;gap:22px;font-size:12.5px}
+  .cb-for .it span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);font-weight:700;margin-bottom:1px}
+  .cb-for .it b{color:var(--ink);font-weight:700;font-size:13px}
+  .cal{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#fbfcfd;border-bottom:1px solid var(--line2)}
+  .cal-nav b{font-size:13px;font-weight:700;color:var(--ink)}
+  .cal-nav button{width:28px;height:28px;border:1px solid var(--line);background:#fff;border-radius:7px;color:var(--ink2);font-size:14px;display:grid;place-items:center}
+  .cal-nav button:hover{background:#f0f1f3}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:8px}
+  .cal-dow{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink3);font-weight:700;text-align:center;padding:4px 0}
+  .cal-day{height:34px;border:none;background:transparent;border-radius:8px;font-size:12.5px;color:var(--ink);font-family:inherit;cursor:pointer}
+  .cal-day:hover{background:var(--orange-soft)}
+  .cal-day.muted{color:#c4cad4;cursor:default}
+  .cal-day.muted:hover{background:transparent}
+  .cal-day.today{box-shadow:inset 0 0 0 1.5px var(--orange-line)}
+  .cal-day.sel{background:var(--orange);color:#fff;font-weight:700}
+  .cal-day.past{color:#c4cad4;cursor:default}
+  .cal-day.past:hover{background:transparent}
+  .cb-times{display:flex;flex-direction:column;gap:6px}
+  .cb-times .vlabel{margin-bottom:2px}
+  .time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+  .time-slot{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 0;font-size:12px;font-weight:600;color:var(--ink2);font-family:inherit;cursor:pointer}
+  .time-slot:hover{border-color:var(--orange);color:var(--orange)}
+  .time-slot.sel{background:var(--orange);border-color:var(--orange);color:#fff}
+  .cb-foot{display:flex;align-items:center;gap:10px;padding:14px 20px;border-top:1px solid var(--line)}
+  .cb-summary{font-size:12.5px;color:var(--ink2)}
+  .cb-summary b{color:var(--ink)}
+  .cb-foot .spacer{flex:1}
+
+  .acc{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+  .acc-head{display:flex;align-items:center;gap:13px;width:100%;border:none;background:#fff;padding:15px 18px;text-align:left;font-family:inherit}
+  .acc-head:hover{background:#fbfcfd}
+  .acc-ic{width:30px;height:30px;border-radius:8px;background:var(--orange-soft);color:var(--orange);display:grid;place-items:center;flex:none}
+  .acc-titles{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .acc-tt{font-size:14px;font-weight:700;color:#2b3340;line-height:1.2}
+  .acc-tt .reqstar{color:var(--orange);margin-left:4px;font-weight:700}
+  .acc-sub{font-size:11.5px;color:var(--ink3);line-height:1.3}
+  .acc-meta{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .acc-chev{color:var(--ink3);transition:transform .2s}
+  .acc.open .acc-chev{transform:rotate(180deg)}
+  .acc.open .acc-head{border-bottom:1px solid var(--line2);background:var(--orange-soft)}
+  .acc.open .acc-tt{color:var(--orange)}
+  /* completed required section */
+  .acc.done .acc-ic{background:var(--green-soft);color:var(--green)}
+  .acc.done.open .acc-head{background:var(--green-soft)}
+  .acc.done.open .acc-tt{color:#0e8e62}
+  .acc-body{display:none;padding:18px}
+  .acc.open .acc-body{display:block;animation:fade .18s ease}
+  .acc-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
+  .acc-badge.req{background:var(--orange-soft);color:#1176a1}
+  .acc-badge.opt{background:#eef1f6;color:#5b6577}
+  .acc-badge.ok{background:var(--green-soft);color:#0e8e62}
+  /* verification result chips */
+  .verify-row{display:flex;align-items:stretch;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+  .verify-row .vbtn{flex:none}
+  .vbtn{height:44px;border-radius:9px;border:1px solid var(--orange);background:var(--orange);color:#fff;font-weight:700;font-size:13px;padding:0 18px;display:inline-flex;align-items:center;gap:8px;min-width:150px;justify-content:center}
+  .vbtn:hover{background:#1593c9}
+  .vbtn.busy{opacity:.7;pointer-events:none}
+  .vresult{flex:1;min-width:240px;border:1px solid var(--line);border-radius:9px;background:#fbfcfd;padding:0 14px;display:flex;align-items:center;gap:12px;min-height:44px;color:var(--ink3);font-size:13px}
+  .vresult.ok{background:var(--green-soft);border-color:#9fe6cf}
+  .vresult.warn{background:var(--amber-soft);border-color:#f0d486}
+  .vresult .score{font-size:22px;font-weight:800;color:var(--ink);line-height:1}
+  .vresult .grade{font-size:16px;font-weight:800;width:34px;height:34px;border-radius:8px;display:grid;place-items:center;color:#fff}
+  .vresult .vmeta b{color:var(--ink)}
+  .vlabel{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);font-weight:700;margin-bottom:3px}
+  /* equipment: included panel banner */
+  .panel-incl{display:flex;align-items:center;gap:12px;background:var(--orange-soft);border:1px solid var(--orange-line);border-radius:11px;padding:13px 16px;margin-bottom:6px}
+  .panel-incl .pi-ic{width:34px;height:34px;border-radius:9px;background:#fff;color:var(--orange);display:grid;place-items:center;flex:none}
+  .panel-incl .pi-tx b{display:block;font-size:13.5px;font-weight:700;color:#2b3340}
+  .panel-incl .pi-tx span{font-size:11.5px;color:var(--ink2)}
+  .panel-incl .pi-tag{margin-left:auto;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--orange);background:#fff;border:1px solid var(--orange-line);padding:4px 10px;border-radius:999px}
+  /* equipment: clean line rows */
+  .eq-grouphdr{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);font-weight:700;margin:18px 0 4px}
+  .eqline{display:flex;align-items:center;gap:13px;padding:11px 2px;border-top:1px solid var(--line2)}
+  .eqline:first-of-type{border-top:none}
+  .eqline .eq-ic{width:32px;height:32px;border-radius:9px;background:#f1f3f6;color:var(--slate);display:grid;place-items:center;flex:none;transition:background .12s,color .12s}
+  .eqline.on .eq-ic{background:var(--orange-soft);color:var(--orange)}
+  .eqline .eq-main{flex:1;min-width:0}
+  .eqline .eq-nm{font-size:13.5px;font-weight:600;color:var(--ink)}
+  .eqline .eq-priceline{margin-top:3px;font-size:11px;color:var(--ink3);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .eqline .eq-priceline .pp{color:var(--ink2);font-weight:600}
+  .eqline .eq-priceline .ppl{color:var(--ink3);font-weight:600}
+  .eqline .eq-priceline .pp.comp .ppl{color:var(--orange)}
+  .eqline .eq-priceline .pp.comp{color:var(--ink2)}
+  .eqline .eq-priceline .pp.accent{color:var(--orange);font-weight:700}
+  .eqline .eq-priceline .pp.accent b{font-weight:800}
+  .eqline .eq-priceline .dot{color:var(--line);font-weight:700}
+  .eqline.locked{background:var(--orange-soft);border-radius:9px;padding-left:10px;padding-right:10px;border-top:none;margin-bottom:6px}
+  .eqline .eq-fixed{font-size:11px;font-weight:700;color:var(--orange);background:#fff;border:1px solid var(--orange-line);border-radius:8px;padding:6px 12px;align-self:center}
+  .eq-core-tag{font-size:9.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--orange);background:#fff;border:1px solid var(--orange-line);border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+  .eqbreak{table-layout:fixed!important;width:100%!important;max-width:100%}
+  .eqbreak th.num,.eqbreak td.num{text-align:right}
+  .eqbreak th:nth-child(1),.eqbreak td:nth-child(1){width:40%}
+  .eqbreak th:nth-child(2),.eqbreak td:nth-child(2){width:14%}
+  .eqbreak th:nth-child(3),.eqbreak td:nth-child(3){width:23%}
+  .eqbreak th:nth-child(4),.eqbreak td:nth-child(4){width:23%}
+  .eqbreak td:nth-child(1){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .eqbreak tfoot td{border-top:2px solid var(--line);font-weight:800;color:var(--ink);padding-top:9px}
+  .eqbreak tfoot #bkMo{color:var(--orange)}
+  .eqline .eq-pr{font-size:12px;color:var(--ink3);width:64px;text-align:right}
+  .eqline .eq-pr b{color:var(--ink2);font-weight:700}
+  .eqline .stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .eqline .stepper button{width:30px;height:30px;border:none;background:#f6f8fa;color:var(--ink2);font-size:16px;font-weight:700;display:grid;place-items:center}
+  .eqline .stepper button:hover{background:#ececed}
+  .eqline .stepper button:disabled{opacity:.4;cursor:default}
+  .eqline .stepper .q{width:34px;text-align:center;font-size:13.5px;font-weight:800;color:var(--ink)}
+  .eqline.on .stepper{border-color:var(--orange-line)}
+  .eq-livebar{margin-top:18px;padding-top:16px;border-top:1px solid var(--line2)}
+  .elb-count{font-size:13px;color:var(--ink2);display:flex;align-items:center;gap:8px}
+  .elb-count b{color:var(--ink);font-weight:700}
+  .elb-paths{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .elb-path{border:1.5px solid var(--line);border-radius:11px;padding:13px 15px;background:#fff}
+  .elb-path.reco{border-color:var(--orange-line);background:#fffaf6}
+  .elb-ph{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:11px}
+  .elb-ptype{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3)}
+  .elb-path.reco .elb-ptype{color:var(--orange)}
+  .elb-ptot{font-size:21px;font-weight:800;color:var(--ink);letter-spacing:-.3px}
+  .elb-path.reco .elb-ptot{color:var(--orange)}
+  .elb-ptot small{font-size:11px;font-weight:600;color:var(--ink3);letter-spacing:0}
+  .elb-prow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px}
+  .elb-prow label{font-size:11.5px;color:var(--ink2);font-weight:600;white-space:nowrap}
+  .elb-prow select{height:34px;border:1px solid var(--line);border-radius:8px;padding:0 26px 0 10px;font-size:13px;font-weight:700;color:var(--ink);background:#fff;-webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M2 3.5L5 6.5L8 3.5' stroke='%238a93a6' fill='none' stroke-width='1.4'/></svg>");background-repeat:no-repeat;background-position:right 9px center;min-width:96px}
+  .elb-prow.muted{font-size:11.5px;color:var(--ink3)}
+  .elb-prow.muted b{color:var(--ink2);font-weight:700}
+  .elb-toggle{margin-top:14px;border:none;background:none;color:var(--orange);font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;font-family:inherit;padding:0}
+  .elb-toggle svg{transition:transform .2s}
+  .elb-toggle.open svg{transform:rotate(180deg)}
+  .elb-detail{margin-top:12px;animation:fade .18s ease}
+  .eqbreak-wrap{display:grid;grid-template-columns:minmax(0,1fr)}
+  .eqbreak-wrap .eqbreak{min-width:0}
+  .finloan-calc{margin-top:8px;font-size:12px;color:var(--ink2);background:var(--orange-soft);border:1px solid var(--orange-line);border-radius:8px;padding:8px 12px}
+  .finloan-calc b{color:#1176a1}
+  /* ---------- Tab 4 offer comparison ---------- */
+  .offer-summary{background:#fbfcfd;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+  .offer-summary .sh{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:#2b3340;margin-bottom:10px}
+  .offer-summary .sh .tag{margin-left:auto;font-size:11px;font-weight:600;color:var(--ink3);background:#eef1f6;padding:3px 10px;border-radius:999px}
+  .eq-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .eq-chip{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12.5px;color:var(--ink2)}
+  .eq-chip b{color:var(--ink)}
+  .eq-chip .qn{background:var(--orange-soft);color:#1176a1;font-weight:700;border-radius:6px;padding:1px 7px;font-size:11px}
+  .eq-chip .cmo{color:var(--ink3);font-size:11px}
+  .eq-chips .empty{color:var(--ink3);font-size:12.5px}
+  .offer-summary .stot{margin-top:11px;padding-top:11px;border-top:1px solid var(--line2);font-size:12.5px;color:var(--ink3)}
+  .offer-summary .stot b{color:var(--ink);font-weight:700}
+
+  .offers{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .offer{position:relative;border:1.5px solid var(--line);border-radius:14px;background:#fff;padding:20px;display:flex;flex-direction:column}
+  .offer.reco{border-color:var(--orange)}
+  .offer.disabled{opacity:.5;filter:grayscale(.4)}
+  .offer.selected{border-color:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .offer .ribbon{position:absolute;top:-11px;left:18px;background:var(--orange);color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:4px 11px;border-radius:999px;display:flex;align-items:center;gap:5px}
+  .offer .otype{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+  .offer.reco .otype{color:var(--orange)}
+  .offer .ohero{margin:8px 0 4px;display:flex;align-items:baseline;gap:8px}
+  .offer .ohero .amt{font-size:34px;font-weight:800;letter-spacing:-.5px;color:var(--ink);line-height:1}
+  .offer.reco .ohero .amt{color:var(--orange)}
+  .offer .ohero .per{font-size:12px;color:var(--ink3);font-weight:600}
+  .offer .olines{margin-top:14px}
+  .offer .oline{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;color:var(--ink2)}
+  .offer .oline + .oline{border-top:1px solid var(--line2)}
+  .offer .oline b{color:var(--ink);font-weight:700}
+  .offer .odue{margin-top:12px;padding-top:12px;border-top:2px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;font-size:14px;font-weight:800;color:var(--ink)}
+  .offer .odue .amt{font-size:20px}
+  .offer.reco .odue .amt{color:var(--orange)}
+  .offer .obadge{margin-top:12px;font-size:12px;font-weight:700;padding:8px 12px;border-radius:9px;display:flex;align-items:center;gap:8px}
+  .offer .obadge.loan{background:var(--green-soft);color:#0e8e62}
+  .offer .obadge.muted{background:#f1f3f6;color:var(--ink3)}
+  .offer .osay{margin-top:12px;font-size:11.5px;color:var(--ink3);line-height:1.45;background:#fbfcfd;border:1px dashed var(--line);border-radius:9px;padding:9px 11px}
+  .offer .osay b{color:var(--ink2)}
+  .offer .ofee{margin-top:8px;font-size:11px;color:var(--orange);font-weight:600;line-height:1.4}
+  .offer .rmrpick{margin-top:14px}
+  .offer .opaid{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink2);margin-top:12px;padding:10px 12px;background:#fbfcfd;border:1px solid var(--line);border-radius:9px}
+  .offer .opaid input{accent-color:var(--orange);width:15px;height:15px}
+  .offer .osel{margin-top:16px;height:42px;border-radius:10px;border:1.5px solid var(--line);background:#fff;color:var(--ink2);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+  .offer.reco .osel{border-color:var(--orange);background:var(--orange);color:#fff}
+  .offer .osel:hover{filter:brightness(.97)}
+  .offer.selected .osel{border-color:var(--green);background:var(--green);color:#fff}
+  .offer-na{font-size:11.5px;color:var(--red);font-weight:600;margin-top:8px;display:none}
+  .offer.disabled .offer-na{display:block}
+  .decline-box{display:none;background:#fff7ed;border:1px solid var(--orange-line);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+  .decline-box.show{display:block;animation:fade .18s ease}
+  .decline-box h3{margin:0 0 4px;font-size:14px;font-weight:700;color:#1176a1;display:flex;align-items:center;gap:8px}
+  .offer-gate{display:flex;align-items:center;gap:10px;background:#fbfcfd;border:1px dashed var(--line);border-radius:12px;padding:16px 18px;font-size:13px;color:var(--ink3);font-weight:600;margin-bottom:16px}
+  .offer-gate svg{color:var(--orange);flex:none}
+  .prereq-nudge{display:flex;align-items:center;gap:9px;background:var(--amber-soft);border:1px solid #f0d486;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#9a6a06;font-weight:600;margin-bottom:16px}
+  .prereq-nudge svg{color:var(--amber);flex:none}
+  /* deal summary */
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .sum-item{background:#fbfcfd;border:1px solid var(--line);border-radius:10px;padding:11px 14px}
+  .sum-item .sl{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink3);font-weight:700;display:flex;align-items:center;gap:8px}
+  .sum-item .sl .edit{margin-left:auto;font-size:10.5px;color:var(--orange);font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0}
+  .sum-item .sv{font-size:13.5px;color:var(--ink);font-weight:700;margin-top:3px}
+  .sum-item .sv small{font-weight:500;color:var(--ink3)}
+  .sum-item.full{grid-column:1 / -1}
+  /* scripted survey */
+  .survey-q{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-top:1px solid var(--line2)}
+  .survey-q:first-child{border-top:none}
+  .survey-q .qn{width:22px;height:22px;border-radius:50%;background:#eef0f3;color:var(--ink3);font-size:11px;font-weight:800;display:grid;place-items:center;flex:none;margin-top:1px}
+  .survey-q.yes .qn{background:var(--green);color:#fff}
+  .survey-q.no .qn{background:var(--red);color:#fff}
+  .survey-q .qx{flex:1;font-size:13px;color:var(--ink);line-height:1.45}
+  .survey-q .qx b{color:var(--ink);font-weight:800}
+  .survey-q .qx .blank{background:var(--orange-soft);color:#1176a1;font-weight:800;padding:1px 7px;border-radius:5px}
+  .foot-prog{font-size:12px;font-weight:700;color:var(--ink3);margin-right:4px}
+  .submit-deal{background:var(--green);border-color:var(--green);color:#fff;font-weight:700}
+  .submit-deal:hover{background:#128a3e}
+  .submit-deal:disabled{opacity:.4;cursor:default;pointer-events:none}
+  .sample-badge{font-size:9px;font-weight:800;letter-spacing:.08em;color:var(--ink3);background:#ececed;border:1px solid var(--line);padding:3px 8px;border-radius:6px}
+  /* shipping resolve + confirm */
+  .shipdate{margin-top:14px;display:inline-flex;align-items:center;gap:9px;background:var(--orange-soft);border:1px solid var(--orange-line);border-radius:9px;padding:9px 14px;font-size:13px;color:var(--ink2)}
+  .shipdate b{color:#1176a1;font-weight:700}
+  .ship-confirm{margin-top:16px;padding-top:14px;border-top:1px solid var(--line2);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .ship-status{font-size:12.5px;color:var(--ink3);font-weight:600}
+  .ship-status.sent{color:#0e8e62}
+  .ship-confirm.done .btn{background:var(--green);border-color:var(--green)}
+
+    .kpis{grid-template-columns:1fr 1fr}
+    .grid4{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:880px){
+    .m-rail{display:none}
+  }
+  @media (max-width:640px){
+    .kpis{grid-template-columns:1fr}
+    .grid2,.grid3,.grid4{grid-template-columns:1fr}
+    .search{flex-basis:100%;max-width:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<div class="topbar">
+  <h1>Inside Sales Queue</h1>
+  <div class="top-right">
+    <select class="sel"><option>Manager</option><option>Rep</option></select>
+    <select class="sel"><option>All Reps</option><option>A. Reyes</option><option>M. Cole</option><option>S. Pham</option><option>T. Banks</option></select>
+    <button class="ic" title="Messages"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+    <button class="ic" title="Notifications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></button>
+    <button class="ic" title="Settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <div class="who"><span class="avatar">J</span>Jacob Olson</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ KPI CARDS ============ -->
+  <div class="kpis">
+    <!-- Stage funnel -->
+    <div class="kpi">
+      <div class="kpi-h"><span class="gi">▦</span> Pipeline by Stage</div>
+      <div class="donut-row">
+        <div class="donut-wrap">
+          <svg viewBox="0 0 42 42" width="108" height="108">
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#ececed" stroke-width="6"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#4b50ec" stroke-width="6" stroke-dasharray="16.7 83.3" stroke-dashoffset="25" transform="rotate(-90 21 21)"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#c98a16" stroke-width="6" stroke-dasharray="25 75" stroke-dashoffset="8.3" transform="rotate(-90 21 21)"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#5f636a" stroke-width="6" stroke-dasharray="16.7 83.3" stroke-dashoffset="-16.7" transform="rotate(-90 21 21)"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#23ade8" stroke-width="6" stroke-dasharray="8.3 91.7" stroke-dashoffset="-33.4" transform="rotate(-90 21 21)"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#1fb87f" stroke-width="6" stroke-dasharray="33.3 66.7" stroke-dashoffset="-41.7" transform="rotate(-90 21 21)"/>
+          </svg>
+          <div class="donut-center"><b>12</b><span>ACCOUNTS</span></div>
+        </div>
+        <div class="legend">
+          <div class="row"><span class="nm"><span class="dot" style="background:#4b50ec"></span>In Progress</span><span class="vl">2</span></div>
+          <div class="row"><span class="nm"><span class="dot" style="background:#c98a16"></span>Contract Sent</span><span class="vl">3</span></div>
+          <div class="row"><span class="nm"><span class="dot" style="background:#5f636a"></span>Signed</span><span class="vl">2</span></div>
+          <div class="row"><span class="nm"><span class="dot" style="background:#23ade8"></span>In Fulfillment</span><span class="vl">1</span></div>
+          <div class="row"><span class="nm"><span class="dot" style="background:#1fb87f"></span>Installed</span><span class="vl">4</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projected pay -->
+    <div class="kpi">
+      <div class="kpi-h"><span class="gi">$</span> Projected Pay — This Week</div>
+      <div style="margin-top:8px"><span class="big">$600<small>at $150 / payable install</small></span></div>
+      <div class="ledger">
+        <div class="row"><span>Total installs</span><b>5</b></div>
+        <div class="row warn"><span>Pending cancellation</span><b>−1</b></div>
+        <div class="row"><span>Payable installs</span><b>4</b></div>
+      </div>
+    </div>
+
+    <!-- Top reps -->
+    <div class="kpi">
+      <div class="kpi-h"><span class="gi">⧉</span> Top Reps — Installs</div>
+      <div class="donut-row">
+        <div class="donut-wrap">
+          <svg viewBox="0 0 42 42" width="108" height="108">
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#ececed" stroke-width="6"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#23ade8" stroke-width="6" stroke-dasharray="40 60" stroke-dashoffset="25" transform="rotate(-90 21 21)"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#5f636a" stroke-width="6" stroke-dasharray="30 70" stroke-dashoffset="-15" transform="rotate(-90 21 21)"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#c98a16" stroke-width="6" stroke-dasharray="20 80" stroke-dashoffset="-45" transform="rotate(-90 21 21)"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#1fb87f" stroke-width="6" stroke-dasharray="10 90" stroke-dashoffset="-65" transform="rotate(-90 21 21)"/>
+          </svg>
+          <div class="donut-center"><b>10</b><span>INSTALLS</span></div>
+        </div>
+        <div class="legend">
+          <div class="row"><span class="nm"><span class="dot" style="background:#23ade8"></span>A. Reyes</span><span class="vl">4</span></div>
+          <div class="row"><span class="nm"><span class="dot" style="background:#5f636a"></span>M. Cole</span><span class="vl">3</span></div>
+          <div class="row"><span class="nm"><span class="dot" style="background:#c98a16"></span>S. Pham</span><span class="vl">2</span></div>
+          <div class="row"><span class="nm"><span class="dot" style="background:#1fb87f"></span>T. Banks</span><span class="vl">1</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Installs trend -->
+    <div class="kpi">
+      <div class="kpi-h">📈 Installs — Last 14 Days <span class="pill-leg"><span class="dot" style="background:#1fb87f"></span>Installs</span></div>
+      <svg class="line" viewBox="0 0 320 120" preserveAspectRatio="none">
+        <polyline fill="none" stroke="#1fb87f" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"
+          points="4,92 28,80 52,86 76,64 100,72 124,52 148,60 172,40 196,48 220,34 244,42 268,26 292,32 316,16"/>
+        <polygon fill="rgba(22,163,74,.07)" points="4,92 28,80 52,86 76,64 100,72 124,52 148,60 172,40 196,48 220,34 244,42 268,26 292,32 316,16 316,120 4,120"/>
+      </svg>
+      <div class="xlab"><span>06/11</span><span>06/15</span><span>06/19</span><span>06/24</span></div>
+    </div>
+  </div>
+
+  <!-- ============ CONTROLS ============ -->
+  <div class="controls">
+    <div class="search"><input id="q" placeholder="Search account, customer, rep…"><button class="go"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button></div>
+    <div class="daterange"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> mm/dd/yyyy – mm/dd/yyyy</div>
+    <div class="seg">
+      <label><input type="radio" name="view" value="inprogress" checked onchange="applyView()"> In Progress</label>
+      <label><input type="radio" name="view" value="installed" onchange="applyView()"> Published/Installed</label>
+      <label><input type="radio" name="view" value="notsold" onchange="applyView()"> Not Sold</label>
+      <label><input type="radio" name="view" value="cancelled" onchange="applyView()"> Cancelled</label>
+      <label><input type="radio" name="view" value="all" onchange="applyView()"> All</label>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn primary" id="clearFilters">Clear Filters</button>
+    <button class="btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Export ▾</button>
+    <button class="btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 3H2l8 9.5V19l4 2v-8.5z"/></svg> Filters</button>
+  </div>
+
+  <!-- ============ TABLE ============ -->
+  <div class="tablecard">
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Account #<span class="cr">▲</span></th>
+            <th>Date Created<span class="cr">↕</span></th>
+            <th>Customer<span class="cr">↕</span></th>
+            <th>Rep<span class="cr">↕</span></th>
+            <th>Lead Type<span class="cr">↕</span></th>
+            <th>Channel Partner<span class="cr">↕</span></th>
+            <th>Stage<span class="cr">↕</span></th>
+            <th>RMR<span class="cr">↕</span></th>
+            <th>Term<span class="cr">↕</span></th>
+            <th>DocuSign<span class="cr">↕</span></th>
+            <th>Payment Type<span class="cr">↕</span></th>
+            <th>Shipping<span class="cr">↕</span></th>
+            <th>Est. Delivery<span class="cr">↕</span></th>
+            <th>Not Sold Reason<span class="cr">↕</span></th>
+            <th class="col-cxl" style="display:none">Primary Reason<span class="cr">↕</span></th>
+            <th class="col-cxl" style="display:none">Secondary Reason<span class="cr">↕</span></th>
+            <th>Pending Cancel<span class="cr">↕</span></th>
+            <th>Last Modified<span class="cr">↕</span></th>
+          </tr>
+        </thead>
+        <tbody id="rows"><!-- injected --></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL ============ -->
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="m-head">
+      <span class="t">Account Setup</span>
+      <span class="acctbadge" id="mAcct">AR124</span>
+      <span class="sample-badge" title="All figures are placeholders for review">SAMPLE DATA</span>
+      <span class="m-status" id="mStage"></span>
+      <label class="dryrun-toggle"><input type="checkbox" id="dryRun" onchange="toggleDryRun()"> <span>Dry-run mode</span></label>
+      <button class="m-close" id="closeX" aria-label="Close">×</button>
+    </div>
+
+    <!-- tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="customer"><span class="n">1</span> Customer Information</button>
+      <button class="tab" data-tab="equipment"><span class="n">2</span> Equipment &amp; Billing</button>
+      <button class="tab" data-tab="security"><span class="n">3</span> Security &amp; Contacts</button>
+      <button class="tab" data-tab="contract"><span class="n">4</span> Contract &amp; Fulfillment</button>
+    </div>
+
+    <div class="m-body">
+      <div class="m-main">
+
+        <!-- ===== TAB 1: CUSTOMER ===== -->
+        <section class="panel active" data-panel="customer">
+
+          <!-- 1. Customer Details -->
+          <div class="acc open" id="acc-cust">
+            <button class="acc-head" onclick="toggleAcc('acc-cust')">
+              <span class="acc-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg></span>
+              <span class="acc-titles"><span class="acc-tt">Customer Details<span class="reqstar">*</span></span><span class="acc-sub">Primary customer — required to generate contract</span></span>
+              <span class="acc-meta"><span class="acc-badge req" id="badge-cust">Required</span><svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="acc-body">
+              <div class="grid3">
+                <div class="fld"><label>Lead Type <span class="req">*</span></label><select><option value="">Select One</option><option>Inbound Call</option><option>Web Lead</option><option>Referral</option><option>Door Knock</option><option>Reactivation</option></select></div>
+                <div class="fld"><label>Language Preference <span class="req">*</span></label><select><option value="">Select One</option><option>English</option><option>Spanish</option></select></div>
+                <div class="fld"><label>Customer Name <span class="req">*</span></label><input value="Maria Lopez" id="custName"></div>
+              </div>
+              <div class="grid3" style="margin-top:14px">
+                <div class="fld"><label>Date of Birth <span class="req">*</span></label><input type="text" value="03/14/1985" placeholder="mm/dd/yyyy"></div>
+                <div class="fld"><label>SSN</label><input placeholder="XXX-XX-XXXX"></div>
+                <div class="fld"><label>Email Address <span class="req">*</span></label><input value="maria.lopez@email.com"></div>
+              </div>
+              <div class="grid3" style="margin-top:14px">
+                <div class="fld"><label>Primary Phone <span class="req">*</span></label><input value="(602) 555-0148"><div class="note ok">✓ Verified mobile / cell number</div></div>
+                <div class="fld"><label>Secondary Phone</label><input placeholder="(___) ___-____"></div>
+                <div class="fld"><label>&nbsp;</label><div class="note warn" style="height:38px;align-items:center">⚠ Landline numbers trigger a warning</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Service Address -->
+          <div class="acc" id="acc-svc">
+            <button class="acc-head" onclick="toggleAcc('acc-svc')">
+              <span class="acc-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg></span>
+              <span class="acc-titles"><span class="acc-tt">Service Address<span class="reqstar">*</span></span><span class="acc-sub">Verified via address API — prevents duplicate accounts</span></span>
+              <span class="acc-meta"><span class="acc-badge req" id="badge-svc">Required</span><svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="acc-body">
+              <div class="grid2">
+                <div class="fld"><label>Street Address <span class="req">*</span></label><input value="1428 Camelback Rd"></div>
+                <div class="fld"><label>Apt / Suite</label><input placeholder="Optional"></div>
+              </div>
+              <div class="grid4" style="margin-top:14px">
+                <div class="fld"><label>ZIP Code <span class="req">*</span></label><input value="85014"></div>
+                <div class="fld"><label>City</label><input value="Phoenix" readonly style="background:#f6f8fa"></div>
+                <div class="fld"><label>State</label><input value="AZ" readonly style="background:#f6f8fa"></div>
+                <div class="fld"><label>&nbsp;</label><div class="note ok" style="height:38px;align-items:center">✓ Address verified — no active account found</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Billing Address -->
+          <div class="acc" id="acc-bill">
+            <button class="acc-head" onclick="toggleAcc('acc-bill')">
+              <span class="acc-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>
+              <span class="acc-titles"><span class="acc-tt">Billing Address<span class="reqstar">*</span></span><span class="acc-sub">Same as service address</span></span>
+              <span class="acc-meta"><span class="acc-badge req" id="badge-bill">Required</span><svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="acc-body">
+              <div class="radio-line" style="margin-bottom:10px">
+                <label><input type="radio" name="bill" id="billSame" checked onclick="toggleBilling()"> Same as service address</label>
+                <label><input type="radio" name="bill" onclick="toggleBilling()"> Different billing address</label>
+              </div>
+              <div id="billFields" style="display:none">
+                <div class="grid2">
+                  <div class="fld"><label>Street Address <span class="req">*</span></label><input></div>
+                  <div class="fld"><label>Apt / Suite</label><input placeholder="Optional"></div>
+                </div>
+                <div class="grid4" style="margin-top:14px">
+                  <div class="fld"><label>ZIP Code <span class="req">*</span></label><input></div>
+                  <div class="fld"><label>City</label><input readonly style="background:#f6f8fa"></div>
+                  <div class="fld"><label>State</label><input readonly style="background:#f6f8fa"></div>
+                  <div class="fld"><label>&nbsp;</label><div class="note ok" style="height:38px;align-items:center">✓ Auto-verifies on entry</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Verification -->
+          <div class="acc" id="acc-verify">
+            <button class="acc-head" onclick="toggleAcc('acc-verify')">
+              <span class="acc-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-3.6 7.5-8.5 9C7.6 19.5 4 17 4 12V6l8-3 8 3z"/></svg></span>
+              <span class="acc-titles"><span class="acc-tt">Verification<span class="reqstar">*</span></span><span class="acc-sub">Proof of homeownership &amp; credit check</span></span>
+              <span class="acc-meta"><span class="acc-badge req" id="badge-verify">Required</span><svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="acc-body">
+              <div class="vlabel">Proof of Homeownership (POH)</div>
+              <div class="verify-row">
+                <button class="vbtn" id="pohBtn" onclick="runPOH()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg> Run POH Check</button>
+                <div class="vresult" id="pohResult">Not run yet — verifies the customer owns the service address.</div>
+              </div>
+              <div class="divider"></div>
+              <div class="vlabel">Credit Check</div>
+              <div class="verify-row">
+                <button class="vbtn" id="creditBtn" onclick="runCredit()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Run Credit Check</button>
+                <div class="vresult" id="creditResult">Not run yet — returns a numerical score and letter grade.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Consumer Finance Info -->
+          <div class="acc" id="acc-finance">
+            <button class="acc-head" onclick="toggleAcc('acc-finance')">
+              <span class="acc-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg></span>
+              <span class="acc-titles"><span class="acc-tt">Consumer Finance Info<span class="reqstar">*</span></span><span class="acc-sub">Bank financing eligibility — required when credit ≥ 600</span></span>
+              <span class="acc-meta"><span class="acc-badge req" id="badge-finance">Required</span><svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="acc-body">
+              <div id="finGate" class="note warn" style="margin-bottom:14px">⚠ Run the Credit Check first — financing eligibility opens automatically once a score of 600+ comes back.</div>
+              <div class="grid3">
+                <div class="fld"><label>Last 4 of SSN <span class="req">*</span></label><input id="finSSN" maxlength="4" inputmode="numeric" placeholder="••••"></div>
+                <div class="fld"><label>Gross Household Income <span class="req">*</span></label><input id="finIncome" inputmode="numeric" placeholder="$ / year"></div>
+                <div class="fld"><label>&nbsp;</label></div>
+              </div>
+              <div class="verify-row" style="margin-top:14px">
+                <button class="vbtn" id="finBtn" onclick="runFinance()" disabled style="opacity:.5;pointer-events:none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Verify Eligibility</button>
+                <div class="vresult" id="finResult">Not run yet — bank returns a loan approval amount or a denial.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Customer 2 (optional) -->
+          <div class="acc" id="acc-cust2">
+            <button class="acc-head" onclick="toggleAcc('acc-cust2')">
+              <span class="acc-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="3.2"/><path d="M22 21v-1a4 4 0 0 0-3-3.85"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+              <span class="acc-titles"><span class="acc-tt">Customer 2</span><span class="acc-sub">Optional co-applicant — not required to continue</span></span>
+              <span class="acc-meta"><span class="acc-badge opt">Optional</span><svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="acc-body">
+              <div class="grid3">
+                <div class="fld"><label>Lead Type</label><select><option value="">Select One</option><option>Inbound Call</option><option>Web Lead</option><option>Referral</option><option>Door Knock</option><option>Reactivation</option></select></div>
+                <div class="fld"><label>Language Preference</label><select><option value="">Select One</option><option>English</option><option>Spanish</option></select></div>
+                <div class="fld"><label>Customer Name</label><input placeholder="Co-applicant name"></div>
+              </div>
+              <div class="grid3" style="margin-top:14px">
+                <div class="fld"><label>Date of Birth</label><input placeholder="mm/dd/yyyy"></div>
+                <div class="fld"><label>SSN</label><input placeholder="XXX-XX-XXXX"></div>
+                <div class="fld"><label>Email Address</label><input placeholder="name@email.com"></div>
+              </div>
+              <div class="grid3" style="margin-top:14px">
+                <div class="fld"><label>Primary Phone</label><input placeholder="(___) ___-____"></div>
+                <div class="fld"><label>Secondary Phone</label><input placeholder="(___) ___-____"></div>
+                <div class="fld"><label>&nbsp;</label><div class="note" style="height:38px;align-items:center;color:var(--ink3)">Phone &amp; email validated when entered</div></div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ===== TAB 2: EQUIPMENT & BILLING ===== -->
+        <section class="panel" data-panel="equipment">
+
+          <!-- 1. Install Details -->
+          <div class="acc open" id="acc-install">
+            <button class="acc-head" onclick="toggleAcc('acc-install')">
+              <span class="acc-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4l-6 6a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l6-6a4 4 0 0 0 5.4-5.4l-2.5 2.5-2-2z"/></svg></span>
+              <span class="acc-titles"><span class="acc-tt">Install Details<span class="reqstar">*</span></span><span class="acc-sub">Included Sybersense panel &amp; assigned technician</span></span>
+              <span class="acc-meta"><span class="acc-badge ok" id="badge-install">✓ Complete</span><svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="acc-body">
+              <div class="panel-incl" style="margin-bottom:14px">
+                <span class="pi-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M9 16h6"/></svg></span>
+                <span class="pi-tx"><b>Sybersense Panel + DIY Tech</b><span>Included on every package — the foundation of the system</span></span>
+                <span class="pi-tag">Included</span>
+              </div>
+              <div class="grid3">
+                <div class="fld"><label>Technician <span class="req">*</span></label><select><option value="">Select One</option><option>DIY Tech</option><option>Field Tech — Phoenix</option><option>Field Tech — Dallas</option></select></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Add Equipment -->
+          <div class="acc open" id="acc-equip">
+            <button class="acc-head" onclick="toggleAcc('acc-equip')">
+              <span class="acc-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7l-8-4-8 4 8 4 8-4zM4 7v10l8 4 8-4V7M12 11v10"/></svg></span>
+              <span class="acc-titles"><span class="acc-tt">Add Equipment</span><span class="acc-sub">Build on the included Sybersense panel</span></span>
+              <span class="acc-meta"><span class="acc-badge opt" id="badge-equip">0 devices</span><svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="acc-body">
+              <div class="eq-grouphdr">Core — required on every account</div>
+              <div id="tiles-core"></div>
+              <div class="eq-grouphdr">Sensors</div>
+              <div id="tiles-sensors"></div>
+              <div class="eq-grouphdr">Life Safety</div>
+              <div id="tiles-life"></div>
+              <div class="eq-grouphdr">Cameras</div>
+              <div id="tiles-cam"></div>
+              <div class="eq-grouphdr">Access</div>
+              <div id="tiles-access"></div>
+              <div class="eq-livebar">
+                <div class="elb-count" style="margin-bottom:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.8"><path d="M20 7l-8-4-8 4 8 4 8-4zM4 7v10l8 4 8-4V7"/></svg> <b id="eqCount">0</b> devices added · <span style="color:var(--ink3)">financed <b id="elbRetail" style="color:var(--ink2)">$0</b></span></div>
+                <button class="elb-toggle" id="elbToggle" onclick="toggleEqBreakdown()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg> <span id="elbToggleLabel">Show equipment breakdown</span></button>
+                <div class="elb-detail" id="elbDetail" style="display:none">
+                  <div class="eqbreak-wrap">
+                  <table class="minitable eqbreak">
+                    <thead><tr><th>Device</th><th class="num">Qty</th><th class="num">Finance</th><th class="num">Finance /mo</th></tr></thead>
+                    <tbody id="eqBreakdown"></tbody>
+                    <tfoot><tr id="eqBreakTotal"><td>Total</td><td class="num" id="bkQty">0</td><td class="num" id="bkFin">$0.00</td><td class="num" id="bkMo">$0.00/mo</td></tr></tfoot>
+                  </table>
+                  </div>
+                  <div class="finloan-calc" id="finLoanCalc"></div>
+                  <p class="hint" style="margin-top:8px">Financed monthly (Finance option) = total equipment finance price ÷ contract term. Standard absorbs equipment into the rep-set RMR.</p>
+                </div>
+                <span style="display:none"><span id="elbFinance"></span><span id="elbStandard"></span><span id="elbFinEquip"></span><select id="stdRmrPick" onchange="syncStdRmr()"></select></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Contract Terms -->
+          <div class="acc" id="acc-terms">
+            <button class="acc-head" onclick="toggleAcc('acc-terms')">
+              <span class="acc-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></span>
+              <span class="acc-titles"><span class="acc-tt">Contract Terms<span class="reqstar">*</span></span><span class="acc-sub">Term, fees &amp; monitoring rate</span></span>
+              <span class="acc-meta"><span class="acc-badge ok" id="badge-terms">✓ Complete</span><svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="acc-body">
+              <div class="grid3">
+                <div class="fld"><label>Contract Term <span class="req">*</span></label><select id="term" onchange="recalc();renderTiles();updateEqSummary();markStep(&#39;terms&#39;,true)"><option value="">Select One</option><option>60 Months</option><option>36 Months</option></select></div>
+                <div class="fld"><label>Activation Fee <span class="req">*</span></label><select id="actfee" onchange="recalc();markStep(&#39;terms&#39;,true)"><option value="">Select One</option><option value="199">$199 (financed default)</option><option value="99">$99</option><option value="49">$49</option><option value="0">$0</option></select></div>
+                <div class="fld"><label>Payment Method <span class="req">*</span></label><select><option value="">Select One</option><option>Credit Card</option><option>Debit Card</option></select></div>
+              </div>
+              <p class="hint" style="margin-top:12px">Monitoring rate (RMR) is set per option below — Finance and Standard each have their own rate.</p>
+              <span style="display:none"><select id="rmr"><option value=""></option></select><input type="checkbox" id="paidUpfront"></span>
+            </div>
+          </div>
+
+          <!-- ===== Present & select the offer (lives with the build) ===== -->
+          <div class="acc open" id="acc-offer">
+            <button class="acc-head" onclick="toggleAcc('acc-offer')">
+              <span class="acc-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 8h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M9 8V5a3 3 0 0 1 6 0v3M9 13h6"/></svg></span>
+              <span class="acc-titles"><span class="acc-tt">Present &amp; Select Offer<span class="reqstar">*</span></span><span class="acc-sub">Finance vs. Standard — adjust equipment/terms above and these update live</span></span>
+              <span class="acc-meta"><span class="acc-badge req" id="badge-offer">Required</span><svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="acc-body">
+              <div class="prereq-nudge" id="prereqNudge" style="display:none">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                <span id="prereqText">Run the credit check &amp; finance eligibility on the Customer Information tab to enable the finance option.</span>
+              </div>
+
+              <div class="offers">
+                <!-- FINANCE -->
+                <div class="offer reco" id="offerFinance">
+                  <div class="ribbon"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.8L12 17.3 5.8 20.9l1.6-6.8L2.2 8.9l6.9-.6z"/></svg> Recommended</div>
+                  <div class="otype">Finance</div>
+                  <div class="ohero"><span class="amt" id="finTotalMo">—</span><span class="per">/mo total</span></div>
+                  <div class="rmrpick">
+                    <div class="fld"><label>Monitoring Rate (RMR) — finance band $39.99–$49.99</label>
+                      <select id="finRmrPick" onchange="updateEqSummary()"></select>
+                    </div>
+                  </div>
+                  <div class="olines">
+                    <div class="oline"><span>Monitoring (RMR)</span><b id="finRmr">set RMR</b></div>
+                    <div class="oline"><span>Equipment + activation financed</span><b id="finEquipMo">$0.00/mo</b></div>
+                  </div>
+                  <div class="odue"><span>Due today</span><span class="amt" id="finDue">$0.00</span></div>
+                  <div class="ofee" id="finFee">Activation fee rolls into the financed loan — nothing collected upfront.</div>
+                  <div class="obadge loan" id="finLoan">Run finance eligibility on Tab 1 to enable</div>
+                  <div class="osay">Same monitoring as standard, but almost <b>nothing down today</b> — the equipment rolls into a low monthly. Best for customers who want to keep upfront cost low.</div>
+                  <button class="osel" onclick="selectOffer('finance')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg> Select Finance</button>
+                  <div class="offer-na">Not available — requires an approved finance eligibility (credit ≥ 600).</div>
+                </div>
+
+                <!-- STANDARD -->
+                <div class="offer" id="offerStandard">
+                  <div class="otype">Standard</div>
+                  <div class="ohero"><span class="amt" id="stdTotalMo">—</span><span class="per">/mo total</span></div>
+                  <div class="rmrpick">
+                    <div class="fld"><label>Monitoring Rate (RMR) — full range, rep priced</label>
+                      <select id="stdRmr" onchange="syncStdRmrFromCard()"><option value="">Select One</option></select>
+                    </div>
+                  </div>
+                  <div class="olines">
+                    <div class="oline"><span>Monitoring (RMR)</span><b id="stdRmrLine">set RMR</b></div>
+                    <div class="oline"><span>Equipment</span><b id="stdEquipLine">Included in rate</b></div>
+                  </div>
+                  <div class="odue"><span>Due today</span><span class="amt" id="stdDue">$0.00</span></div>
+                  <div class="ofee" id="stdFee">First payment incl. activation fee — collected on the Finalize tab.</div>
+                  <label class="opaid"><input type="checkbox" id="stdPaidUpfront" onchange="recalcOffers()"> Customer pays equipment in full upfront <span style="color:var(--ink3)">→ RMR $39.99</span></label>
+                  <div class="osay">Lower monthly, but the rep prices the <b>RMR by hand</b> based on the gear given. Equipment is bundled into the rate, or paid in full upfront.</div>
+                  <button class="osel" onclick="selectOffer('standard')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg> Select Standard</button>
+                </div>
+              </div>
+
+              <!-- Decline reason (only when standard chosen over available finance) -->
+              <div class="decline-box" id="declineBox">
+                <h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg> Customer declined financing</h3>
+                <p class="hint" style="margin-bottom:12px">Finance was approved but the customer chose Standard — capture why for reporting.</p>
+                <div class="grid2">
+                  <div class="fld"><label>Decline Reason <span class="req">*</span></label><select id="declineReason"><option value="">Select a reason…</option><option>Prefers to own equipment</option><option>Doesn't want a loan / credit line</option><option>Will pay equipment upfront</option><option>Monthly too high with financing</option><option>Other (see notes)</option></select></div>
+                  <div class="fld"><label>Notes</label><input id="declineNotes" placeholder="Optional detail"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- hidden placeholders consumed by recalc() -->
+          <div style="display:none">
+            <span id="fMon"></span><span id="fEquip"></span><span id="fDisc"></span><span id="fTotal"></span>
+            <span id="fAct"></span><span id="fTax"></span><span id="fDue"></span>
+            <span id="offerEqChips"></span><span id="offerEqValue"></span><span id="offerEqCount"></span>
+            <select id="promo"><option value="0">None</option></select>
+            <table><tbody id="finBreakdown"></tbody></table>
+          </div>
+        </section>
+
+
+
+        <!-- ===== TAB 3: SECURITY & CONTACTS ===== -->
+        <section class="panel" data-panel="security">
+          <div class="sec">
+            <h3>Account Security</h3>
+            <p class="hint">Used by support to verify the customer. Alarm code must be exactly 4 digits.</p>
+            <div class="grid2">
+              <div class="fld"><label>Verbal Passcode <span class="req">*</span></label><input value="bluejay" placeholder="Spoken password for verification"></div>
+              <div class="fld"><label>Alarm Code <span class="req">*</span></label><input id="alarm" value="4821" inputmode="numeric" maxlength="4" oninput="validateAlarm()"><div class="note ok" id="alarmNote">✓ 4 numeric digits</div></div>
+            </div>
+          </div>
+
+          <div class="sec">
+            <h3>Emergency Contacts</h3>
+            <p class="hint">Two contact slots by default. Phone type defaults to Cell. Add more as needed.</p>
+            <div id="contacts">
+              <div class="grid3" style="margin-bottom:12px">
+                <div class="fld"><label>Name</label><input value="Robert Lopez"></div>
+                <div class="fld"><label>Cell Phone</label><input value="(602) 555-0192"></div>
+                <div class="fld"><label>Relationship</label><input value="Spouse"></div>
+              </div>
+              <div class="grid3" style="margin-bottom:6px">
+                <div class="fld"><label>Name</label><input value="Ana Cruz"></div>
+                <div class="fld"><label>Cell Phone</label><input value="(602) 555-0177"></div>
+                <div class="fld"><label>Relationship</label><input value="Sister"></div>
+              </div>
+            </div>
+            <button class="addbtn" onclick="addContact()">+ Add emergency contact</button>
+          </div>
+        </section>
+
+        <!-- ===== TAB 4: CONTRACT & FULFILLMENT ===== -->
+        <section class="panel" data-panel="contract">
+
+          <div class="offer-gate" id="offerGate">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Select an offer on the <b>Build &amp; Price</b> tab to unlock the closing call, paperwork, payment &amp; shipping.
+          </div>
+          <div id="postOffer" style="display:none">
+
+          <!-- Deal summary -->
+          <div class="sec">
+            <h3>Deal Summary</h3>
+            <p class="hint">Review before the confirmation call. Use the edit links to jump back if anything's wrong.</p>
+            <div class="summary-grid" id="dealSummary"></div>
+          </div>
+
+          <!-- Post-Sales Survey: scripted confirmation call -->
+          <div class="sec">
+            <h3>Post-Sales Survey — Confirmation Call</h3>
+            <p class="hint">Read each line to the customer. All seven must be confirmed <b>Yes</b> before the contract can be generated.</p>
+            <div id="survey"></div>
+            <div class="gate" id="gate">○ Confirm all seven questions to enable contract generation</div>
+            <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <button class="btn primary" id="genBtn" disabled style="opacity:.5">Generate Contract</button>
+              <span style="font-size:11.5px;color:var(--ink3)">Rep signature auto-populates: <b>Jacob Olson</b></span>
+            </div>
+          </div>
+
+          <div class="sec">
+            <h3>DocuSign Status</h3>
+            <p class="hint">Live status from contract send through completion.</p>
+            <div class="track">
+              <div class="tstep done"><span class="mk">✓</span><span class="lb">Contract Generated</span></div>
+              <div class="tstep done"><span class="mk">✓</span><span class="lb">Sent</span></div>
+              <div class="tstep done"><span class="mk">✓</span><span class="lb">Viewed</span></div>
+              <div class="tstep cur"><span class="mk">●</span><span class="lb">Opened</span></div>
+              <div class="tstep" id="dsSigned"><span class="mk"></span><span class="lb">Signed</span></div>
+              <div class="tstep" id="dsCompleted"><span class="mk"></span><span class="lb">Completed</span></div>
+            </div>
+            <button class="btn" id="markSignedBtn" style="margin-top:14px" onclick="markSigned()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l4 4 7-7"/><path d="M14 14l7-7"/></svg> Mark Contract Signed</button>
+          </div>
+
+          <div class="sec">
+            <h3>First Payment</h3>
+            <p class="hint" id="payHint">Collected on this tab to start the account.</p>
+            <div class="finbox" style="max-width:400px" id="payBox"><!-- filled by renderPayment() --></div>
+            <div class="ship-confirm" id="payRow" style="border-top:none;padding-top:14px">
+              <button class="btn primary" id="payBtn" onclick="collectPayment()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Collect Payment</button>
+              <span class="ship-status" id="payStatus">Not yet collected</span>
+            </div>
+          </div>
+
+          <div class="sec">
+            <h3>Shipping</h3>
+            <div class="grid2">
+              <div class="fld"><label>Ship To</label><select id="shipTo" onchange="toggleShipAlt()"><option value="">Select One</option><option>Service address</option><option>Billing address</option><option>Alternate address (exception)</option></select></div>
+              <div class="fld"><label>Delayed Shipping</label>
+                <select id="shipDelay" onchange="resolveShipDate()">
+                  <option value="0">Ship Immediately</option>
+                  <option value="1">1 Business Day</option>
+                  <option value="2">2 Business Days</option>
+                  <option value="3">3 Business Days</option>
+                  <option value="5">5 Business Days</option>
+                  <option value="7">7 Business Days</option>
+                  <option value="custom">Other — pick a date…</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="shipAltWrap" style="display:none;margin-top:14px;border:1px solid var(--orange-line);background:#fffaf6;border-radius:10px;padding:16px">
+              <div class="vlabel" style="margin-bottom:10px">Alternate Shipping Address</div>
+              <div class="grid2">
+                <div class="fld"><label>Street Address <span class="req">*</span></label><input id="altStreet" oninput="resetAltVerify()"></div>
+                <div class="fld"><label>Apt / Suite</label><input id="altApt" placeholder="Optional"></div>
+              </div>
+              <div class="grid4" style="margin-top:14px">
+                <div class="fld"><label>ZIP Code <span class="req">*</span></label><input id="altZip" oninput="resetAltVerify()"></div>
+                <div class="fld"><label>City</label><input id="altCity" readonly style="background:#f6f8fa"></div>
+                <div class="fld"><label>State</label><input id="altState" readonly style="background:#f6f8fa"></div>
+                <div class="fld"><label>Recipient Name</label><input id="altName" placeholder="If different"></div>
+              </div>
+              <div class="verify-row" style="margin-top:14px">
+                <button class="vbtn" id="altVerifyBtn" onclick="verifyAltAddress()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-3.6 7.5-8.5 9C7.6 19.5 4 17 4 12V6l8-3 8 3z"/></svg> Verify Address</button>
+                <div class="vresult" id="altVerifyResult">Not verified — confirms the alternate address is real and deliverable.</div>
+              </div>
+            </div>
+
+            <div class="fld" id="shipCustomWrap" style="display:none;margin-top:14px;max-width:320px"><label>Specific Ship Date <span class="req">*</span></label><input type="date" id="shipCustomDate" onchange="resolveShipDate()"></div>
+
+            <div class="shipdate" id="shipResolved">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              <span>Ships <b id="shipDateText">today — Wed, Jun 24, 2026</b></span>
+            </div>
+
+            <div class="note ok" style="margin-top:12px">✓ "AR to DIY Shipping" email sends automatically on the ship date, including customer info, equipment list &amp; account details.</div>
+
+            <div class="ship-confirm" id="shipConfirmRow">
+              <button class="btn primary" id="shipConfirmBtn" onclick="confirmShipQueue()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4 8 4 8-4zM4 7v10l8 4 8-4V7"/></svg> Confirm &amp; Send to Ship Queue</button>
+              <span class="ship-status" id="shipStatus">Not yet sent to inventory</span>
+            </div>
+          </div>
+
+          <div class="sec">
+            <h3>Post-Sale Automation</h3>
+            <div class="chkline"><input type="checkbox" checked disabled> Customer welcome email (equipment summary, support numbers, app links &amp; setup videos)</div>
+            <div class="chkline"><input type="checkbox" checked disabled> FedEx delivery → marks account "Ready to Publish" &amp; notifies Account Creation</div>
+            <div class="chkline"><input type="checkbox" checked disabled> Publish → auto-creates Tech Support installation ticket</div>
+            <div class="chkline"><input type="checkbox"> Review request automation (Google / Facebook) after install call</div>
+          </div>
+          </div><!-- /postOffer -->
+        </section>
+
+      </div>
+
+      <!-- ===== RIGHT RAIL: TIMELINE ===== -->
+      <aside class="m-rail">
+        <div class="rail-tabs">
+          <button class="ic active" title="Activity"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></button>
+          <button class="ic" title="Trend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l6-6 4 4 7-7"/></svg></button>
+          <button class="ic" title="Account"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg></button>
+          <button class="ic" title="Docs"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></button>
+          <button class="ic" title="Calls"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></button>
+        </div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);font-weight:700;margin-bottom:6px">Sales Progress</div>
+        <div class="prog-meta">
+          <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+          <span class="prog-pct" id="progPct">0%</span>
+        </div>
+        <div class="prog-next" id="progNext" style="display:none"></div>
+        <div class="steps" id="progSteps"></div>
+        <div class="prog-stopnote" id="progStop"></div>
+      </aside>
+    </div>
+
+    <!-- footer -->
+    <div class="m-foot">
+      <button class="ghost" id="clearBtn">✕ Clear</button>
+      <button class="ghost" onclick="openCallback()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg> Schedule Callback</button>
+      <div class="spacer"></div>
+      <span class="foot-prog" id="footProg">0% complete</span>
+      <button class="ghost" id="closeBtn">✕ Close</button>
+      <button class="btn primary" id="saveBtn">⌘ Save</button>
+      <button class="btn submit-deal" id="submitBtn" onclick="submitDeal()" disabled>Submit Deal</button>
+    </div>
+
+    <!-- ===== Callback scheduler (modal-on-modal) ===== -->
+    <div class="cb-overlay" id="cbOverlay">
+      <div class="cb-dialog" role="dialog" aria-modal="true">
+        <div class="cb-head">
+          <span class="acc-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+          <span><span class="t">Schedule Callback</span><span class="sub">Adds a reminder to the assigned agent's calendar</span></span>
+          <button class="cb-x" onclick="closeCallback()" aria-label="Cancel">×</button>
+        </div>
+        <div class="cb-body">
+          <div class="cb-for">
+            <div class="it"><span>Account</span><b id="cbAcct">AR124</b></div>
+            <div class="it"><span>Customer</span><b id="cbCust">Maria Lopez</b></div>
+            <div class="it" style="flex:1"><span>Assign to</span>
+              <select id="cbAgent" class="fld" style="height:30px;border:1px solid var(--line);border-radius:7px;padding:0 8px;font-size:13px;margin-top:2px;width:100%">
+                <option>Jacob Olson (me)</option><option>A. Reyes</option><option>M. Cole</option><option>S. Pham</option><option>T. Banks</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="cal">
+            <div class="cal-nav">
+              <button onclick="cbMonth(-1)" aria-label="Previous month">‹</button>
+              <b id="cbMonthLabel">June 2026</b>
+              <button onclick="cbMonth(1)" aria-label="Next month">›</button>
+            </div>
+            <div class="cal-grid" id="cbGrid"></div>
+          </div>
+
+          <div class="cb-times">
+            <div class="vlabel">Time</div>
+            <div class="time-grid" id="cbTimes"></div>
+          </div>
+
+          <div class="fld"><label>Notes</label><textarea id="cbNotes" placeholder="Reason for callback, talking points…"></textarea></div>
+        </div>
+        <div class="cb-foot">
+          <span class="cb-summary" id="cbSummary">Select a date and time</span>
+          <div class="spacer"></div>
+          <button class="ghost" onclick="closeCallback()">Cancel</button>
+          <button class="btn primary" id="cbConfirm" onclick="confirmCallback()" disabled style="opacity:.5;pointer-events:none">Schedule</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Sample data ---------- */
+const STAGES = {
+  "In Progress":      ["p-blue","#4b50ec"],
+  "Contract Sent":    ["p-amber","#c98a16"],
+  "Signed":           ["p-slate","#5f636a"],
+  "Ready to Publish": ["p-orange","#23ade8"],
+  "Tech Ticket":      ["p-amber","#c98a16"],
+  "Installed":        ["p-green","#1fb87f"],
+  "Not Sold":         ["p-red","#dc2c3b"],
+  "Cancelled":        ["p-red","#dc2c3b"],
+};
+const DS = {
+  "In Progress":"—","Contract Sent":"Sent","Signed":"Signed",
+  "Ready to Publish":"Completed","Tech Ticket":"Completed","Installed":"Completed","Not Sold":"—","Cancelled":"Completed"
+};
+const data = [
+  {ac:"AR123", cust:"John Doe",        created:"06/14/26", rep:"A. Reyes", lead:"Inbound Call", partner:"Costco",        stage:"Installed",       rmr:"$54.99", term:"60 mo", pay:"Credit Card", ship:"Delivered",   eta:"06/22/26", pc:false, ns:false, reason:"", cxl:false, pr:"", sr:"", mod:"06/22/26"},
+  {ac:"AR124", cust:"Maria Lopez",     created:"06/13/26", rep:"M. Cole",  lead:"Web Lead",     partner:"Sam's Club",    stage:"Installed",       rmr:"$54.99", term:"60 mo", pay:"Debit Card",  ship:"Delivered",   eta:"06/22/26", pc:false, ns:false, reason:"", cxl:false, pr:"", sr:"", mod:"06/22/26"},
+  {ac:"AR125", cust:"Charlie Davis",   created:"06/15/26", rep:"S. Pham",  lead:"Referral",     partner:"Direct",        stage:"Ready to Publish",rmr:"$49.99", term:"60 mo", pay:"Credit Card", ship:"In Transit",  eta:"06/25/26", pc:false, ns:false, reason:"", cxl:false, pr:"", sr:"", mod:"06/21/26"},
+  {ac:"AR126", cust:"Kevin Tran",      created:"06/12/26", rep:"A. Reyes", lead:"Door Knock",   partner:"ADT Dealer",    stage:"Signed",          rmr:"$44.99", term:"36 mo", pay:"Debit Card",  ship:"Scheduled",   eta:"06/27/26", pc:true,  ns:false, reason:"", cxl:false, pr:"", sr:"", mod:"06/21/26"},
+  {ac:"AR127", cust:"Priya Patel",     created:"06/11/26", rep:"M. Cole",  lead:"Inbound Call", partner:"Costco",        stage:"Installed",       rmr:"$59.99", term:"60 mo", pay:"Credit Card", ship:"Delivered",   eta:"06/20/26", pc:false, ns:false, reason:"", cxl:false, pr:"", sr:"", mod:"06/20/26"},
+  {ac:"AR128", cust:"Bob Brown",       created:"06/17/26", rep:"T. Banks", lead:"Reactivation", partner:"Direct",        stage:"Contract Sent",   rmr:"$54.99", term:"60 mo", pay:"Credit Card", ship:"—",           eta:"—",        pc:false, ns:false, reason:"", cxl:false, pr:"", sr:"", mod:"06/20/26"},
+  {ac:"AR129", cust:"Alice Johnson",   created:"06/19/26", rep:"A. Reyes", lead:"Web Lead",     partner:"Home Depot",    stage:"In Progress",     rmr:"$64.99", term:"60 mo", pay:"—",           ship:"—",           eta:"—",        pc:false, ns:false, reason:"", cxl:false, pr:"", sr:"", mod:"06/19/26"},
+  {ac:"AR130", cust:"Westfield HOA",   created:"06/10/26", rep:"S. Pham",  lead:"Referral",     partner:"Sam's Club",    stage:"Installed",       rmr:"$39.99", term:"60 mo", pay:"Debit Card",  ship:"Delivered",   eta:"06/19/26", pc:false, ns:false, reason:"", cxl:false, pr:"", sr:"", mod:"06/19/26"},
+  {ac:"AR131", cust:"T. Andersson",    created:"06/13/26", rep:"M. Cole",  lead:"Inbound Call", partner:"Costco",        stage:"Tech Ticket",     rmr:"$54.99", term:"36 mo", pay:"Credit Card", ship:"Delivered",   eta:"06/18/26", pc:false, ns:false, reason:"", cxl:false, pr:"", sr:"", mod:"06/18/26"},
+  {ac:"AR132", cust:"Sunline Co-op",   created:"06/18/26", rep:"A. Reyes", lead:"Web Lead",     partner:"Home Depot",    stage:"In Progress",     rmr:"$49.99", term:"60 mo", pay:"—",           ship:"—",           eta:"—",        pc:false, ns:false, reason:"", cxl:false, pr:"", sr:"", mod:"06/18/26"},
+  {ac:"AR133", cust:"L. Whitfield",    created:"06/16/26", rep:"T. Banks", lead:"Door Knock",   partner:"ADT Dealer",    stage:"Contract Sent",   rmr:"$54.99", term:"60 mo", pay:"Credit Card", ship:"—",           eta:"—",        pc:false, ns:false, reason:"", cxl:false, pr:"", sr:"", mod:"06/17/26"},
+  {ac:"AR134", cust:"P. Salisbury",    created:"06/14/26", rep:"S. Pham",  lead:"Referral",     partner:"Direct",        stage:"Signed",          rmr:"$59.99", term:"60 mo", pay:"Debit Card",  ship:"Scheduled",   eta:"06/28/26", pc:false, ns:false, reason:"", cxl:false, pr:"", sr:"", mod:"06/17/26"},
+  {ac:"AR135", cust:"Dana Whitman",    created:"06/13/26", rep:"A. Reyes", lead:"Web Lead",     partner:"Home Depot",    stage:"Not Sold",        rmr:"—",      term:"—",     pay:"—",           ship:"—",           eta:"—",        pc:false, ns:true,  reason:"Price too high", cxl:false, pr:"", sr:"", mod:"06/16/26"},
+  {ac:"AR136", cust:"Greg Holt",       created:"06/12/26", rep:"M. Cole",  lead:"Inbound Call", partner:"Costco",        stage:"Not Sold",        rmr:"—",      term:"—",     pay:"—",           ship:"—",           eta:"—",        pc:false, ns:true,  reason:"Wanted DIY / competitor", cxl:false, pr:"", sr:"", mod:"06/16/26"},
+  {ac:"AR137", cust:"Lena Ortiz",      created:"06/11/26", rep:"S. Pham",  lead:"Door Knock",   partner:"ADT Dealer",    stage:"Not Sold",        rmr:"—",      term:"—",     pay:"—",           ship:"—",           eta:"—",        pc:false, ns:true,  reason:"Not ready / timing", cxl:false, pr:"", sr:"", mod:"06/15/26"},
+  {ac:"AR138", cust:"Marcus Webb",     created:"06/12/26", rep:"T. Banks", lead:"Referral",     partner:"Sam's Club",    stage:"Not Sold",        rmr:"—",      term:"—",     pay:"—",           ship:"—",           eta:"—",        pc:false, ns:true,  reason:"Credit declined", cxl:false, pr:"", sr:"", mod:"06/15/26"},
+  {ac:"AR139", cust:"Tina Rao",        created:"06/10/26", rep:"A. Reyes", lead:"Web Lead",     partner:"Home Depot",    stage:"Not Sold",        rmr:"—",      term:"—",     pay:"—",           ship:"—",           eta:"—",        pc:false, ns:true,  reason:"Decision-maker unavailable", cxl:false, pr:"", sr:"", mod:"06/14/26"},
+  {ac:"AR140", cust:"Owen Pierce",     created:"06/09/26", rep:"M. Cole",  lead:"Inbound Call", partner:"Direct",        stage:"Not Sold",        rmr:"—",      term:"—",     pay:"—",           ship:"—",           eta:"—",        pc:false, ns:true,  reason:"Has existing system", cxl:false, pr:"", sr:"", mod:"06/14/26"},
+  {ac:"AR141", cust:"Rachel Kim",      created:"05/02/26", rep:"M. Cole",  lead:"Inbound Call", partner:"Costco",        stage:"Cancelled",       rmr:"$54.99", term:"60 mo", pay:"Credit Card", ship:"Delivered",   eta:"05/08/26", pc:false, ns:false, reason:"", cxl:true,  pr:"Moving / relocating", sr:"Selling home", mod:"06/12/26"},
+  {ac:"AR142", cust:"Derek Foster",    created:"04/18/26", rep:"A. Reyes", lead:"Web Lead",     partner:"Home Depot",    stage:"Cancelled",       rmr:"$49.99", term:"60 mo", pay:"Debit Card",  ship:"Delivered",   eta:"04/24/26", pc:false, ns:false, reason:"", cxl:true,  pr:"Cost / affordability", sr:"Lost job", mod:"06/10/26"},
+  {ac:"AR143", cust:"Bay Ridge HOA",   created:"04/05/26", rep:"S. Pham",  lead:"Referral",     partner:"Direct",        stage:"Cancelled",       rmr:"$44.99", term:"36 mo", pay:"Credit Card", ship:"Delivered",   eta:"04/11/26", pc:false, ns:false, reason:"", cxl:true,  pr:"Service dissatisfaction", sr:"False alarms", mod:"06/08/26"},
+];
+
+/* ---------- Render table ---------- */
+function stagePill(s){const[c]=STAGES[s];return `<span class="pill ${c}"><span class="d" style="background:${STAGES[s][1]}"></span>${s}</span>`;}
+function dsPill(s){const v=DS[s];if(v==="—")return '<span style="color:var(--ink3)">—</span>';const cls=v==="Completed"?"p-green":v==="Signed"?"p-slate":"p-amber";return `<span class="pill ${cls}">${v}</span>`;}
+function shipCell(s){if(s==="—")return '<span style="color:var(--ink3)">—</span>';const cls=s==="Delivered"?"p-green":s==="In Transit"?"p-blue":"p-slate";return `<span class="pill ${cls}">${s}</span>`;}
+function payCell(p){if(p==="—")return '<span style="color:var(--ink3)">—</span>';return `<span class="pill p-slate">${p}</span>`;}
+function etaCell(d){return d==="—"?'<span style="color:var(--ink3)">—</span>':`<span class="mono" style="color:var(--ink2)">${d}</span>`;}
+function reasonCell(r){return r?`<span class="pill p-red" style="font-weight:600">${r}</span>`:'<span style="color:var(--ink3)">—</span>';}
+
+function render(list){
+  document.getElementById('rows').innerHTML = list.map(r=>`
+    <tr class="${r.ns?'flag-ns':r.cxl?'flag-cxl':r.pc?'flag':''}" onclick="openModal('${r.ac}','${r.cust.replace(/'/g,"")}','${r.stage}')">
+      <td class="acct">${r.ac}</td>
+      <td><span class="mono" style="color:var(--ink2)">${r.created}</span></td>
+      <td class="cust">${r.cust}</td>
+      <td>${r.rep}</td>
+      <td>${r.lead}</td>
+      <td>${r.partner}</td>
+      <td>${stagePill(r.stage)}</td>
+      <td class="rmr">${r.rmr}</td>
+      <td>${r.term}</td>
+      <td>${dsPill(r.stage)}</td>
+      <td>${payCell(r.pay)}</td>
+      <td>${shipCell(r.ship)}</td>
+      <td>${etaCell(r.eta)}</td>
+      <td>${reasonCell(r.reason)}</td>
+      <td class="col-cxl" style="display:none">${r.pr?`<span class="pill p-red" style="font-weight:600">${r.pr}</span>`:'<span style="color:var(--ink3)">—</span>'}</td>
+      <td class="col-cxl" style="display:none">${r.sr?`<span class="pill p-slate">${r.sr}</span>`:'<span style="color:var(--ink3)">—</span>'}</td>
+      <td>${r.pc?'<span class="flagchip">Pending</span>':'<span style="color:var(--ink3)">No</span>'}</td>
+      <td>${r.mod}</td>
+    </tr>`).join('');
+}
+render(data);
+
+function currentView(){
+  const el=document.querySelector('input[name="view"]:checked');
+  return el?el.value:'inprogress';
+}
+function applyFilters(){
+  const t=document.getElementById('q').value.toLowerCase();
+  const view=currentView();
+  let list=data.slice();
+  if(view==='inprogress') list=list.filter(r=>!r.pc && !r.ns && !r.cxl && r.stage!=='Installed');
+  else if(view==='installed') list=list.filter(r=>r.stage==='Installed' && !r.pc);
+  else if(view==='notsold') list=list.filter(r=>r.ns);
+  else if(view==='cancelled') list=list.filter(r=>r.cxl);
+  // 'all' = no stage filter
+  if(t) list=list.filter(r=>(r.ac+r.cust+r.rep+r.lead+r.partner+r.stage+r.pay+r.reason+r.pr+r.sr).toLowerCase().includes(t));
+  render(list);
+  // show Primary/Secondary Reason columns only under Cancelled or All
+  const showCxl = (view==='cancelled'||view==='all');
+  document.querySelectorAll('.col-cxl').forEach(el=>{el.style.display = showCxl?'':'none';});
+}
+function applyView(){applyFilters();}
+
+document.getElementById('q').addEventListener('input',applyFilters);
+
+// default view on load
+applyFilters();
+
+document.getElementById('clearFilters').addEventListener('click',()=>{
+  document.getElementById('q').value='';
+  document.querySelector('input[name="view"][value="inprogress"]').checked=true;
+  applyFilters();
+});
+
+/* ---------- Modal open/close ---------- */
+const overlay=document.getElementById('overlay');
+function openModal(ac,cust,stage){
+  document.getElementById('mAcct').textContent=ac;
+  clearForm();
+  document.getElementById('custName').value=cust;
+  document.getElementById('mStage').innerHTML=stagePill(stage);
+  // reset to first tab
+  switchTab('customer');
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+  recalc();
+  renderTiles();
+  updateEqSummary();
+  selectedOffer=null;
+  collapsedPhases={};
+  answers=[null,null,null,null,null,null,null];
+  recalcOffers();
+  renderSummary();
+  renderSurvey();
+  // reset finalize gate + submit state
+  const sb=document.getElementById('submitBtn'); if(sb){ sb.textContent='Submit Deal'; sb.style.background=''; sb.disabled=true; }
+  const post=document.getElementById('postOffer'); if(post) post.style.display='none';
+  const gate=document.getElementById('offerGate'); if(gate) gate.style.display='flex';
+  initSectionTracking();
+  initProgress(stage);
+  resolveShipDate();
+  resetShipConfirm();
+  toggleShipAlt();
+  resetAltVerify();
+  resetSigned();
+  resetPayment();
+}
+function closeModal(){overlay.classList.remove('open');document.body.style.overflow='';}
+
+/* ---------- Blank the whole form on open ---------- */
+function clearForm(){
+  const modalEl=document.querySelector('.modal');
+  // text inputs / textareas -> blank (including readonly display fields)
+  modalEl.querySelectorAll('.m-main input[type="text"], .m-main input:not([type]), .m-main input[type="date"], .m-main input[inputmode], .m-main textarea').forEach(el=>{
+    el.value=''; el.disabled=false;
+  });
+  // selects -> first option ("Select One" where present)
+  modalEl.querySelectorAll('.m-main select').forEach(sel=>{ sel.selectedIndex=0; sel.disabled=false; });
+  // checkboxes -> unchecked (except locked post-sale automation defaults)
+  modalEl.querySelectorAll('.m-main input[type="checkbox"]:not([disabled])').forEach(cb=>{ cb.checked=false; });
+  // billing radio back to "same as service"
+  const bs=document.getElementById('billSame'); if(bs){ bs.checked=true; }
+  // clear inline validation notes that were data-driven
+  const an=document.getElementById('alarmNote'); if(an){ an.className='note'; an.textContent='Numeric, exactly 4 digits'; }
+  // reset equipment quantities — panel always 1, everything else 0
+  for(const k in qty){ qty[k] = (EQ[k] && EQ[k].fixed) ? 1 : 0; }
+}
+['closeX','closeBtn'].forEach(id=>document.getElementById(id).addEventListener('click',closeModal));
+overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('cbOverlay').classList.contains('open'))closeModal();});
+document.getElementById('saveBtn').addEventListener('click',()=>{document.getElementById('saveBtn').textContent='✓ Saved';setTimeout(()=>document.getElementById('saveBtn').innerHTML='⌘ Save',1200);});
+
+/* ---------- Tabs ---------- */
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===name));
+  document.querySelector('.m-main').scrollTop=0;
+  // finalize tab: refresh the dynamic summary + confirmation script
+  if(name==='contract'){
+    renderSummary();
+    renderSurvey();
+    renderPayment();
+  }
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+
+/* ---------- Billing toggle ---------- */
+function toggleBilling(){
+  const diff=!document.getElementById('billSame').checked;
+  document.getElementById('billFields').style.display=diff?'block':'none';
+  // billing is complete when "same as" is chosen, or different fields are filled
+  if(!diff){ setDone('acc-bill','badge-bill',true); }
+  else { checkSection('acc-bill'); }
+}
+
+/* ---------- Section completion ---------- */
+function setDone(accId, badgeId, done){
+  const acc=document.getElementById(accId), badge=document.getElementById(badgeId);
+  if(!acc||!badge) return;
+  if(done){
+    acc.classList.add('done');
+    badge.className='acc-badge ok';
+    badge.textContent='✓ Complete';
+  } else {
+    acc.classList.remove('done');
+    badge.className='acc-badge req';
+    badge.textContent='Required';
+  }
+}
+// returns true if all visible required inputs in a section have a value
+function sectionFilled(accId){
+  const acc=document.getElementById(accId);
+  if(!acc) return false;
+  const reqs=acc.querySelectorAll('.acc-body .fld input, .acc-body .fld select');
+  let any=false, allReq=true;
+  acc.querySelectorAll('.acc-body .fld').forEach(fld=>{
+    const isReq=fld.querySelector('label .req');
+    const ctrl=fld.querySelector('input,select');
+    if(ctrl){ any=true; if(isReq && !String(ctrl.value).trim()) allReq=false; }
+  });
+  return any && allReq;
+}
+function checkSection(accId){
+  const map={'acc-cust':'badge-cust','acc-svc':'badge-svc','acc-bill':'badge-bill'};
+  const filled=sectionFilled(accId);
+  setDone(accId, map[accId], filled);
+  if(accId==='acc-cust') markStep('info', filled);
+}
+// verification: complete only after both POH and credit have run
+let pohDone=false, creditDone=false;
+function checkVerify(){ const ok=pohDone && creditDone; setDone('acc-verify','badge-verify', ok); if(ok) markStep('verify',true); }
+
+/* ---------- Consumer finance ---------- */
+let creditScore=null, financeDone=false;
+function gateFinance(){
+  const gate=document.getElementById('finGate');
+  const btn=document.getElementById('finBtn');
+  const eligible = creditScore!==null && creditScore>=600;
+  if(creditScore===null){
+    gate.className='note warn';
+    gate.innerHTML='⚠ Run the Credit Check first — financing eligibility opens automatically once a score of 600+ comes back.';
+    btn.disabled=true; btn.style.opacity=.5; btn.style.pointerEvents='none';
+  } else if(!eligible){
+    // below the across-the-board minimum: financing not applicable
+    gate.className='note err';
+    gate.innerHTML='✕ Credit score '+creditScore+' is below the 600 minimum — consumer financing is not available for this account.';
+    btn.disabled=true; btn.style.opacity=.5; btn.style.pointerEvents='none';
+    setDone('acc-finance','badge-finance',false);
+    document.getElementById('badge-finance').className='acc-badge opt';
+    document.getElementById('badge-finance').textContent='N/A';
+  } else {
+    gate.className='note ok';
+    gate.innerHTML='✓ Credit '+creditScore+' clears the 600 minimum — enter last 4 of SSN and gross income, then verify eligibility.';
+    refreshFinanceBtn();
+  }
+}
+function refreshFinanceBtn(){
+  const btn=document.getElementById('finBtn');
+  const ssn=document.getElementById('finSSN').value.trim();
+  const inc=document.getElementById('finIncome').value.trim();
+  const ready = creditScore!==null && creditScore>=600 && /^\d{4}$/.test(ssn) && inc.length>0;
+  btn.disabled=!ready;
+  btn.style.opacity=ready?1:.5;
+  btn.style.pointerEvents=ready?'auto':'none';
+}
+function runFinance(){
+  const btn=document.getElementById('finBtn'), out=document.getElementById('finResult');
+  btn.classList.add('busy'); btn.textContent='Submitting to bank…';
+  setTimeout(()=>{
+    btn.classList.remove('busy');
+    btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Re-verify Eligibility';
+    // mock approval
+    const amount='$3,500';
+    out.className='vresult ok';
+    out.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1fb87f" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><div><div class="vlabel" style="margin-bottom:1px">Bank Decision</div><span class="vmeta"><b>Approved</b> — loan up to <span class="score" style="font-size:16px">'+amount+'</span></span></div>';
+    financeDone=true;
+    setDone('acc-finance','badge-finance',true);
+    markStep('finance',true);
+    recalcOffers();
+  },900);
+}
+
+function checkContacts(){
+  const cont=document.getElementById('contacts');
+  if(!cont) return;
+  // complete when first contact's name + phone are filled
+  const inputs=cont.querySelectorAll('.grid3 input');
+  const ok = inputs.length>=2 && inputs[0].value.trim() && inputs[1].value.trim();
+  markStep('contacts', !!ok);
+}
+
+let sectionTrackingInit=false;
+function initSectionTracking(){
+  if(!sectionTrackingInit){
+    ['acc-cust','acc-svc'].forEach(id=>{
+      document.getElementById(id).querySelectorAll('.acc-body input, .acc-body select')
+        .forEach(c=>c.addEventListener('input',()=>checkSection(id)));
+    });
+    ['finSSN','finIncome'].forEach(id=>{
+      document.getElementById(id).addEventListener('input',refreshFinanceBtn);
+    });
+    // emergency contacts → contacts step
+    const cont=document.getElementById('contacts');
+    if(cont) cont.addEventListener('input',checkContacts);
+    sectionTrackingInit=true;
+  }
+  // reset verification + finance state each time the modal opens
+  pohDone=false; creditDone=false; creditScore=null; financeDone=false;
+  gateFinance();
+  // evaluate current state (sample data pre-fills cust + svc; billing defaults to "same")
+  checkSection('acc-cust');
+  checkSection('acc-svc');
+  toggleBilling();           // sets billing complete since "same as" is default
+  checkVerify();             // verification not done until both checks run
+  checkContacts();
+}
+
+/* ---------- Accordion ---------- */
+function toggleAcc(id){
+  const el=document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+/* ---------- Verification: POH ---------- */
+function runPOH(){
+  const btn=document.getElementById('pohBtn'), out=document.getElementById('pohResult');
+  btn.classList.add('busy'); btn.textContent='Checking…';
+  setTimeout(()=>{
+    btn.classList.remove('busy');
+    btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg> Re-run POH Check';
+    out.className='vresult ok';
+    out.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1fb87f" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><div><div class="vlabel" style="margin-bottom:1px">Homeownership</div><span class="vmeta"><b>Verified</b> — owner of record matches service address · checked '+new Date().toLocaleDateString()+'</span></div>';
+    pohDone=true; checkVerify();
+  },700);
+}
+
+/* ---------- Verification: Credit ---------- */
+function runCredit(){
+  const btn=document.getElementById('creditBtn'), out=document.getElementById('creditResult');
+  btn.classList.add('busy'); btn.textContent='Checking…';
+  setTimeout(()=>{
+    btn.classList.remove('busy');
+    btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Re-run Credit Check';
+    const score=712;
+    const grade='B', gradeColor='#1fb87f', tier='Approved — no home verification required';
+    out.className='vresult ok';
+    out.innerHTML='<span class="grade" style="background:'+gradeColor+'">'+grade+'</span>'
+      +'<div><div class="vlabel" style="margin-bottom:1px">Credit Score</div><span class="vmeta"><span class="score">'+score+'</span> &nbsp; <b>'+tier+'</b></span></div>';
+    creditDone=true; checkVerify();
+    creditScore=score; gateFinance();
+  },800);
+}
+
+/* ---------- Equipment + financing ---------- */
+const EQ = {
+  panel:{cost:299.99, customer:395.99, finance:1499.99, permo:24.99, label:"Sybersense Panel", group:"core", fixed:true},
+  door:{cost:15.99, customer:21.99, finance:74.99, permo:1.25, label:"Door Sensor", group:"sensors"},
+  motion:{cost:35, customer:46.99, finance:124.99, permo:2.08, label:"Motion Sensor", group:"sensors"},
+  glass:{cost:34.99, customer:46.99, finance:124.99, permo:2.08, label:"Glass Break", group:"sensors"},
+  smoke:{cost:80.99, customer:106.99, finance:199.99, permo:3.33, label:"Smoke / Carbon", group:"life"},
+  pendant:{cost:27.99, customer:36.99, finance:74.99, permo:1.25, label:"Medical Pendant", group:"life"},
+  doorbell:{cost:132.99, customer:175.99, finance:299.99, permo:4.99, label:"Doorbell Camera", group:"cam"},
+  indoor:{cost:34.99, customer:46.99, finance:149.99, permo:2.49, label:"Indoor Camera", group:"cam"},
+  solar:{cost:89.99, customer:118.99, finance:249.99, permo:4.16, label:"Mini Solar Camera", group:"cam"},
+  lock:{cost:250.99, customer:331.99, finance:349.99, permo:5.83, label:"Door Lock", group:"access"},
+  fob:{cost:13.99, customer:18.99, finance:74.99, permo:1.25, label:"Key Fob", group:"access"},
+};
+const EQ_ICON={
+  panel:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M9 16h6"/>',
+  door:'<path d="M3 21h18M6 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M13 12h.01"/>',
+  motion:'<circle cx="12" cy="5" r="2"/><path d="M9 9l3 2 3-2M12 11v5M9 21l3-5 3 5"/>',
+  glass:'<path d="M4 3h16l-2 9H6L4 3zM9 12l-1 9M15 12l1 9"/>',
+  smoke:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4M12 16h.01"/>',
+  pendant:'<circle cx="12" cy="10" r="5"/><path d="M9 14l-1 7 4-2 4 2-1-7"/>',
+  doorbell:'<rect x="6" y="2" width="12" height="20" rx="3"/><circle cx="12" cy="9" r="2.5"/>',
+  indoor:'<rect x="3" y="6" width="14" height="12" rx="2"/><path d="M17 10l4-2v8l-4-2"/>',
+  solar:'<rect x="3" y="6" width="14" height="12" rx="2"/><path d="M17 10l4-2v8l-4-2M12 2v2"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  fob:'<rect x="7" y="2" width="10" height="20" rx="3"/><path d="M11 6h2M12 10v6"/>',
+};
+const qty={panel:1,door:0,motion:0,glass:0,smoke:0,pendant:0,doorbell:0,indoor:0,solar:0,lock:0,fob:0};
+
+function deviceMonthly(k){ // financed $/mo for one unit, recomputed by term
+  const term=termMonths();
+  if(term===60) return EQ[k].permo;            // use the exact figures provided for 60mo
+  return EQ[k].finance/term;                     // recompute for other terms
+}
+function renderTiles(){
+  const groups={core:'tiles-core',sensors:'tiles-sensors',life:'tiles-life',cam:'tiles-cam',access:'tiles-access'};
+  Object.values(groups).forEach(id=>{const el=document.getElementById(id); if(el) el.innerHTML='';});
+  const f=(n)=>'$'+n.toFixed(2);
+  for(const k in EQ){
+    const e=EQ[k], target=document.getElementById(groups[e.group]);
+    if(!target) continue;
+    const row=document.createElement('div');
+    const locked=!!e.fixed;
+    row.className='eqline'+(qty[k]>0?' on':'')+(locked?' locked':'');
+    row.id='tile-'+k;
+    const prices=
+      '<div class="eq-priceline">'
+      +'<span class="pp comp"><span class="ppl">Company</span> '+f(e.cost)+'</span><span class="dot">·</span>'
+      +'<span class="pp"><span class="ppl">Customer</span> '+f(e.customer)+'</span><span class="dot">·</span>'
+      +'<span class="pp"><span class="ppl">Finance</span> '+f(e.finance)+'</span><span class="dot">·</span>'
+      +'<span class="pp accent"><span class="ppl">Fin</span> <b id="pm-'+k+'">'+f(deviceMonthly(k))+'</b>/mo</span>'
+      +'</div>';
+    const stepper = locked
+      ? '<div class="eq-fixed">Included ×1</div>'
+      : '<div class="stepper"><button onclick="step(\''+k+'\',-1)" '+(qty[k]===0?'disabled':'')+'>–</button><span class="q" id="q-'+k+'">'+qty[k]+'</span><button onclick="step(\''+k+'\',1)">+</button></div>';
+    row.innerHTML=
+      '<div class="eq-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">'+EQ_ICON[k]+'</svg></div>'
+      +'<div class="eq-main"><div class="eq-nm">'+e.label+(locked?' <span class="eq-core-tag">Panel</span>':'')+'</div>'+prices+'</div>'
+      +stepper;
+    target.appendChild(row);
+  }
+}
+function step(k,d){
+  if(EQ[k].fixed) return; // panel can't be removed
+  qty[k]=Math.max(0,qty[k]+d);
+  const q=document.getElementById('q-'+k); if(q) q.textContent=qty[k];
+  const row=document.getElementById('tile-'+k);
+  if(row){
+    row.classList.toggle('on',qty[k]>0);
+    const minus=row.querySelector('.stepper button'); if(minus) minus.disabled=(qty[k]===0);
+  }
+  updateEqSummary();
+  recalc();
+  recalcOffers();
+}
+/* RMR option builders */
+function finRmrOptions(){ const o=[]; for(let v=39.99; v<=49.99001; v+=1) o.push(v.toFixed(2)); return o; }
+function stdRmrOptions(){ const o=[]; for(let v=39.99; v<=64.99001; v+=5) o.push(v.toFixed(2)); return o; }
+function populateRmrPickers(){
+  const fp=document.getElementById('finRmrPick'), sp=document.getElementById('stdRmrPick'), sc=document.getElementById('stdRmr');
+  if(fp && fp.options.length<=1){ fp.innerHTML='<option value="">Select One</option>'+finRmrOptions().map(v=>'<option>'+v+'</option>').join(''); }
+  if(sp && sp.options.length<=1){ sp.innerHTML='<option value="">Select One</option>'+stdRmrOptions().map(v=>'<option>'+v+'</option>').join(''); }
+  if(sc && sc.options.length<=1){ sc.innerHTML='<option value="">Select One</option>'+stdRmrOptions().map(v=>'<option>'+v+'</option>').join(''); }
+}
+function termMonths(){ const t=document.getElementById('term')?.value||''; if(t.indexOf('36')===0) return 36; return 60; }
+function activationFee(){ return parseFloat(document.getElementById('actfee')?.value)||0; }
+function equipFinanceTotal(){ let r=0; for(const k in EQ) r+=qty[k]*(EQ[k].finance||0); return r; }   // equipment financed
+function equipCustomerTotal(){ let r=0; for(const k in EQ) r+=qty[k]*(EQ[k].customer||0); return r; }  // outright purchase
+function equipRetailTotal(){ return equipFinanceTotal(); }  // back-compat alias
+function financeLoanTotal(){ return equipFinanceTotal() + activationFee(); }  // finance: activation rolls into the loan
+function financedMonthly(){
+  // finance path: (equipment finance total + activation fee) / term
+  const term=termMonths(); if(term<=0) return 0;
+  // per-device portion uses provided 60mo figures; activation always divides by term
+  let dev=0; for(const k in EQ){ if(qty[k]>0) dev+=qty[k]*(term===60?EQ[k].permo:(EQ[k].finance/term)); }
+  return dev + (activationFee()/term);
+}
+
+function updateEqSummary(){
+  populateRmrPickers();
+  const f=(n)=>'$'+n.toFixed(2);
+  let count=0, rows='';
+  for(const k in EQ){
+    if(!EQ[k].fixed) count+=qty[k];
+    if(qty[k]>0) rows+='<tr><td>'+EQ[k].label+'</td><td class="num">'+qty[k]+'</td><td class="num">'+f(qty[k]*EQ[k].finance)+'</td><td class="num"><b>'+f(qty[k]*(termMonths()===60?EQ[k].permo:EQ[k].finance/termMonths()))+'</b>/mo</td></tr>';
+  }
+  const c=document.getElementById('eqCount'), b=document.getElementById('badge-equip');
+  if(c) c.textContent=count;
+  if(b) b.textContent=count+(count===1?' device':' devices');
+
+  const finMonthly=financedMonthly();
+  const finRmr=parseFloat(document.getElementById('finRmrPick')?.value)||0;
+  const stdRmr=parseFloat(document.getElementById('stdRmrPick')?.value)||0;
+
+  const elbFinEquip=document.getElementById('elbFinEquip');
+  if(elbFinEquip) elbFinEquip.textContent=f(finMonthly)+'/mo';
+  const elbFin=document.getElementById('elbFinance');
+  if(elbFin) elbFin.innerHTML = finRmr>0 ? f(finRmr+finMonthly)+'<small>/mo</small>' : '—<small> set RMR</small>';
+  const elbStd=document.getElementById('elbStandard');
+  if(elbStd) elbStd.innerHTML = stdRmr>0 ? f(stdRmr)+'<small>/mo</small>' : '—<small> set RMR</small>';
+
+  // breakdown table + loan calc line
+  const bd=document.getElementById('eqBreakdown');
+  if(bd) bd.innerHTML = rows || '<tr><td colspan="4" style="color:var(--ink3)">Panel only — add devices to build the system</td></tr>';
+  // table totals footer
+  let totQty=0; for(const k in EQ) totQty+=qty[k];
+  const bq=document.getElementById('bkQty'), bf=document.getElementById('bkFin'), bm=document.getElementById('bkMo');
+  if(bq) bq.textContent=totQty;
+  if(bf) bf.textContent=f(equipFinanceTotal());
+  if(bm) bm.textContent=f(financedMonthly())+'/mo';
+  const lc=document.getElementById('finLoanCalc');
+  if(lc) lc.innerHTML='Financed total <b>'+f(equipFinanceTotal())+'</b> ÷ <b>'+termMonths()+' mo</b> = <b>'+f(finMonthly)+'/mo</b>';
+  const er=document.getElementById('elbRetail'); if(er) er.textContent=f(equipFinanceTotal());
+
+  if(typeof markStep==='function') markStep('equipment', qty.panel>0);
+  if(document.getElementById('offerFinance')) recalcOffers();
+}
+function syncStdRmr(){
+  // live-bar standard picker → Tab 4 card
+  const live=document.getElementById('stdRmrPick'), card=document.getElementById('stdRmr');
+  if(live && card){ card.value=live.value; }
+  updateEqSummary();
+  if(document.getElementById('offerFinance')) recalcOffers();
+}
+function syncStdRmrFromCard(){
+  // Tab 4 card standard picker → live-bar picker
+  const live=document.getElementById('stdRmrPick'), card=document.getElementById('stdRmr');
+  if(live && card){ live.value=card.value; }
+  updateEqSummary();
+  recalcOffers();
+}
+function populateTab4Rmr(){
+  const sp=document.getElementById('stdRmr');
+  if(sp && sp.options.length<=1){ sp.innerHTML='<option value="">Select One</option>'+stdRmrOptions().map(v=>'<option>'+v+'</option>').join(''); }
+}
+function toggleEqBreakdown(){
+  const d=document.getElementById('elbDetail'), t=document.getElementById('elbToggle');
+  const open=d.style.display==='none';
+  d.style.display=open?'block':'none';
+  t.classList.toggle('open',open);
+  document.getElementById('elbToggleLabel').textContent = open ? 'Hide financed equipment breakdown' : 'Show financed equipment breakdown';
+}
+
+function togglePaid(){recalc();}
+
+function recalc(){
+  const paidEl=document.getElementById('paidUpfront');
+  const paid=paidEl?paidEl.checked:false;
+  const rmrEl=document.getElementById('rmr');
+  let rmr=parseFloat(rmrEl.value)||0;
+  if(paid){rmr=39.99;rmrEl.value="39.99";rmrEl.disabled=true;}
+  else{rmrEl.disabled=false;}
+
+  // equipment financing
+  let equip=0, rowsHtml="";
+  for(const k in EQ){
+    if(qty[k]>0 && EQ[k].cost>0){
+      const line=qty[k]*EQ[k].cost; equip+=line;
+      rowsHtml+=`<tr><td>${EQ[k].label}</td><td>${qty[k]}</td><td><b>$${line}</b>/mo</td></tr>`;
+    }
+  }
+  if(paid) equip=0;
+  if(!rowsHtml) rowsHtml=`<tr><td colspan="3" style="color:var(--ink3)">No financed equipment</td></tr>`;
+  const fb=document.getElementById('finBreakdown'); if(fb) fb.innerHTML=rowsHtml;
+
+  // promo
+  let disc=0; const promoEl=document.getElementById('promo'); const promo=promoEl?promoEl.value:"0";
+  if(promo==="credit-50") disc=50;
+  if(promo==="free-doorbell") disc=Math.min(equip, qty.doorbell*EQ.doorbell.cost);
+
+  // activation fee + promo on activation
+  let act=parseFloat(document.getElementById('actfee').value)||0;
+  if(promo==="reduced-act") act=Math.max(0,act-100);
+  const tax=act*0.086;
+  const due=act+tax;
+  const totalMonthly=Math.max(0,rmr+equip-disc);
+
+  const f=(n)=>'$'+n.toFixed(2);
+  const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=v;};
+  set('fMon',f(rmr)+'/mo'); set('fEquip',f(equip)+'/mo'); set('fDisc','–'+f(disc));
+  set('fTotal',f(totalMonthly)+'/mo'); set('fAct',f(act)); set('fTax',f(tax)); set('fDue',f(due));
+  // mirror to contract tab
+  set('cAct',f(act)); set('cTax',f(tax)); set('cDue',f(due));
+  if(document.getElementById('elbFinance')) updateEqSummary();
+  if(document.getElementById('offerFinance')) recalcOffers();
+}
+
+/* ---------- Shipping: resolve date + confirm to ship queue ---------- */
+const SHIP_TODAY=new Date(2026,5,24); // mock today
+const DOW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function addBusinessDays(start,n){
+  const d=new Date(start); let added=0;
+  while(added<n){ d.setDate(d.getDate()+1); const wd=d.getDay(); if(wd!==0&&wd!==6) added++; }
+  return d;
+}
+function fmtDate(d){ return DOW[d.getDay()]+', '+MON[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear(); }
+function resolveShipDate(){
+  const sel=document.getElementById('shipDelay').value;
+  const wrap=document.getElementById('shipCustomWrap');
+  const txt=document.getElementById('shipDateText');
+  if(sel==='custom'){
+    wrap.style.display='block';
+    const v=document.getElementById('shipCustomDate').value;
+    if(v){ const d=new Date(v+'T00:00:00'); txt.textContent='on '+fmtDate(d); }
+    else { txt.textContent='— pick a specific date above'; }
+  } else {
+    wrap.style.display='none';
+    const n=parseInt(sel,10);
+    if(n===0){ txt.textContent='today — '+fmtDate(SHIP_TODAY); }
+    else { const d=addBusinessDays(SHIP_TODAY,n); txt.textContent=fmtDate(d)+' ('+n+' business day'+(n>1?'s':'')+')'; }
+  }
+}
+function confirmShipQueue(){
+  const row=document.getElementById('shipConfirmRow');
+  const btn=document.getElementById('shipConfirmBtn');
+  const status=document.getElementById('shipStatus');
+  const acct=document.getElementById('mAcct').textContent;
+  const when=document.getElementById('shipDateText').textContent.replace(/^today — /,'');
+  row.classList.add('done');
+  btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg> Sent to Ship Queue';
+  btn.disabled=true; btn.style.pointerEvents='none';
+  status.className='ship-status sent';
+  status.textContent='✓ Ship task created for inventory — '+acct+', ships '+when;
+  markStep('shipqueue',true);
+}
+function resetShipConfirm(){
+  const row=document.getElementById('shipConfirmRow');
+  const btn=document.getElementById('shipConfirmBtn');
+  const status=document.getElementById('shipStatus');
+  if(!row) return;
+  row.classList.remove('done');
+  btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4 8 4 8-4zM4 7v10l8 4 8-4V7"/></svg> Confirm &amp; Send to Ship Queue';
+  btn.disabled=false; btn.style.pointerEvents='auto';
+  status.className='ship-status'; status.textContent='Not yet sent to inventory';
+}
+
+/* ---------- Alternate shipping address ---------- */
+function toggleShipAlt(){
+  const isAlt=document.getElementById('shipTo').value.indexOf('Alternate')===0;
+  document.getElementById('shipAltWrap').style.display=isAlt?'block':'none';
+}
+function resetAltVerify(){
+  const out=document.getElementById('altVerifyResult');
+  out.className='vresult';
+  out.textContent='Not verified — confirms the alternate address is real and deliverable.';
+}
+function verifyAltAddress(){
+  const btn=document.getElementById('altVerifyBtn'), out=document.getElementById('altVerifyResult');
+  const street=document.getElementById('altStreet').value.trim();
+  const zip=document.getElementById('altZip').value.trim();
+  if(!street || !/^\d{5}$/.test(zip)){
+    out.className='vresult warn';
+    out.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c98a16" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg> Enter a street address and a 5-digit ZIP first.';
+    return;
+  }
+  btn.classList.add('busy'); btn.textContent='Verifying…';
+  setTimeout(()=>{
+    btn.classList.remove('busy');
+    btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-3.6 7.5-8.5 9C7.6 19.5 4 17 4 12V6l8-3 8 3z"/></svg> Re-verify Address';
+    // mock: auto-populate city/state + confirm deliverable
+    document.getElementById('altCity').value='Scottsdale';
+    document.getElementById('altState').value='AZ';
+    out.className='vresult ok';
+    out.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1fb87f" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><div><div class="vlabel" style="margin-bottom:1px">Address</div><span class="vmeta"><b>Verified &amp; deliverable</b> — Scottsdale, AZ</span></div>';
+  },700);
+}
+
+/* ---------- Tab 4 dry-run actions: signed + payment ---------- */
+function markSigned(){
+  const sg=document.getElementById('dsSigned'), cp=document.getElementById('dsCompleted');
+  if(sg){ sg.classList.add('done'); sg.querySelector('.mk').textContent='✓'; }
+  if(cp){ cp.classList.add('done'); cp.querySelector('.mk').textContent='✓'; }
+  const btn=document.getElementById('markSignedBtn');
+  if(btn){ btn.textContent='✓ Signed & Completed'; btn.disabled=true; btn.style.opacity=.6; btn.style.pointerEvents='none'; }
+  markStep('signed',true);
+}
+function resetSigned(){
+  const sg=document.getElementById('dsSigned'), cp=document.getElementById('dsCompleted');
+  if(sg){ sg.classList.remove('done'); sg.querySelector('.mk').textContent=''; }
+  if(cp){ cp.classList.remove('done'); cp.querySelector('.mk').textContent=''; }
+  const btn=document.getElementById('markSignedBtn');
+  if(btn){ btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l4 4 7-7"/><path d="M14 14l7-7"/></svg> Mark Contract Signed'; btn.disabled=false; btn.style.opacity=1; btn.style.pointerEvents='auto'; }
+}
+function paymentBreakdown(){
+  const f=(n)=>'$'+n.toFixed(2);
+  const act=activationFee(), taxRate=0.086;
+  if(selectedOffer==='finance'){
+    const r=parseFloat(document.getElementById('finRmrPick')?.value)||0;
+    const fm=financedMonthly();            // (equipment + activation) / term
+    const base=r+fm; const tax=base*taxRate;
+    return {
+      lines:[
+        {label:'Monitoring (RMR)', val:f(r)},
+        {label:'Financed payment (equip + activation)', val:f(fm)},
+        {label:'Tax ('+(taxRate*100).toFixed(1)+'%)', val:f(tax)},
+      ],
+      total:r>0?base+tax:0,
+      note:'Finance: activation is rolled into the loan. Due today is the first payment — RMR + financed monthly + tax.'
+    };
+  }
+  if(selectedOffer==='standard'){
+    const r=parseFloat(document.getElementById('stdRmr')?.value)||0;
+    const paid=document.getElementById('stdPaidUpfront')?.checked;
+    const equip=paid?equipCustomerTotal():0;
+    const base=r+act+equip; const tax=base*taxRate;
+    const lines=[
+      {label:'Monitoring (RMR)', val:f(r)},
+      {label:'Activation fee', val:f(act)},
+    ];
+    if(paid) lines.push({label:'Equipment paid in full', val:f(equip)});
+    lines.push({label:'Tax ('+(taxRate*100).toFixed(1)+'%)', val:f(tax)});
+    return {lines, total:r>0?base+tax:0, note:'Standard: activation fee is added to the first payment, collected now.'};
+  }
+  return {lines:[{label:'Select an offer first', val:'—'}], total:0, note:''};
+}
+function renderPayment(){
+  const box=document.getElementById('payBox'); if(!box) return;
+  const f=(n)=>'$'+n.toFixed(2);
+  const pb=paymentBreakdown();
+  let html='';
+  pb.lines.forEach(l=>{ html+='<div class="finrow"><span>'+l.label+'</span><b>'+l.val+'</b></div>'; });
+  html+='<div class="fin-total"><span>Due today</span><span class="amt" id="payTotal">'+f(pb.total)+'</span></div>';
+  box.innerHTML=html;
+  const hint=document.getElementById('payHint'); if(hint) hint.textContent=pb.note;
+}
+function collectPayment(){
+  const btn=document.getElementById('payBtn'), status=document.getElementById('payStatus');
+  renderPayment();
+  const due=document.getElementById('payTotal')?document.getElementById('payTotal').textContent:'$0.00';
+  btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg> Payment Collected';
+  btn.disabled=true; btn.style.pointerEvents='none';
+  document.getElementById('payRow').classList.add('done');
+  status.className='ship-status sent'; status.textContent='✓ '+due+(selectedOffer==='finance'?' first payment processed':' charged');
+  markStep('payment',true);
+}
+function resetPayment(){
+  const btn=document.getElementById('payBtn'), status=document.getElementById('payStatus');
+  if(!btn) return;
+  btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Collect Payment';
+  btn.disabled=false; btn.style.pointerEvents='auto';
+  document.getElementById('payRow').classList.remove('done');
+  status.className='ship-status'; status.textContent='Not yet collected';
+  renderPayment();
+}
+
+const PROG_STEPS=[
+  {key:"info",     label:"Customer Info Captured",   phase:"Setup"},
+  {key:"verify",   label:"Verification Complete",    phase:"Setup"},
+  {key:"finance",  label:"Finance Eligibility Checked",phase:"Setup"},
+  {key:"equipment",label:"Equipment Built",          phase:"Setup"},
+  {key:"terms",    label:"Terms Set",                phase:"Setup"},
+  {key:"contacts", label:"Emergency Contacts Added", phase:"Setup"},
+  {key:"offer",    label:"Offer Selected",           phase:"Sale"},
+  {key:"survey",   label:"Survey Completed",         phase:"Sale"},
+  {key:"contract", label:"Contract Generated",       phase:"Sale"},
+  {key:"signed",   label:"Contract Signed",          phase:"Sale"},
+  {key:"payment",  label:"Payment Collected",        phase:"Sale"},
+  {key:"shipqueue",label:"Sent to Ship Queue",       phase:"Fulfillment"},
+  {key:"shipped",  label:"Shipped",                  phase:"Fulfillment"},
+  {key:"delivered",label:"Delivered → Ready to Publish",phase:"Fulfillment"},
+  {key:"installed",label:"Published / Installed",    phase:"Fulfillment"},
+];
+// how far each saved stage has progressed (index into PROG_STEPS, inclusive count)
+const STAGE_PROGRESS={
+  "In Progress":4,        // info, verify, finance, equipment
+  "Contract Sent":9,      // …through Contract Generated
+  "Signed":10,
+  "Ready to Publish":14,  // through Delivered (sent, shipped, delivered all done)
+  "Tech Ticket":14,
+  "Installed":15,
+  "Not Sold":1,           // only got customer info
+  "Cancelled":15,         // was fully installed, then cancelled
+};
+let progState={};   // per-open live state of step keys -> true
+let progStage="";   // saved stage of the open account
+let progDead=false; // not sold / cancelled
+let dryRunOn=false;
+
+function toggleDryRun(){
+  dryRunOn=document.getElementById('dryRun').checked;
+  document.querySelector('.modal').classList.toggle('dryrun-on',dryRunOn);
+  // re-init progress for the currently open account
+  initProgress(progStage);
+}
+function advanceStep(){
+  // checks the current (first incomplete) step — used by the dry-run advance button
+  const idx=PROG_STEPS.findIndex(s=>!progState[s.key]);
+  if(idx>=0) markStep(PROG_STEPS[idx].key,true);
+}
+function submitDeal(){
+  const sb=document.getElementById('submitBtn');
+  if(sb.disabled) return;
+  sb.textContent='✓ Deal Submitted';
+  sb.style.background='#0e8e62';
+  // in production: transition the queue row stage + persist
+  const acct=document.getElementById('mAcct').textContent;
+  const nextEl=document.getElementById('progNext');
+  if(nextEl){ nextEl.className='prog-next done'; nextEl.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg> '+acct+' submitted — moved to fulfillment'; }
+}
+
+function initProgress(stage){
+  progStage=stage;
+  progDead = (stage==="Not Sold" && !dryRunOn);
+  if(dryRunOn){
+    // blank slate — build it up yourself
+    progState={}; PROG_STEPS.forEach(s=>progState[s.key]=false);
+    progDead=false;
+  } else {
+    const n = STAGE_PROGRESS[stage] ?? 0;
+    progState={}; PROG_STEPS.forEach((s,i)=>{ progState[s.key] = i < n; });
+  }
+  renderProgress();
+}
+function markStep(key,val){ progState[key]= (val!==false); renderProgress(); }
+let collapsedPhases={};
+function togglePhase(ph){ collapsedPhases[ph]=!collapsedPhases[ph]; renderProgress(); }
+function renderProgress(){
+  const wrap=document.getElementById('progSteps'); if(!wrap) return;
+  let curIdx=PROG_STEPS.findIndex(s=>!progState[s.key]);
+  let doneCount=PROG_STEPS.filter(s=>progState[s.key]).length;
+
+  // Next pointer
+  const nextEl=document.getElementById('progNext');
+  if(nextEl){
+    if(progDead){ nextEl.style.display='none'; }
+    else if(curIdx===-1){ nextEl.className='prog-next done'; nextEl.style.display='flex'; nextEl.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg> All steps complete'; }
+    else { nextEl.className='prog-next'; nextEl.style.display='flex'; nextEl.innerHTML='<span class="nx-lab">Next</span> '+PROG_STEPS[curIdx].label; }
+  }
+
+  // group by phase
+  const phases=[];
+  PROG_STEPS.forEach((s,i)=>{
+    const last=phases[phases.length-1];
+    if(!last || last.name!==s.phase) phases.push({name:s.phase, items:[]});
+    phases[phases.length-1].items.push({s,i});
+  });
+
+  let html='';
+  phases.forEach(ph=>{
+    const total=ph.items.length;
+    const done=ph.items.filter(x=>progState[x.s.key]).length;
+    const collapsed=!!collapsedPhases[ph.name];
+    const allDone=done===total;
+    html+='<div class="phase'+(collapsed?' collapsed':'')+'">'
+      +'<button class="phase-h" onclick="togglePhase(\''+ph.name+'\')">'
+      +'<span class="phase-nm'+(allDone?' done':'')+'">'+(allDone?'✓ ':'')+ph.name+'</span>'
+      +'<span class="phase-ct">'+done+'/'+total+'</span>'
+      +'<svg class="phase-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>'
+      +'</button><div class="phase-body">';
+    ph.items.forEach(({s,i})=>{
+      const isDone=progState[s.key];
+      const cur=!isDone && i===curIdx && !progDead;
+      let cls='step'+(isDone?' done':'')+(cur?' cur':'');
+      let mk=isDone?'✓':(cur?'●':(i+1));
+      let sub=isDone?'Completed':(cur?'In progress':'Pending');
+      const adv = cur ? '<button class="adv" onclick="advanceStep()">Mark done ✓</button>' : '';
+      html+='<div class="'+cls+'"><span class="mk">'+mk+'</span><div class="tx"><b>'+s.label+'</b><span>'+sub+'</span></div>'+adv+'</div>';
+    });
+    html+='</div></div>';
+  });
+  wrap.innerHTML=html;
+
+  const pct=Math.round(doneCount/PROG_STEPS.length*100);
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'%';
+  const fp=document.getElementById('footProg'); if(fp) fp.textContent=pct+'% complete';
+  const sb=document.getElementById('submitBtn');
+  if(sb){ const ready=pct===100 && !progDead; sb.disabled=!ready; }
+  const stop=document.getElementById('progStop');
+  if(progStage==="Not Sold" && !dryRunOn){
+    stop.className='prog-stopnote show';
+    stop.textContent='✕ Deal did not close — stopped after "'+PROG_STEPS[Math.max(0,doneCount-1)].label+'".';
+    document.getElementById('progFill').style.background='var(--red)';
+  } else if(progStage==="Cancelled" && !dryRunOn){
+    stop.className='prog-stopnote show';
+    stop.textContent='⚠ Account was installed, then cancelled. See cancellation reasons in the queue.';
+    document.getElementById('progFill').style.background='var(--amber)';
+  } else {
+    stop.className='prog-stopnote';
+    document.getElementById('progFill').style.background='var(--green)';
+  }
+}
+let selectedOffer=null;
+function financeAvailable(){ return creditScore!==null && creditScore>=600 && financeDone; }
+
+function buildEqSummary(){
+  const chips=document.getElementById('offerEqChips');
+  if(!chips) return;
+  let html='', count=0, mo=0;
+  for(const k in EQ){
+    if(qty[k]>0){
+      count+=qty[k]; mo+=qty[k]*EQ[k].cost;
+      html+='<span class="eq-chip"><b>'+EQ[k].label+'</b><span class="qn">×'+qty[k]+'</span><span class="cmo">$'+(qty[k]*EQ[k].cost)+'/mo</span></span>';
+    }
+  }
+  chips.innerHTML = html || '<span class="empty">No equipment selected on the Equipment tab.</span>';
+  document.getElementById('offerEqValue').textContent='$'+mo+'/mo';
+  document.getElementById('offerEqCount').textContent=count+(count===1?' item':' items');
+}
+
+function recalcOffers(){
+  buildEqSummary();
+  const f=(n)=>'$'+n.toFixed(2);
+  const finEquipMonthly=financedMonthly();   // already includes activation rolled into the loan
+  const act=activationFee();
+  const taxRate=0.086;                         // mock; dynamic in production
+
+  // FINANCE card — activation is financed into the monthly; due today = first payment (RMR + financed monthly + tax)
+  const finRmr=parseFloat(document.getElementById('finRmrPick')?.value)||0;
+  const finTotal=finRmr+finEquipMonthly;
+  const finTaxBase=finRmr+finEquipMonthly;
+  const finTax=finTaxBase*taxRate;
+  const finDueToday=finRmr>0 ? (finTaxBase+finTax) : 0;
+  document.getElementById('finRmr').textContent = finRmr>0 ? f(finRmr)+'/mo' : 'set RMR';
+  document.getElementById('finEquipMo').textContent=f(finEquipMonthly)+'/mo';
+  document.getElementById('finTotalMo').textContent = finRmr>0 ? f(finTotal) : '—';
+  document.getElementById('finDue').textContent=f(finDueToday);
+  const finFee=document.getElementById('finFee');
+  if(finFee) finFee.textContent = finRmr>0
+    ? 'Due today '+f(finDueToday)+' = RMR '+f(finRmr)+' + financed '+f(finEquipMonthly)+' + tax. Activation is rolled into the loan.'
+    : 'Activation fee rolls into the financed loan; due today is the first month (RMR + financed).';
+  // finance availability gate
+  const finCard=document.getElementById('offerFinance');
+  const finLoan=document.getElementById('finLoan');
+  const nudge=document.getElementById('prereqNudge');
+  if(nudge) nudge.style.display = financeAvailable() ? 'none' : 'flex';
+  if(financeAvailable()){
+    finCard.classList.remove('disabled'); finCard.classList.add('reco');
+    finLoan.className='obadge loan'; finLoan.textContent='✓ Loan approved — up to $3,500';
+  } else {
+    finCard.classList.add('disabled'); finCard.classList.remove('reco','selected');
+    finLoan.className='obadge muted'; finLoan.textContent='Run finance eligibility on Tab 1 to enable';
+    if(selectedOffer==='finance') selectedOffer=null;
+  }
+
+  // STANDARD card — activation added to FIRST month's payment (collected on Tab 4), nothing due today
+  const paid=document.getElementById('stdPaidUpfront').checked;
+  const stdRmrEl=document.getElementById('stdRmr');
+  let stdRmr=parseFloat(stdRmrEl.value)||0;
+  if(paid){ stdRmr=39.99; stdRmrEl.value="39.99"; stdRmrEl.disabled=true; }
+  else { stdRmrEl.disabled=false; }
+  document.getElementById('stdRmrLine').textContent = stdRmr>0 ? f(stdRmr)+'/mo' : 'set RMR';
+  // equipment line: bundled into rate, or paid in full upfront (outright)
+  document.getElementById('stdEquipLine').textContent = paid ? f(equipCustomerTotal())+' upfront' : 'Included in rate';
+  document.getElementById('stdTotalMo').textContent = stdRmr>0 ? f(stdRmr) : '—';
+  // STANDARD due today = RMR + activation (+ equipment if paid upfront) + tax
+  const stdTaxBase = stdRmr + act + (paid?equipCustomerTotal():0);
+  const stdTax = stdTaxBase*taxRate;
+  const stdDueToday = stdRmr>0 ? (stdTaxBase+stdTax) : 0;
+  document.getElementById('stdDue').textContent=f(stdDueToday);
+  const stdFee=document.getElementById('stdFee');
+  if(stdFee){
+    stdFee.textContent = stdRmr>0
+      ? 'Due today '+f(stdDueToday)+' = RMR '+f(stdRmr)+' + activation '+f(act)+(paid?' + equipment '+f(equipCustomerTotal()):'')+' + tax.'
+      : 'First payment includes the activation fee.';
+  }
+  // keep live-bar standard picker in sync
+  const livStd=document.getElementById('stdRmrPick');
+  if(livStd && livStd.value!==stdRmrEl.value && !paid) livStd.value=stdRmrEl.value;
+
+  updateOfferSelection();
+}
+
+function selectOffer(which){
+  if(which==='finance' && !financeAvailable()) return;
+  selectedOffer=which;
+  markStep('offer',true);
+  // decline reason only when standard chosen while finance WAS available
+  const showDecline = (which==='standard' && financeAvailable());
+  document.getElementById('declineBox').classList.toggle('show', showDecline);
+  updateOfferSelection();
+  renderSummary();
+  renderSurvey();
+  renderPayment();
+}
+function updateOfferSelection(){
+  document.getElementById('offerFinance').classList.toggle('selected', selectedOffer==='finance');
+  document.getElementById('offerStandard').classList.toggle('selected', selectedOffer==='standard');
+  // gate: post-offer sections only appear once an offer is locked
+  const post=document.getElementById('postOffer'), gate=document.getElementById('offerGate');
+  if(post && gate){
+    const show = selectedOffer!==null;
+    post.style.display = show ? 'block' : 'none';
+    gate.style.display = show ? 'none' : 'flex';
+  }
+  // update select button labels
+  const fb=document.querySelector('#offerFinance .osel');
+  const sb=document.querySelector('#offerStandard .osel');
+  if(fb) fb.innerHTML = selectedOffer==='finance'
+    ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg> Finance Selected'
+    : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg> Select Finance';
+  if(sb) sb.innerHTML = selectedOffer==='standard'
+    ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg> Standard Selected'
+    : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg> Select Standard';
+}
+
+/* ---------- Alarm validation ---------- */
+function validateAlarm(){
+  const v=document.getElementById('alarm').value;
+  const n=document.getElementById('alarmNote');
+  if(/^\d{4}$/.test(v)){n.className="note ok";n.textContent="✓ 4 numeric digits";}
+  else{n.className="note err";n.textContent="✕ Must be exactly 4 numeric digits";}
+}
+
+/* ---------- Emergency contacts ---------- */
+function addContact(){
+  const div=document.createElement('div');
+  div.className="grid3";div.style.marginBottom="12px";
+  div.innerHTML=`<div class="fld"><label>Name</label><input></div>
+    <div class="fld"><label>Cell Phone</label><input></div>
+    <div class="fld"><label>Relationship</label><input></div>`;
+  document.getElementById('contacts').appendChild(div);
+}
+
+/* ---------- Deal summary + scripted confirmation call (dynamic) ---------- */
+let answers=[null,null,null,null,null,null,null];
+
+function dealData(){
+  // gather live values from the deal for the script + summary
+  const name=document.getElementById('custName').value||'—';
+  const svc=(document.getElementById('acc-svc')?.querySelector('input')?.value)||'';
+  const svcZip=document.querySelectorAll('#acc-svc .grid4 input')[0]?.value||'';
+  const svcCity=document.querySelectorAll('#acc-svc .grid4 input')[1]?.value||'';
+  const svcState=document.querySelectorAll('#acc-svc .grid4 input')[2]?.value||'';
+  const serviceAddr = svc ? (svc+(svcCity?', '+svcCity:'')+(svcState?', '+svcState:'')+(svcZip?' '+svcZip:'')) : '—';
+  // shipping = same as service unless alternate chosen
+  const shipSel=document.getElementById('shipTo')?.value||'';
+  let shipAddr=serviceAddr;
+  if(shipSel.indexOf('Alternate')===0){ const a=document.getElementById('altStreet')?.value; shipAddr = a?a:'alternate address'; }
+  else if(shipSel.indexOf('Billing')===0){ shipAddr='billing address'; }
+  // offer + pricing
+  const f=(n)=>'$'+n.toFixed(2);
+  const term=termMonths();
+  let monthly='—', due='—', offerName='—';
+  const act=parseFloat(document.getElementById('actfee')?.value)||0; const taxRate=0.086;
+  if(selectedOffer==='finance'){
+    offerName='Finance';
+    const r=parseFloat(document.getElementById('finRmrPick')?.value)||0;
+    const fm=financedMonthly(); const base=r+fm;
+    monthly=r>0?f(r+fm):'—';
+    due=r>0?f(base+base*taxRate):'—';   // RMR + financed monthly + tax
+  } else if(selectedOffer==='standard'){
+    offerName='Standard';
+    const r=parseFloat(document.getElementById('stdRmr')?.value)||0;
+    const paid=document.getElementById('stdPaidUpfront')?.checked;
+    const base=r+act+(paid?equipCustomerTotal():0);
+    monthly=r>0?f(r):'—';
+    due=r>0?f(base+base*taxRate):'—';   // RMR + activation (+ equip) + tax
+  }
+  return {name, serviceAddr, shipAddr, monthly, due, term, offerName};
+}
+
+const SURVEY_QS=[
+  d=>`I have your <b>first and last name</b> being <span class="blank">${d.name}</span> — is that correct?`,
+  d=>`I have the <b>service</b> as well as the <b>shipping address</b> being <span class="blank">${d.serviceAddr}</span>${(d.shipAddr&&d.shipAddr!==d.serviceAddr)?' / ship to <span class="blank">'+d.shipAddr+'</span>':''} — is that correct?`,
+  d=>`I have your <b>monthly monitoring cost</b> with us here at Safe Home being <span class="blank">${d.monthly}</span> — is that correct?`,
+  d=>`Do you understand that the <b>upfront cost</b> of the system today was <span class="blank">${d.due}</span>?`,
+  d=>`Do you understand that your <b>system agreement</b> is for a <span class="blank">${d.term}-month</span> term?`,
+  d=>`Do you understand the system is <b>self-install</b>, and you are responsible for paying for the system whether it is installed or not for the duration of the <span class="blank">${d.term}-month</span> agreement?`,
+  d=>`Do you understand that we are a <b>separate company</b> from the prior company you were speaking with, and you are now speaking with <b>Safe Home Security</b>?`,
+];
+
+function renderSummary(){
+  const d=dealData(); const el=document.getElementById('dealSummary'); if(!el) return;
+  const items=[
+    {l:'Customer',v:d.name,tab:'customer'},
+    {l:'Selected Offer',v:d.offerName+' · '+d.monthly+'/mo',tab:'equipment'},
+    {l:'Service / Shipping',v:d.serviceAddr,tab:'customer',full:true},
+    {l:'Upfront Today',v:d.due,tab:'equipment'},
+    {l:'Agreement Term',v:d.term+' months',tab:'equipment'},
+  ];
+  el.innerHTML=items.map(it=>'<div class="sum-item'+(it.full?' full':'')+'"><div class="sl">'+it.l+'<span class="edit" onclick="switchTab(\''+it.tab+'\')">edit ›</span></div><div class="sv">'+it.v+'</div></div>').join('');
+}
+
+function renderSurvey(){
+  const d=dealData(); const el=document.getElementById('survey'); if(!el) return;
+  el.innerHTML=SURVEY_QS.map((q,i)=>{
+    const cls = answers[i]==='y'?'yes':(answers[i]==='n'?'no':'');
+    return '<div class="survey-q '+cls+'"><span class="qn">'+(i+1)+'</span><div class="qx">'+q(d)+'</div>'
+      +'<div class="yn" data-q="'+i+'"><button class="'+(answers[i]==='y'?'on-y':'')+'" onclick="ans('+i+',\'y\')">Yes</button><button class="'+(answers[i]==='n'?'on-n':'')+'" onclick="ans('+i+',\'n\')">No</button></div></div>';
+  }).join('');
+  checkGate();
+}
+function ans(i,v){ answers[i]=v; renderSurvey(); }
+
+function checkGate(){
+  const all=answers.every(a=>a!==null);
+  const allYes=answers.every(a=>a==='y');
+  const gate=document.getElementById('gate');const btn=document.getElementById('genBtn');
+  if(!gate) return;
+  if(!all){gate.className="gate";gate.style.color="";gate.textContent="○ Confirm all seven questions to enable contract generation";btn.disabled=true;btn.style.opacity=.5;}
+  else if(!allYes){gate.className="gate";gate.style.color="var(--red)";gate.textContent="✕ Every question must be confirmed Yes before generating the contract";btn.disabled=true;btn.style.opacity=.5;}
+  else{gate.className="gate ok";gate.style.color="";gate.textContent="✓ All seven confirmed — contract generation enabled";btn.disabled=false;btn.style.opacity=1;markStep('survey',true);}
+}
+document.getElementById('genBtn').addEventListener('click',function(){this.textContent='✓ Contract Generated';markStep('contract',true);});
+
+/* ---------- Callback scheduler (modal-on-modal) ---------- */
+const CB_MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const CB_TIMES=["8:00 AM","9:00 AM","10:00 AM","11:00 AM","1:00 PM","2:00 PM","3:00 PM","4:00 PM"];
+const CB_TODAY=new Date(2026,5,24); // mock "today" = Jun 24 2026
+let cbView={y:2026,m:5}, cbSel={date:null,time:null};
+
+function openCallback(){
+  document.getElementById('cbAcct').textContent=document.getElementById('mAcct').textContent;
+  document.getElementById('cbCust').textContent=document.getElementById('custName').value;
+  cbView={y:CB_TODAY.getFullYear(),m:CB_TODAY.getMonth()};
+  cbSel={date:null,time:null};
+  document.getElementById('cbNotes').value='';
+  renderCbCalendar(); renderCbTimes(); updateCbSummary();
+  document.getElementById('cbOverlay').classList.add('open');
+}
+function closeCallback(){document.getElementById('cbOverlay').classList.remove('open');}
+function cbMonth(d){
+  cbView.m+=d;
+  if(cbView.m<0){cbView.m=11;cbView.y--;}
+  if(cbView.m>11){cbView.m=0;cbView.y++;}
+  renderCbCalendar();
+}
+function renderCbCalendar(){
+  document.getElementById('cbMonthLabel').textContent=CB_MONTHS[cbView.m]+' '+cbView.y;
+  const grid=document.getElementById('cbGrid');
+  let html=['S','M','T','W','T','F','S'].map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  const first=new Date(cbView.y,cbView.m,1).getDay();
+  const days=new Date(cbView.y,cbView.m+1,0).getDate();
+  for(let i=0;i<first;i++) html+=`<div class="cal-day muted"></div>`;
+  for(let d=1;d<=days;d++){
+    const cur=new Date(cbView.y,cbView.m,d);
+    const isPast=cur < new Date(CB_TODAY.getFullYear(),CB_TODAY.getMonth(),CB_TODAY.getDate());
+    const isToday=cur.getTime()===CB_TODAY.getTime();
+    const isSel=cbSel.date && cbSel.date.getTime()===cur.getTime();
+    let cls='cal-day';
+    if(isPast) cls+=' past';
+    if(isToday) cls+=' today';
+    if(isSel) cls+=' sel';
+    html+=`<button class="${cls}" ${isPast?'disabled':`onclick="pickCbDate(${cbView.y},${cbView.m},${d})"`}>${d}</button>`;
+  }
+  grid.innerHTML=html;
+}
+function pickCbDate(y,m,d){cbSel.date=new Date(y,m,d);renderCbCalendar();updateCbSummary();}
+function renderCbTimes(){
+  document.getElementById('cbTimes').innerHTML=CB_TIMES.map(t=>
+    `<button class="time-slot ${cbSel.time===t?'sel':''}" onclick="pickCbTime('${t}')">${t}</button>`).join('');
+}
+function pickCbTime(t){cbSel.time=t;renderCbTimes();updateCbSummary();}
+function updateCbSummary(){
+  const s=document.getElementById('cbSummary'), btn=document.getElementById('cbConfirm');
+  if(cbSel.date&&cbSel.time){
+    const ds=CB_MONTHS[cbSel.date.getMonth()]+' '+cbSel.date.getDate()+', '+cbSel.date.getFullYear();
+    s.innerHTML='<b>'+ds+'</b> at <b>'+cbSel.time+'</b>';
+    btn.disabled=false; btn.style.opacity=1; btn.style.pointerEvents='auto';
+  } else {
+    s.textContent='Select a date and time';
+    btn.disabled=true; btn.style.opacity=.5; btn.style.pointerEvents='none';
+  }
+}
+function confirmCallback(){
+  // (in production this would write to the agent's calendar + account history)
+  closeCallback();
+}
+document.getElementById('cbOverlay').addEventListener('click',e=>{if(e.target.id==='cbOverlay')closeCallback();});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&document.getElementById('cbOverlay').classList.contains('open')){e.stopPropagation();closeCallback();}
+},true);
+
+recalc();
+</script>
+</body>
+</html>

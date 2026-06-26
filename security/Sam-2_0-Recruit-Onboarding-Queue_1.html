@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recruit Onboarding Queue — Sam 2.0</title>
+<style>
+  :root{
+    /* Safe Home Direct — internal CRM palette (Brand Standards 2026) */
+    --bg:#f9f9fa; --card:#ffffff;
+    --line:#dcdce0; --line2:#ececed;
+    --ink:#3b3c3e; --ink2:#5f636a; --ink3:#9a9da3;
+    /* primary action = SHD Cyan (mapped onto --orange tokens so components recolor) */
+    --orange:#23ade8; --orange-soft:#e8f7fd; --orange-line:#a9e0f5;
+    --cyan:#4dbdec; --cyan-anchor:#23ade8; --cyan-deep:#1593c9;
+    --blue:#4b50ec; --blue-soft:#ecedfd;
+    --green:#1fb87f; --green-soft:#e4f8f1;
+    --amber:#c98a16; --amber-soft:#fbf1dc;
+    --red:#e0584a; --red-soft:#fcebe9;
+    --accent-orange:#ec7b4b;
+    --slate:#5f636a;
+    --shadow:0 1px 2px rgba(59,60,62,.06), 0 1px 3px rgba(59,60,62,.05);
+    --shadow-lg:0 20px 50px rgba(40,45,55,.20);
+    --r:5px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"SF Pro",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:13px; -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  button{font-family:inherit;cursor:pointer}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    height:52px; background:var(--bg); display:flex; align-items:center;
+    padding:0 22px; gap:14px; border-bottom:1px solid var(--line);
+    position:sticky; top:0; z-index:20;
+  }
+  .topbar h1{font-size:13px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; margin:0; color:#2b3340}
+  .top-right{margin-left:auto; display:flex; align-items:center; gap:12px}
+  .sel{
+    background:#fff;border:1px solid var(--line);border-radius:8px;height:30px;
+    padding:0 26px 0 10px;font-size:12px;color:var(--ink2);min-width:96px;
+    -webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M2 3.5L5 6.5L8 3.5' stroke='%238a93a6' fill='none' stroke-width='1.4'/></svg>");
+    background-repeat:no-repeat;background-position:right 9px center;
+  }
+  .ic{width:30px;height:30px;border-radius:8px;border:1px solid transparent;display:grid;place-items:center;color:var(--ink2);background:transparent}
+  .ic:hover{background:#e8eaed}
+  .who{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink);font-weight:600}
+  .avatar{width:30px;height:30px;border-radius:8px;background:var(--orange);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+
+  /* ---------- Layout ---------- */
+  .wrap{padding:18px 22px 40px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow);min-height:212px}
+  .kpi-h{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;color:#2b3340;margin-bottom:4px}
+  .kpi-h .gi{color:var(--ink3)}
+  .kpi-h .pill-leg{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink3);font-weight:600}
+  .dot{width:9px;height:9px;border-radius:3px;display:inline-block}
+  .donut-row{display:flex;align-items:center;gap:18px;margin-top:10px}
+  .donut-wrap{position:relative;width:108px;height:108px;flex:none}
+  .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .donut-center b{font-size:22px;line-height:1;color:var(--ink)}
+  .donut-center span{font-size:9px;letter-spacing:.08em;color:var(--ink3);font-weight:700;margin-top:3px}
+  .legend{flex:1;display:flex;flex-direction:column;gap:9px}
+  .legend .row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2)}
+  .legend .row .nm{display:flex;align-items:center;gap:8px}
+  .legend .row .vl{margin-left:auto;font-weight:700;color:var(--ink)}
+  .big{font-size:34px;font-weight:800;color:var(--orange);line-height:1;letter-spacing:-.5px}
+  .big small{font-size:12px;font-weight:600;color:var(--ink3);margin-left:8px;letter-spacing:0}
+  .sub{font-size:11px;color:var(--ink3);margin-top:6px}
+  .ledger{margin-top:16px;display:flex;flex-direction:column;gap:0}
+  .ledger .row{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line2);font-size:12.5px;color:var(--ink2)}
+  .ledger .row b{color:var(--ink);font-weight:700}
+  .ledger .row.warn b{color:var(--amber)}
+  .ledger .row.good b{color:#0e8e62}
+  .bars{margin-top:14px;display:flex;flex-direction:column;gap:11px}
+  .bar{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink2)}
+  .bar .lab{width:88px;text-align:right;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar .track{flex:1;height:9px;border-radius:6px;background:#ececed;overflow:hidden}
+  .bar .fill{height:100%;border-radius:6px}
+  .bar .val{width:18px;font-weight:700;color:var(--ink);text-align:right}
+  svg.line{width:100%;height:120px;display:block;margin-top:6px}
+  .xlab{display:flex;justify-content:space-between;font-size:10px;color:var(--ink3);margin-top:2px}
+
+  /* ---------- Controls row ---------- */
+  .controls{display:flex;align-items:center;gap:10px;margin:4px 0 14px;flex-wrap:wrap}
+  .search{position:relative;flex:0 0 290px;max-width:290px}
+  .search input{width:100%;height:38px;border:1px solid var(--line);border-radius:9px;padding:0 12px;font-size:13px;background:#fff;color:var(--ink)}
+  .search .go{position:absolute;right:5px;top:5px;width:28px;height:28px;border:none;border-radius:7px;background:var(--orange);color:#fff;display:grid;place-items:center}
+  .daterange{height:38px;border:1px solid var(--line);border-radius:9px;background:#fff;display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--ink2);font-size:12.5px}
+  .daterange input{border:none;background:transparent;font-family:inherit;font-size:12.5px;color:var(--ink2);width:88px;padding:0}
+  .daterange input:focus{outline:none;color:var(--ink)}
+  .seg{display:flex;align-items:center;gap:16px;margin-left:6px}
+  .seg label{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2);cursor:pointer}
+  .seg input{accent-color:var(--orange)}
+  .spacer{flex:1}
+  .btn{height:38px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink2);padding:0 14px;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{background:#f7f8f9}
+  .btn.primary{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700}
+  .btn.primary:hover{background:#1593c9}
+
+  /* ---------- Table ---------- */
+  .tablecard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+  .scroll{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;min-width:1120px}
+  thead th{
+    background:#eceef1;color:#5b6577;text-transform:uppercase;font-size:10.5px;letter-spacing:.05em;
+    font-weight:700;text-align:left;padding:12px 14px;white-space:nowrap;border-bottom:1px solid var(--line);user-select:none
+  }
+  thead th .cr{color:#aab2c0;margin-left:4px;font-size:9px}
+  tbody td{padding:11px 14px;border-bottom:1px solid var(--line2);white-space:nowrap;color:var(--ink2);font-size:12.5px}
+  tbody tr{cursor:pointer;transition:background .12s}
+  tbody tr:hover{background:#f6f8fb}
+  tbody tr.done{background:var(--green-soft)}
+  tbody tr.done:hover{background:#d8f3e9}
+  tbody tr.stale{background:#fdf6ea}
+  tbody tr.stale:hover{background:#fbeed4}
+  .recid{color:var(--blue);font-weight:700}
+  .name{color:var(--ink);font-weight:600}
+  .muted{color:var(--ink3)}
+
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;line-height:1}
+  .pill .d{width:7px;height:7px;border-radius:50%}
+  .p-green{background:var(--green-soft);color:#0e8e62}
+  .p-blue{background:var(--blue-soft);color:#3a3fd0}
+  .p-amber{background:var(--amber-soft);color:#9a6a06}
+  .p-red{background:var(--red-soft);color:#b91c2a}
+  .p-slate{background:#eef1f6;color:#475569}
+  .p-orange{background:var(--orange-soft);color:#1176a1}
+
+  /* verify icon chips */
+  .chk{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px}
+  .chk.on{background:var(--green-soft);color:#0e8e62}
+  .chk.off{background:#f1f2f4;color:#c3c6cc}
+
+  /* onboarding progress cell */
+  .prog{display:flex;align-items:center;gap:10px;min-width:200px}
+  .prog .ptrack{flex:1;height:8px;border-radius:6px;background:#ececed;overflow:hidden;min-width:96px}
+  .prog .pfill{height:100%;border-radius:6px;background:var(--orange);transition:width .3s}
+  .prog .pfill.full{background:var(--green)}
+  .prog .pcount{font-weight:700;color:var(--ink);font-size:11.5px;width:34px;text-align:right;flex:none}
+  .nextstep{font-size:11px;color:var(--ink3);font-weight:600;margin-top:3px;display:block}
+  .nextstep.done{color:#0e8e62}
+
+  /* aging gauge */
+  .aging{display:flex;align-items:center;gap:8px}
+  .aging .ag-num{font-weight:700;font-size:12.5px;width:18px;text-align:right}
+  .aging .ag-track{width:46px;height:6px;border-radius:4px;background:#ececed;overflow:hidden}
+  .aging .ag-fill{height:100%;border-radius:4px}
+
+  .sample-badge{font-size:9px;font-weight:800;letter-spacing:.08em;color:var(--ink3);background:#ececed;border:1px solid var(--line);padding:3px 8px;border-radius:6px}
+
+  /* role tag */
+  .roletag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:700;letter-spacing:.03em}
+  .role-rep{background:var(--blue-soft);color:#3a3fd0}
+  .role-tech{background:var(--orange-soft);color:#1176a1}
+  .role-dealer{background:#efeafc;color:#6a3fd0}
+
+  /* AXIS 1 — phase tag (lifecycle lane) */
+  .phasetag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.02em}
+  .ph-prov{background:var(--orange-soft);color:#1176a1}
+  .ph-train{background:#efeafc;color:#6a3fd0}
+  .ph-done{background:var(--green-soft);color:#0e8e62}
+
+  /* owner label (follows phase) */
+  .own{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;font-size:11.5px;font-weight:700;line-height:1.1;white-space:nowrap}
+  .own::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.9}
+  .own-onb{background:var(--orange-soft);color:#1176a1}
+  .own-mgr{background:#efeafc;color:#6a3fd0}
+  .own-done{background:var(--green-soft);color:#0e8e62}
+  .nexttext{font-size:12px;color:var(--ink2)}
+
+  /* AXIS 2 — cold flag (health), independent of phase */
+  .idlewrap{display:flex;flex-direction:column;gap:4px}
+  .coldflag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#b91c2a;background:var(--red-soft);padding:2px 7px;border-radius:5px;width:fit-content}
+  .coldflag::before{content:"●";font-size:7px;line-height:1}
+
+  /* last contact + attempts */
+  .contactwrap{display:flex;flex-direction:column;gap:2px}
+  .ctline{font-size:12px;color:var(--ink2);font-weight:600;white-space:nowrap}
+  .ctline.stale{color:#b91c2a}
+  .ctsub{font-size:11px;color:var(--ink3)}
+
+  /* legacy owner-pill cell width */
+  .nextcell{min-width:180px}
+  .nextcell .act{font-size:12px;font-weight:600;color:var(--ink);display:block;margin-bottom:4px}
+  .nextcell .act.cold{color:#b91c2a}
+  .owners{display:flex;gap:5px;flex-wrap:wrap}
+  .owner{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:700;line-height:1}
+  .owner .od{width:6px;height:6px;border-radius:50%}
+  .o-auto{background:#eef1f6;color:#5b6577}
+  .o-onb{background:var(--orange-soft);color:#1176a1}
+  .o-mgr{background:var(--blue-soft);color:#3a3fd0}
+  .o-recruit{background:#f3eafc;color:#7a3fd0}
+  .o-done{background:var(--green-soft);color:#0e8e62}
+
+  /* cold row + hot timer */
+  tbody tr.cold{background:#fdecea}
+  tbody tr.cold:hover{background:#fbddd9}
+  .timerchip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px}
+  .timer-ok{background:var(--green-soft);color:#0e8e62}
+  .timer-warn{background:var(--amber-soft);color:#9a6a06}
+  .timer-hot{background:var(--red-soft);color:#b91c2a}
+
+  /* extended progress phase mini-tracker */
+  .phasebar{display:flex;gap:3px;align-items:center}
+  .phasebar .seg-d{width:14px;height:6px;border-radius:3px;background:#ececed}
+  .phasebar .seg-d.done{background:var(--green)}
+  .phasebar .seg-d.cur{background:var(--orange)}
+  .phasebar .seg-d.cur.cold{background:var(--red)}
+  .phaselab{font-size:11px;color:var(--ink3);font-weight:600;margin-top:3px;display:block}
+  .phaselab b{color:var(--ink2);font-weight:700}
+
+  .queue-meta{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+  .queue-meta .qcount{font-size:13px;color:var(--ink2);font-weight:600}
+  .queue-meta .qcount b{color:var(--ink);font-weight:800;font-size:15px}
+
+  /* bottom action bar */
+  .actionbar{display:flex;align-items:center;gap:12px;margin-top:16px;padding:14px 18px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);flex-wrap:wrap}
+  .actionbar label{font-size:12.5px;font-weight:600;color:var(--ink2)}
+  .actionbar .tsel{height:38px;border:1px solid var(--line);border-radius:9px;padding:0 30px 0 12px;font-size:13px;background:#fff;color:var(--ink2);min-width:240px;
+    -webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M2 3.5L5 6.5L8 3.5' stroke='%238a93a6' fill='none' stroke-width='1.4'/></svg>");
+    background-repeat:no-repeat;background-position:right 11px center;}
+
+  /* ---------- Edit User modal ---------- */
+  .eu-overlay{position:fixed;inset:0;background:rgba(20,28,45,.45);backdrop-filter:blur(2px);display:none;z-index:70;padding:18px}
+  .eu-overlay.open{display:block}
+  .eu-modal{background:#f7f8fa;border-radius:16px;box-shadow:var(--shadow-lg);max-width:1480px;margin:0 auto;height:calc(100vh - 36px);display:flex;flex-direction:column;overflow:hidden}
+  .eu-head{display:flex;align-items:center;gap:12px;padding:14px 22px;background:#fff;border-bottom:1px solid var(--line)}
+  .eu-head .t{font-size:16px;font-weight:700}
+  .eu-head .t b{color:var(--orange)}
+  .eu-head .sample-badge{margin-left:2px}
+  .eu-close{margin-left:auto;width:34px;height:34px;border:none;background:transparent;color:#c0334a;font-size:22px;border-radius:8px}
+  .eu-close:hover{background:#fbe9ec}
+  .eu-tabs{display:flex;gap:2px;padding:0 22px;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto}
+  .eu-tab{appearance:none;border:none;background:transparent;padding:12px 15px 10px;font-size:12.5px;font-weight:600;color:var(--ink2);border-bottom:2.5px solid transparent;white-space:nowrap}
+  .eu-tab:hover{color:var(--ink)}
+  .eu-tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+  .eu-body{flex:1;overflow-y:auto;padding:18px}
+  .eu-cols{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 220px;gap:16px;align-items:start}
+  @media (max-width:1320px){ .eu-cols{grid-template-columns:1fr 1fr 1fr} }
+  @media (max-width:820px){ .eu-cols{grid-template-columns:1fr 1fr} }
+  @media (max-width:560px){ .eu-cols{grid-template-columns:1fr} }
+  .eu-col{display:flex;flex-direction:column;gap:14px}
+  .eu-grp{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .eu-grp .gh{background:#f1f2f4;padding:9px 14px;font-size:11.5px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center}
+  .eu-grp .gh .copy{margin-left:auto;font-size:11px;font-weight:700;color:var(--orange);background:var(--orange-soft);border:1px solid var(--orange-line);border-radius:6px;padding:2px 8px;cursor:pointer}
+  .eu-grp .gb{padding:13px 14px;display:flex;flex-direction:column;gap:11px}
+  .euf{display:flex;flex-direction:column;gap:4px}
+  .euf > label{font-size:11px;font-weight:600;color:var(--ink2)}
+  .euf > label .req{color:var(--red)}
+  .euf input,.euf select{height:34px;border:1px solid var(--line);border-radius:7px;padding:0 10px;font-size:12.5px;background:#fff;color:var(--ink);width:100%;font-family:inherit}
+  .euf input:focus,.euf select:focus{outline:none;border-color:var(--orange);box-shadow:0 0 0 2px var(--orange-soft)}
+  .euf input[readonly]{background:#f4f5f6;color:var(--ink3)}
+  .euf select{-webkit-appearance:none;appearance:none;color:var(--ink3);
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M2 3.5L5 6.5L8 3.5' stroke='%238a93a6' fill='none' stroke-width='1.4'/></svg>");
+    background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+  .euf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .euf-row.split-7030{grid-template-columns:1fr 80px}
+  .eu-check{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);cursor:pointer}
+  .eu-check input{width:15px;height:15px;accent-color:var(--orange)}
+  .eu-checks{display:flex;flex-direction:column;gap:9px}
+  .eu-radio{display:flex;gap:16px;align-items:center;font-size:12px;color:var(--ink2)}
+  .eu-radio label{display:flex;gap:6px;align-items:center;cursor:pointer}
+  .eu-radio input{accent-color:var(--orange)}
+  .eu-avatar{display:flex;flex-direction:column;gap:12px}
+  .eu-photo{aspect-ratio:1;border:1px solid var(--line);border-radius:12px;background:#fff;display:grid;place-items:center;color:#c3c6cc}
+  .eu-photo svg{width:64px;height:64px}
+  .eu-photo.has{background:var(--orange-soft);color:var(--orange-deep,#1176a1)}
+  .eu-photo .ini{font-size:40px;font-weight:800;color:var(--orange)}
+  .eu-foot{display:flex;align-items:center;gap:10px;padding:13px 18px;background:#fff;border-top:1px solid var(--line);flex-wrap:wrap}
+  .eu-foot .left{display:flex;gap:8px;flex-wrap:wrap}
+  .eu-foot .right{margin-left:auto;display:flex;gap:8px}
+  .eu-foot .btn.green{background:var(--green);border-color:var(--green);color:#fff}
+  .eu-foot .btn.green:hover{background:#128a3e}
+  .eu-pill-bar{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink2)}
+
+  /* ---------- handoff modal (kept as quick peek before opening) ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(20,28,45,.45);backdrop-filter:blur(2px);display:none;z-index:60;padding:26px}
+  .overlay.open{display:flex;align-items:center;justify-content:center}
+  .handoff{background:#fff;border-radius:16px;box-shadow:var(--shadow-lg);max-width:520px;width:100%;padding:0;overflow:hidden}
+  .handoff .hh{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line)}
+  .handoff .hh .t{font-size:16px;font-weight:700}
+  .handoff .hh .m-close{margin-left:auto;width:32px;height:32px;border:none;background:transparent;color:#c0334a;font-size:20px;border-radius:8px}
+  .handoff .hh .m-close:hover{background:#fbe9ec}
+  .handoff .hb{padding:22px}
+  .handoff .hb p{margin:0 0 14px;font-size:13px;color:var(--ink2);line-height:1.55}
+  .handoff .hb .kv{display:flex;gap:8px;font-size:12.5px;color:var(--ink2);padding:7px 0;border-top:1px solid var(--line2)}
+  .handoff .hb .kv b{color:var(--ink);min-width:120px}
+  .handoff .hf{display:flex;gap:10px;justify-content:flex-end;padding:16px 22px;border-top:1px solid var(--line);background:#fafbfc}
+
+  @media (max-width:1100px){ .kpis{grid-template-columns:1fr 1fr} }
+  @media (max-width:640px){ .kpis{grid-template-columns:1fr} .search{flex-basis:100%;max-width:none} }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Recruit Onboarding Queue</h1>
+  <div class="top-right">
+    <select class="sel"><option>Manager</option><option>Recruiter</option><option>All Scopes</option></select>
+    <select class="sel"><option>All Managers</option><option>Brad Leeflang</option><option>Shalev Nenemoff</option><option>Sushant Nepal</option><option>Tyler Smith</option></select>
+    <button class="ic" title="Messages"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+    <button class="ic" title="Notifications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></button>
+    <button class="ic" title="Settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <div class="who"><span class="avatar">J</span>Josiah Bradley</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ KPI CARDS ============ -->
+  <div class="kpis">
+
+    <!-- KPI 1: Total in queue + completed % (donut) -->
+    <div class="kpi">
+      <div class="kpi-h"><span class="gi">▦</span> Queue &amp; Completion</div>
+      <div class="donut-row">
+        <div class="donut-wrap">
+          <svg viewBox="0 0 42 42" width="108" height="108">
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#ececed" stroke-width="6"/>
+            <circle id="doneArc" cx="21" cy="21" r="15.9" fill="none" stroke="#1fb87f" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="25" transform="rotate(-90 21 21)"/>
+          </svg>
+          <div class="donut-center"><b id="donutPct">0%</b><span>CONVERTED</span></div>
+        </div>
+        <div class="ledger" style="flex:1;margin-top:0">
+          <div class="row" style="border-top:none"><span>In queue</span><b id="kTotal">0</b></div>
+          <div class="row good"><span>Converted to rep/tech</span><b id="kDone">0</b></div>
+          <div class="row"><span>Still onboarding</span><b id="kProg">0</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 2: Aging breakdown (bars) -->
+    <div class="kpi">
+      <div class="kpi-h"><span class="gi">⏱</span> Idle &amp; Cold</div>
+      <div class="bars" id="agingBars"></div>
+      <div class="ledger" style="margin-top:12px">
+        <div class="row warn" style="border-top:1px solid var(--line2)"><span>Cold — stalled, needs reactivation</span><b id="kCold">0</b></div>
+      </div>
+    </div>
+
+    <!-- KPI 3: New this week (trend line) -->
+    <div class="kpi">
+      <div class="kpi-h">📈 New Recruits — Last 14 Days <span class="pill-leg"><span class="dot" style="background:#23ade8"></span>Created</span></div>
+      <svg class="line" viewBox="0 0 320 120" preserveAspectRatio="none">
+        <polyline fill="none" stroke="#23ade8" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"
+          points="4,98 28,90 52,72 76,84 100,66 124,70 148,52 172,58 196,40 220,48 244,30 268,44 292,24 316,34"/>
+        <polygon fill="rgba(35,173,232,.07)" points="4,98 28,90 52,72 76,84 100,66 124,70 148,52 172,58 196,40 220,48 244,30 268,44 292,24 316,34 316,120 4,120"/>
+      </svg>
+      <div class="xlab"><span>06/12</span><span>06/16</span><span>06/20</span><span>06/25</span></div>
+    </div>
+
+    <!-- KPI 4: Phase breakdown -->
+    <div class="kpi">
+      <div class="kpi-h"><span class="gi">⧉</span> Phase — All Recruits</div>
+      <div class="bars" id="ownerBars"></div>
+      <div class="sub">Onboarding (rep support) → conversion gate → Training (manager).</div>
+    </div>
+  </div>
+
+  <!-- ============ CONTROLS ============ -->
+  <div class="controls">
+    <div class="search"><input id="q" placeholder="Search name, email, phone…"><button class="go"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button></div>
+    <div class="daterange">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <input value="05/26/2026" aria-label="Created start"> – <input value="06/25/2026" aria-label="Created end">
+    </div>
+    <div class="seg">
+      <label><input type="radio" name="view" value="active" checked onchange="applyFilters()"> Active</label>
+      <label><input type="radio" name="view" value="attention" onchange="applyFilters()"> Needs attention</label>
+      <label><input type="radio" name="view" value="post" onchange="applyFilters()"> Training</label>
+      <label><input type="radio" name="view" value="completed" onchange="applyFilters()"> Completed</label>
+      <label><input type="radio" name="view" value="all" onchange="applyFilters()"> All</label>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn primary" id="clearFilters">Clear Filters</button>
+    <button class="btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Export ▾</button>
+    <button class="btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 3H2l8 9.5V19l4 2v-8.5z"/></svg> Filters</button>
+  </div>
+
+  <div class="queue-meta">
+    <span class="qcount">Showing <b id="shownCount">0</b> of <b id="totalCount">0</b> recruits</span>
+    <span class="sample-badge" title="Placeholder records for review">SAMPLE DATA</span>
+  </div>
+
+  <!-- ============ TABLE ============ -->
+  <div class="tablecard">
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Recruit<span class="cr">↕</span></th>
+            <th>Manager<span class="cr">↕</span></th>
+            <th>Role<span class="cr">↕</span></th>
+            <th>Phase<span class="cr">↕</span></th>
+            <th>Onboarding Progress<span class="cr">↕</span></th>
+            <th>Next Action<span class="cr">↕</span></th>
+            <th>Last Contact<span class="cr">↕</span></th>
+            <th>Idle<span class="cr">▲</span></th>
+          </tr>
+        </thead>
+        <tbody id="rows"><!-- injected --></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ BOTTOM ACTION BAR ============ -->
+  <div class="actionbar">
+    <label for="tmpl">Text template</label>
+    <select class="tsel" id="tmpl">
+      <option>Select a template…</option>
+      <option>Welcome — start onboarding</option>
+      <option>Reminder — verify email</option>
+      <option>Reminder — finish documents</option>
+      <option>Nudge — background check pending</option>
+    </select>
+    <button class="btn">Show / Send Template</button>
+    <button class="btn primary">Send Verify Email</button>
+  </div>
+</div>
+
+<!-- ============ HANDOFF MODAL (opens existing Edit User page) ============ -->
+<div class="overlay" id="overlay">
+  <div class="handoff" role="dialog" aria-modal="true">
+    <div class="hh">
+      <span class="t">Open Recruit</span>
+      <span class="sample-badge">SAMPLE DATA</span>
+      <button class="m-close" id="closeX" aria-label="Close">×</button>
+    </div>
+    <div class="hb">
+      <p>This opens the existing <b>Edit User</b> page for the selected recruit. Wire the button below to your real route (e.g. <span class="mono">/users/edit/{userId}</span>).</p>
+      <div class="kv"><b>Recruit</b><span id="hName">—</span></div>
+      <div class="kv"><b>Role</b><span id="hRole">—</span></div>
+      <div class="kv"><b>Recruit ID</b><span id="hRid" class="mono">—</span></div>
+      <div class="kv"><b>User ID</b><span id="hUid" class="mono">—</span></div>
+      <div class="kv"><b>Progress</b><span id="hProg">—</span></div>
+      <div class="kv"><b>Next action</b><span id="hNext">—</span></div>
+    </div>
+    <div class="hf">
+      <button class="btn" id="closeBtn">Cancel</button>
+      <button class="btn primary" id="openEditUser">Open Edit User →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EDIT USER MODAL (styled mockup of the existing page) ============ -->
+<div class="eu-overlay" id="euOverlay">
+  <div class="eu-modal" role="dialog" aria-modal="true">
+    <div class="eu-head">
+      <span class="t">Edit User: <b id="euUsername">—</b></span>
+      <span class="sample-badge">SAMPLE DATA</span>
+      <button class="eu-close" id="euClose" aria-label="Close">×</button>
+    </div>
+
+    <div class="eu-tabs">
+      <button class="eu-tab active">User Information</button>
+      <button class="eu-tab">Roles</button>
+      <button class="eu-tab">Organization Units</button>
+      <button class="eu-tab">Payscale</button>
+      <button class="eu-tab">Licensing &amp; Compliance</button>
+      <button class="eu-tab">Security</button>
+      <button class="eu-tab">Files &amp; Notes</button>
+      <button class="eu-tab">Change Log</button>
+      <button class="eu-tab">User Points</button>
+    </div>
+
+    <div class="eu-body">
+      <div class="eu-cols">
+
+        <!-- COLUMN 1 — Account -->
+        <div class="eu-col">
+          <div class="eu-grp">
+            <div class="gh">Account</div>
+            <div class="gb">
+              <div class="euf"><label>First Name <span class="req">*</span></label><input id="euFirst"></div>
+              <div class="euf"><label>Last Name <span class="req">*</span></label><input id="euLast"></div>
+              <div class="euf"><label>Preferred Name</label><input></div>
+              <div class="euf"><label>Username <span class="req">*</span></label><input id="euUser"></div>
+              <div class="euf"><label>Company Email <span class="req">*</span></label><input id="euCEmail"></div>
+              <div class="euf"><label>Personal Email <span class="req">*</span></label><input id="euPEmail"></div>
+              <label class="eu-check"><input type="checkbox"> Set Random Password</label>
+              <div class="euf"><label>Password</label><input type="password"></div>
+              <div class="euf"><label>Confirm Password</label><input type="password"></div>
+              <div class="eu-checks">
+                <label class="eu-check"><input type="checkbox"> Change Password Next Login</label>
+                <label class="eu-check"><input type="checkbox"> Send activation email</label>
+                <label class="eu-check"><input type="checkbox" checked> Active</label>
+                <label class="eu-check"><input type="checkbox" checked> Lockout enabled</label>
+                <label class="eu-check"><input type="checkbox"> Do Not Auto Deactivate</label>
+                <label class="eu-check"><input type="checkbox"> Non-Rehireable</label>
+                <label class="eu-check"><input type="checkbox"> Show In Directory</label>
+                <label class="eu-check"><input type="checkbox"> Do Not Text</label>
+              </div>
+              <div class="euf"><label>Directory Description</label><input></div>
+              <div class="euf-row">
+                <div class="euf"><label>User ID</label><input id="euUid" readonly></div>
+                <div class="euf"><label>User ID Badge Number</label><input value="LI326817"></div>
+              </div>
+              <div class="euf-row">
+                <div class="euf"><label>Date Created</label><input value="04/30/2026" readonly></div>
+                <div class="euf"><label>Last Login</label><input value="06/24/2026" readonly></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMN 2 — Personal + Banking -->
+        <div class="eu-col">
+          <div class="eu-grp">
+            <div class="gh">Personal</div>
+            <div class="gb">
+              <div class="euf-row">
+                <div class="euf"><label>Date of Birth</label><input placeholder="mm/dd/yyyy"></div>
+                <div class="euf"><label>Marital Status</label><select><option>Select</option><option>Single</option><option>Married</option></select></div>
+              </div>
+              <div class="euf"><label>Place of Birth</label><input></div>
+              <div class="euf-row split-7030">
+                <div class="euf"><label>Company / Dialpad Phone</label><input placeholder="(941) 705-3350"></div>
+                <div class="euf"><label>Ext.</label><input></div>
+              </div>
+              <div class="euf-row split-7030">
+                <div class="euf"><label>Personal Phone</label><input id="euPhone"></div>
+                <div class="euf"><label>Ext.</label><input></div>
+              </div>
+              <div class="euf"><label>SSN</label><input placeholder="___-__-____"></div>
+              <div class="euf"><label>Business Name</label><input></div>
+              <div class="euf"><label>EIN</label><input placeholder="__-_______"></div>
+              <div class="euf"><label>Payroll User Number</label><input></div>
+            </div>
+          </div>
+          <div class="eu-grp">
+            <div class="gh">Banking</div>
+            <div class="gb">
+              <div class="eu-radio">
+                <label><input type="radio" name="bank"> Checking</label>
+                <label><input type="radio" name="bank"> Saving</label>
+                <label><input type="radio" name="bank"> Business</label>
+              </div>
+              <div class="euf"><label>Routing Number</label><input></div>
+              <div class="euf"><label>Bank Name</label><input></div>
+              <div class="euf"><label>Account Number</label><input></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMN 3 — Addresses + Emergency -->
+        <div class="eu-col">
+          <div class="eu-grp">
+            <div class="gh">Current Address <span class="copy">Copy</span></div>
+            <div class="gb">
+              <div class="euf-row split-7030">
+                <div class="euf"><label>Current Address <span class="req">*</span></label><input></div>
+                <div class="euf"><label>Apt / Suite</label><input></div>
+              </div>
+              <div class="euf"><label>City <span class="req">*</span></label><input></div>
+              <div class="euf-row">
+                <div class="euf"><label>State <span class="req">*</span></label><input></div>
+                <div class="euf"><label>Zip Code <span class="req">*</span></label><input></div>
+              </div>
+            </div>
+          </div>
+          <div class="eu-grp">
+            <div class="gh">Permanent Address <span class="copy">Copy</span></div>
+            <div class="gb">
+              <label class="eu-check"><input type="checkbox"> Same as Current</label>
+              <div class="euf-row split-7030">
+                <div class="euf"><label>Permanent Address <span class="req">*</span></label><input></div>
+                <div class="euf"><label>Apt / Suite</label><input></div>
+              </div>
+              <div class="euf"><label>City <span class="req">*</span></label><input></div>
+              <div class="euf-row">
+                <div class="euf"><label>State <span class="req">*</span></label><input></div>
+                <div class="euf"><label>Zip Code <span class="req">*</span></label><input></div>
+              </div>
+            </div>
+          </div>
+          <div class="eu-grp">
+            <div class="gh">Emergency Contact</div>
+            <div class="gb">
+              <div class="euf"><label>Name</label><input></div>
+              <div class="euf-row">
+                <div class="euf"><label>Relation</label><select><option>Select</option><option>Spouse</option><option>Parent</option><option>Sibling</option></select></div>
+                <div class="euf"><label>Phone</label><input></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMN 4 — Clothing + Office -->
+        <div class="eu-col">
+          <div class="eu-grp">
+            <div class="gh">Clothing Sizes</div>
+            <div class="gb">
+              <div class="euf-row">
+                <div class="euf"><label>Shirt Size</label><select><option>Select</option><option>S</option><option>M</option><option>L</option><option>XL</option></select></div>
+                <div class="euf"><label>Shoe Size</label><select><option>Select</option><option>9</option><option>10</option><option>11</option><option>12</option></select></div>
+              </div>
+              <div class="euf-row">
+                <div class="euf"><label>Pant Size</label><select><option>Select</option><option>30</option><option>32</option><option>34</option></select></div>
+                <div class="euf"><label>Shirt Style</label><select><option>Select</option><option>Polo</option><option>Tee</option></select></div>
+              </div>
+            </div>
+          </div>
+          <div class="eu-grp">
+            <div class="gh">Office</div>
+            <div class="gb">
+              <div class="euf"><label>Office <span class="req">*</span></label><select><option>JD Enterprise</option><option>Safe Home Direct</option></select></div>
+              <div class="euf"><label>Primary Office</label><select><option>Select</option></select></div>
+              <div class="euf"><label>Department</label><select><option>Select</option></select></div>
+              <div class="euf"><label>Experience Level</label><select><option>Select</option></select></div>
+              <div class="euf"><label>Sales - VP</label><select><option>Select</option></select></div>
+              <div class="euf"><label>Sales - DVP</label><select><option>Select</option></select></div>
+              <div class="euf"><label>Sales - Regional</label><select><option>Select</option></select></div>
+              <div class="euf"><label>Sales - Manager</label><select id="euMgr"><option>Select</option></select></div>
+              <div class="euf"><label>Sales - Assistant Manager</label><select><option>Select</option></select></div>
+              <div class="euf"><label>Office Assistant</label><select><option>Select</option></select></div>
+              <div class="euf-row">
+                <div class="euf"><label>Recruited By</label><select id="euBy"><option>Select</option></select></div>
+                <div class="euf"><label>Recruitment Method</label><select><option>Select</option></select></div>
+              </div>
+              <div class="euf"><label>User Status</label><select><option>Select</option></select></div>
+              <label class="eu-check"><input type="checkbox"> Warehouse</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMN 5 — Avatar rail -->
+        <div class="eu-col">
+          <div class="eu-photo" id="euPhotoBox"><span class="ini" id="euIni">—</span></div>
+          <button class="btn primary" style="width:100%">Change User Image</button>
+          <div class="euf"><label>User Color</label><input type="color" value="#23ade8" style="height:38px;padding:3px"></div>
+          <div class="euf"><label>User Type</label><select><option>Internal</option><option>External</option></select></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="eu-foot">
+      <div class="left">
+        <button class="btn primary">Permissions</button>
+        <button class="btn primary">User Stats</button>
+        <button class="btn primary">Appt. Availability</button>
+        <button class="btn primary">Settings</button>
+        <button class="btn primary">Copy To HC</button>
+        <button class="btn primary">Department</button>
+        <button class="btn primary">DocuVault</button>
+      </div>
+      <div class="right">
+        <button class="btn" id="euCancel"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg> Close</button>
+        <button class="btn green" id="euSave"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg> Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Pipeline model ----------
+   Pre-conversion milestones (the recruit fills these out / docs get signed).
+   These are the 13 the queue already tracks via r.done (0..13). */
+const STEPS = [
+  "Verified Email","Permanent Address","Photo","Copy of DL","Direct Deposit",
+  "Background Check","Signed","Covid Policy","FTC Compliance",
+  "Prohibition Against Misrepresentation","Exhibit A","Sales Rules","Installation Standards"
+];
+const TOTAL_STEPS = STEPS.length;
+
+/* Phase 2 — Training (manager-owned). Recruit has completed provisioning, has
+   portal access, now learning to use it. Placeholder steps — define real ones later. */
+const TRAIN = ["Portal walkthrough","First deal entered","Reports reviewed","Cleared to sell solo"];
+const TRAIN_TOTAL = TRAIN.length;
+
+/* Role config — the few real differences worth keeping, per the flow diagrams. */
+const ROLES = {
+  Rep:    {label:"Sales Rep",  cls:"role-rep",    window:72, training:"Sales training",      payTrigger:"first payable sale"},
+  Tech:   {label:"Technician", cls:"role-tech",   window:72, training:"Sales training",      payTrigger:"first payroll"},
+  Dealer: {label:"Dealer",     cls:"role-dealer", window:96, training:"Portal/team training",payTrigger:"first payroll"}
+};
+
+/* ---------- Sample data (mirrors the live queue columns, trimmed for the table) ----------
+   done = count of completed milestones (0..13). emailV / addr = verification flags. */
+const data = [
+  {rid:10051, uid:0,     first:"David",      last:"Ransom",      email:"David135@gmail.com",          phone:"5853688181", created:"06/24/26", age:1,  mgr:"Josiah Bradley",   by:"Brad Leeflang",    emailV:false, addr:false, done:0,  note:"I want him at 29 mult"},
+  {rid:10050, uid:0,     first:"Bojana",     last:"Rakic",       email:"bojana.rakic911@gmail.com",   phone:"7206719366", created:"06/24/26", age:1,  mgr:"Reginald Anderson",by:"Shalev Nenemoff",  emailV:false, addr:false, done:0,  note:""},
+  {rid:10049, uid:19410, first:"Ashley",     last:"McCarroll",   email:"ashleymccarroll021@yahoo.com",phone:"2145324836", created:"06/24/26", age:1,  mgr:"Reginald Anderson",by:"Shalev Nenemoff",  emailV:true,  addr:false, done:1,  note:""},
+  {rid:10048, uid:19406, first:"Adrian",     last:"Serrano",     email:"Orale.serrano1000@gmail.com", phone:"4692467383", created:"06/23/26", age:2,  mgr:"Alex Varela",      by:"Brad Leeflang",    emailV:true,  addr:true,  done:5,  note:""},
+  {rid:10047, uid:19404, first:"Garret",     last:"Mazur",       email:"gmazur@orizonenergy.ca",      phone:"4039198412", created:"06/22/26", age:3,  mgr:"Oren Zamir",       by:"Brad Leeflang",    emailV:true,  addr:true,  done:4,  note:""},
+  {rid:10043, uid:19399, first:"Jon",        last:"Nichols",     email:"bigjon91@yahoo.com",          phone:"2107496581", created:"06/18/26", age:7,  mgr:"Shalev Nenemoff",  by:"Shalev Nenemoff",  emailV:true,  addr:true,  done:6,  note:""},
+  {rid:10042, uid:0,     first:"Jase",       last:"Trahan",      email:"Jptrahan215@gmail.com",       phone:"3372815659", created:"06/18/26", age:7,  mgr:"Tyler Smith",      by:"Brad Leeflang",    emailV:false, addr:false, done:0,  note:"Setter"},
+  {rid:10040, uid:0,     first:"Yovanna",    last:"Crucey",      email:"Yovannafmc2@gmail.com",       phone:"8253653423", created:"06/17/26", age:8,  mgr:"Sushant Nepal",    by:"Sushant Nepal",    emailV:false, addr:false, done:0,  note:""},
+  {rid:10039, uid:19405, first:"Chad",       last:"Cortez",      email:"chadkruz92@gmail.com",        phone:"7178843348", created:"06/17/26", age:8,  mgr:"Nick Killian",     by:"Brad Leeflang",    emailV:true,  addr:true,  done:3,  note:""},
+  {rid:10036, uid:0,     first:"Carter",     last:"Rodriguez",   email:"carterrod433@gmail.com",      phone:"9706660821", created:"06/17/26", age:8,  mgr:"Reginald Anderson",by:"Shalev Nenemoff",  emailV:false, addr:false, done:0,  note:""},
+  {rid:10035, uid:19409, first:"Lucas",      last:"Mennare",     email:"lmennare14@gmail.com",        phone:"9703244056", created:"06/17/26", age:8,  mgr:"Reginald Anderson",by:"Shalev Nenemoff",  emailV:false, addr:false, done:0,  note:""},
+  {rid:10034, uid:19408, first:"Allen",      last:"Scott Jr",    email:"allenscottjr888@gmail.com",   phone:"7204001625", created:"06/17/26", age:8,  mgr:"Reginald Anderson",by:"Shalev Nenemoff",  emailV:true,  addr:false, done:1,  note:""},
+  {rid:10032, uid:19407, first:"Sarah",      last:"Flores",      email:"sarahflorek5@gmail.com",      phone:"8642055635", created:"06/17/26", age:8,  mgr:"Anand Abelson",    by:"Shalev Nenemoff",  emailV:false, addr:false, done:0,  note:"28x"},
+  {rid:10029, uid:0,     first:"Christopher",last:"Ramirez",     email:"christopher1334@icloud.com",  phone:"5616020709", created:"06/16/26", age:9,  mgr:"Daniel Doria",     by:"Brad Leeflang",    emailV:true,  addr:true,  done:2,  note:""},
+  {rid:10028, uid:0,     first:"Farsat",     last:"Jarjees",     email:"farsatjarjees@gmail.com",     phone:"4039098717", created:"06/16/26", age:9,  mgr:"Sushant Nepal",    by:"Sushant Nepal",    emailV:false, addr:false, done:0,  note:""},
+  {rid:10027, uid:0,     first:"Alejandro",  last:"Valencia",    email:"alexvalencia007@outlook.com", phone:"6724723781", created:"06/16/26", age:9,  mgr:"Sushant Nepal",    by:"Sushant Nepal",    emailV:false, addr:false, done:0,  note:""},
+  {rid:10024, uid:0,     first:"Brett",      last:"Bruyn",       email:"michaelbruyn123@gmail.com",   phone:"5202083732", created:"06/15/26", age:10, mgr:"Reginald Anderson",by:"Shalev Nenemoff",  emailV:false, addr:false, done:0,  note:"27x"},
+  {rid:10017, uid:0,     first:"Bobbie",     last:"Nichols",     email:"Bbuldog70@yahoo.com",         phone:"4802310110", created:"06/12/26", age:13, mgr:"Ryan Curtis",      by:"Brad Leeflang",    emailV:false, addr:false, done:0,  note:"30x"},
+  {rid:10008, uid:19402, first:"Jaeden",     last:"Turner",      email:"jaedenturnersolar@gmail.com", phone:"4015987866", created:"06/11/26", age:14, mgr:"Daniel Doria",     by:"Brad Leeflang",    emailV:true,  addr:true,  done:6,  note:"32x"},
+  {rid:10006, uid:19381, first:"Zander",     last:"Zuniga",      email:"zanderzuniga045@gmail.com",   phone:"3035199977", created:"06/10/26", age:15, mgr:"Nelson Peribanez", by:"Brad Leeflang",    emailV:true,  addr:false, done:1,  note:""},
+  {rid:10002, uid:19375, first:"Roberta",    last:"Beatty",      email:"rbeatty1025@gmail.com",       phone:"5303647385", created:"06/09/26", age:16, mgr:"Nelson Peribanez", by:"Brad Leeflang",    emailV:true,  addr:false, done:1,  note:""},
+  {rid:9997,  uid:0,     first:"Tyrone",     last:"Cunningham",  email:"tcunningham09@yahoo.com",     phone:"4708913299", created:"06/06/26", age:19, mgr:"Terrance Warren",  by:"Terrance Warren",  emailV:false, addr:false, done:0,  note:""},
+  {rid:9995,  uid:0,     first:"Ron",        last:"Jackson",     email:"ronjacksonfsgw2_64z@indeedemail.co", phone:"8322899288", created:"06/06/26", age:19, mgr:"Terrance Warren", by:"Aaron Craft - Tech", emailV:false, addr:false, done:0, note:""},
+  {rid:9992,  uid:19361, first:"Rylan",      last:"Christensen", email:"rylanchristensen66@gmail.com",phone:"8018080229", created:"06/04/26", age:21, mgr:"Reginald Anderson",by:"Shalev Nenemoff",  emailV:false, addr:false, done:0,  note:"27x"},
+  {rid:9982,  uid:0,     first:"Jeremiah",   last:"Drayton",     email:"Jercdray7@gmail.com",         phone:"4437806468", created:"06/04/26", age:21, mgr:"Tyler Smith",      by:"Brad Leeflang",    emailV:false, addr:true,  done:1,  note:""},
+  {rid:9981,  uid:19360, first:"Jesse",      last:"Ennis",       email:"jesse.ennis@yahoo.com",       phone:"8015977701", created:"06/02/26", age:23, mgr:"Shadrach Ennis",   by:"Brad Leeflang",    emailV:false, addr:false, done:0,  note:"texted Shad"},
+  {rid:9980,  uid:0,     first:"Gabriel",    last:"Agby",        email:"agbygabriel21@gmail.com",     phone:"6593024023", created:"06/02/26", age:23, mgr:"Michael Manassa",  by:"Brad Leeflang",    emailV:true,  addr:false, done:1,  note:"33x"},
+  {rid:9977,  uid:19354, first:"Mario",      last:"Miramontes",  email:"Mario_m_l@live.com",          phone:"3232368266", created:"06/01/26", age:24, mgr:"Daniel Ottesen - T",by:"Daniel Ottesen - T",emailV:false,addr:false, done:0,  note:"Tech 140"},
+  {rid:9976,  uid:19350, first:"Jalen",      last:"Harris",      email:"Therealjharris@gmail.com",    phone:"3374869301", created:"05/30/26", age:26, mgr:"Paul Luna",        by:"Brad Leeflang",    emailV:true,  addr:true,  done:5,  note:"28x"},
+  {rid:9970,  uid:0,     first:"John",       last:"Trevino",     email:"Johntrevino2014@icloud.com",  phone:"3612061514", created:"05/27/26", age:29, mgr:"Chris Martinez",   by:"Brad Leeflang",    emailV:false, addr:true,  done:1,  note:"30x"},
+  {rid:9969,  uid:19348, first:"Tyler",      last:"Bates",       email:"tyleralarmguy90@gmail.com",   phone:"5414602646", created:"05/27/26", age:29, mgr:"Daniel Ottesen - T",by:"Daniel Ottesen - T",emailV:false,addr:false, done:0,  note:"Ryan Curtis Tech Ne"},
+  {rid:9967,  uid:0,     first:"Gage",       last:"Smith",       email:"Gage.m.smith22@gmail.com",    phone:"3375771265", created:"05/26/26", age:30, mgr:"Tyler Smith",      by:"Brad Leeflang",    emailV:true,  addr:true,  done:13, note:"32x"},
+  {rid:9966,  uid:19356, first:"Alyse",      last:"Dugas",       email:"alysedugas@yahoo.com",        phone:"3375177475", created:"05/26/26", age:30, mgr:"Tyler Smith",      by:"Brad Leeflang",    emailV:true,  addr:true,  done:13, note:"Setter"}
+];
+
+/* ---------- Derive pipeline state for each record ----------
+   Ownership window: Onboarding owns 0–48h. At ~48h the manager gets a heads-up
+   (onboarding still owns). At 72h+ ownership flips fully to the manager, who must
+   push the recruit back into the process. One clean handoff, not a 3-way alert. */
+function deriveState(){
+  data.forEach((r,i)=>{
+    // role: deterministic spread, mostly Reps with some Techs/Dealers
+    const m = r.rid % 10;
+    r.role = m>=8 ? "Dealer" : m>=5 ? "Tech" : "Rep";
+    r.window = ROLES[r.role].window;
+
+    // --- seed a realistic in-flight spread of provisioning progress ---
+    if(r.done !== TOTAL_STEPS){
+      const s = (r.rid * 13) % 100;
+      if(s < 12)      r.done = 0;
+      else if(s < 42) r.done = 1 + (s % 4);
+      else if(s < 70) r.done = 5 + (s % 4);
+      else if(s < 88) r.done = 9 + (s % 4);
+      else            r.done = TOTAL_STEPS;
+      if(r.done>=1) r.emailV = true;
+      if(r.done>=2) r.addr = true;
+    }
+
+    // === AXIS 1: PHASE (lifecycle lane) ===
+    // provisioning = doing profile/docs. training = completed P1, learning portal.
+    // done = training complete, fully the manager's.
+    r.converted = r.done === TOTAL_STEPS;          // graduated Phase 1 → has access
+    r.train = r.converted ? Math.min(TRAIN_TOTAL, 1 + ((r.rid * 7) % TRAIN_TOTAL)) : 0;
+    r.done2 = r.converted && r.train >= TRAIN_TOTAL; // cleared / fully done
+    r.phase = r.done2 ? 'done' : r.converted ? 'training' : 'provisioning';
+
+    // owner is a property of the phase: onboarding owns provisioning, manager owns training
+    r.owner = r.phase==='provisioning' ? 'Onboarding' : 'Manager';
+
+    // === AXIS 2: HEALTH (cold / on-track) — independent of phase ===
+    // idle hours since last progress. cold = stalled past the role window.
+    const seed = (r.rid * 37) % 100;
+    if(r.done2)                    r.idle = 0;
+    else if(r.phase==='training')  r.idle = (seed > 70) ? (80 + (seed%30)) : (4 + (seed % 50)); // some stall
+    else if(r.done===0)            r.idle = 20 + seed;         // never started
+    else if(r.done<7)              r.idle = 8 + (seed % 70);
+    else                           r.idle = 4 + (seed % 40);   // docs stage
+    r.cold = !r.done2 && r.idle >= r.window;       // stalled in whatever lane they're in
+
+    // next action text
+    if(r.done2)                    r.next = 'Complete — fully active';
+    else if(r.phase==='training')  r.next = TRAIN[r.train] || 'Wrap up training';
+    else if(!r.emailV)             r.next = 'Verify email';
+    else if(r.done<7)              r.next = STEPS[r.done];
+    else                           r.next = `Sign / upload: ${STEPS[r.done]}`;
+
+    // cold note adapts to phase (different meaning by lane)
+    r.coldNote = !r.cold ? '' : (r.phase==='training' ? 'Training stalled' : 'Cold — not set up');
+
+    // --- last contact + attempts (seeded) ---
+    const methods = ['Text','Call','Email'];
+    if(r.phase==='done'){
+      r.lastMethod = null; r.lastHrs = 0; r.attempts = 0;
+    } else {
+      r.lastMethod = methods[r.rid % 3];
+      r.lastHrs = r.cold ? Math.round(r.idle * 0.8) : Math.max(1, Math.round(r.idle * 0.35));
+      r.attempts = Math.min(9, Math.floor(r.idle / 18) + (r.done===0 ? 0 : 1));
+    }
+  });
+}
+deriveState();
+const CHK_ON  = '<span class="chk on" title="Yes"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>';
+const CHK_OFF = '<span class="chk off" title="No"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6 6 18"/></svg></span>';
+
+function fmtPhone(p){ if(!p||p.length<10) return p||'—'; return `(${p.slice(0,3)}) ${p.slice(3,6)}-${p.slice(6,10)}`; }
+
+function agingCell(age){
+  // bucket color: <7 green, 7-13 amber, 14+ red
+  const cls = age>=14 ? '#e0584a' : age>=7 ? '#c98a16' : '#1fb87f';
+  const pct = Math.min(100, Math.round(age/30*100));
+  return `<span class="aging"><span class="ag-num" style="color:${cls}">${age}</span><span class="ag-track"><span class="ag-fill" style="width:${pct}%;background:${cls}"></span></span></span>`;
+}
+
+function progCell(r){
+  // Unified bar. Provisioning fills 0–70% (13 steps); training fills 70–100% (4 steps).
+  let pct, lab, full=false;
+  if(r.phase==='provisioning'){
+    pct = Math.round(r.done/TOTAL_STEPS*70);
+    lab = `Onboarding — <b>${STEPS[r.done]}</b>`;
+  } else if(r.phase==='training'){
+    pct = 70 + Math.round(r.train/TRAIN_TOTAL*30);
+    lab = `Training — <b>${TRAIN[r.train]||'wrap up'}</b>`;
+  } else {
+    pct = 100; full=true; lab = '✓ Complete — fully active';
+  }
+  const stepTotal = TOTAL_STEPS + TRAIN_TOTAL;
+  const stepDone  = r.converted ? TOTAL_STEPS + r.train : r.done;
+  return `<div>
+    <div class="prog">
+      <span class="ptrack"><span class="pfill ${full?'full':''}" style="width:${pct}%"></span></span>
+      <span class="pcount">${stepDone}/${stepTotal}</span>
+    </div>
+    <span class="phaselab ${full?'done':''}" style="${full?'color:#0e8e62':''}">${lab}</span>
+  </div>`;
+}
+
+function roleCell(role){const c=ROLES[role];return `<span class="roletag ${c.cls}">${c.label}</span>`;}
+
+/* AXIS 1 — phase (lane). Provisioning = onboarding's setup; Training = manager's enablement. */
+function phaseCell(r){
+  if(r.phase==='provisioning') return `<span class="phasetag ph-prov">Onboarding</span>`;
+  if(r.phase==='training')     return `<span class="phasetag ph-train">Training</span>`;
+  return `<span class="phasetag ph-done">Complete</span>`;
+}
+
+/* Owner follows phase. Onboarding owns provisioning, manager owns training. */
+function ownerCell(r){
+  if(r.phase==='done')         return `<span class="own own-done">Complete</span>`;
+  if(r.owner==='Manager')      return `<span class="own own-mgr">Manager</span>`;
+  return `<span class="own own-onb">Onboarding</span>`;
+}
+
+/* AXIS 2 — health (cold). Independent flag, shown in the Idle cell + row tint. */
+function agingCell(r){
+  const idle = r.idle;
+  const days = Math.floor(idle/24);
+  const cls = r.cold ? '#e0584a' : idle>=(r.window-24) ? '#c98a16' : '#1fb87f';
+  const pct = Math.min(100, Math.round(idle/(r.window*1.3)*100));
+  const flag = r.coldNote ? `<span class="coldflag">${r.coldNote}</span>` : '';
+  return `<div class="idlewrap">
+    <span class="aging"><span class="ag-num" style="color:${cls}">${days}d</span><span class="ag-track"><span class="ag-fill" style="width:${pct}%;background:${cls}"></span></span></span>
+    ${flag}
+  </div>`;
+}
+
+function nextCell(r){
+  return `<span class="nexttext">${r.next}</span>`;
+}
+
+function relTime(hrs){
+  if(hrs<1) return 'just now';
+  if(hrs<24) return `${hrs}h ago`;
+  const d=Math.floor(hrs/24);
+  return `${d}d ago`;
+}
+const METHOD_ICON = {Text:'💬',Call:'📞',Email:'✉'};
+function contactCell(r){
+  if(!r.lastMethod) return `<span class="muted">—</span>`;
+  const stale = r.lastHrs >= r.window;
+  return `<div class="contactwrap">
+    <span class="ctline ${stale?'stale':''}">${r.lastMethod} · ${relTime(r.lastHrs)}</span>
+    <span class="ctsub">${r.attempts} attempt${r.attempts===1?'':'s'}</span>
+  </div>`;
+}
+
+/* ---------- render table ---------- */
+function rowClass(r){ if(r.phase==='done') return 'done'; if(r.cold) return 'cold'; return ''; }
+
+function render(list){
+  document.getElementById('rows').innerHTML = list.map(r=>`
+    <tr class="${rowClass(r)}" onclick="openRecruit(${r.rid})">
+      <td class="name">${r.first} ${r.last}</td>
+      <td>${r.mgr}</td>
+      <td>${roleCell(r.role)}</td>
+      <td>${phaseCell(r)}</td>
+      <td>${progCell(r)}</td>
+      <td>${nextCell(r)}</td>
+      <td>${contactCell(r)}</td>
+      <td>${agingCell(r)}</td>
+    </tr>`).join('');
+  document.getElementById('shownCount').textContent = list.length;
+}
+
+/* ---------- KPI computation ---------- */
+function buildKpis(){
+  const total = data.length;
+  const conv  = data.filter(r=>r.converted).length;
+  const prog  = total - conv;
+  const pct   = Math.round(conv/total*100);
+  document.getElementById('kTotal').textContent = total;
+  document.getElementById('kDone').textContent  = conv;
+  document.getElementById('kProg').textContent  = prog;
+  document.getElementById('donutPct').textContent = pct+'%';
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('doneArc').setAttribute('stroke-dasharray', `${pct} ${100-pct}`);
+
+  // cold count (stalled in either phase)
+  document.getElementById('kCold').textContent = data.filter(r=>r.cold).length;
+
+  // idle buckets
+  const buckets = [
+    {lab:'0–24 h',  test:r=>r.phase!=='done'&&r.idle<24,            color:'#1fb87f'},
+    {lab:'24–48 h', test:r=>r.phase!=='done'&&r.idle>=24&&r.idle<48,color:'#5cb85c'},
+    {lab:'48–72 h', test:r=>r.phase!=='done'&&r.idle>=48&&r.idle<72,color:'#c98a16'},
+    {lab:'72 h +',  test:r=>r.phase!=='done'&&r.idle>=72,           color:'#e0584a'}
+  ];
+  const maxB = Math.max(...buckets.map(b=>data.filter(b.test).length),1);
+  document.getElementById('agingBars').innerHTML = buckets.map(b=>{
+    const n=data.filter(b.test).length;
+    return `<div class="bar"><span class="lab">${b.lab}</span><span class="track"><span class="fill" style="width:${n/maxB*100}%;background:${b.color}"></span></span><span class="val">${n}</span></div>`;
+  }).join('');
+
+  // phase breakdown (the two lanes + done)
+  const phases = [
+    {key:'provisioning', lab:'Onboarding', color:'#23ade8'},
+    {key:'training',     lab:'Training',   color:'#7a3fd0'},
+    {key:'done',         lab:'Complete',   color:'#1fb87f'}
+  ];
+  const pCounts={provisioning:0,training:0,done:0};
+  data.forEach(r=>{ if(pCounts[r.phase]!==undefined) pCounts[r.phase]++; });
+  const maxP=Math.max(...phases.map(p=>pCounts[p.key]),1);
+  document.getElementById('ownerBars').innerHTML = phases.map(p=>
+    `<div class="bar"><span class="lab" title="${p.lab}">${p.lab}</span><span class="track"><span class="fill" style="width:${pCounts[p.key]/maxP*100}%;background:${p.color}"></span></span><span class="val">${pCounts[p.key]}</span></div>`
+  ).join('');
+}
+
+/* ---------- filters ---------- */
+function currentView(){const el=document.querySelector('input[name="view"]:checked');return el?el.value:'active';}
+function applyFilters(){
+  const t=document.getElementById('q').value.toLowerCase();
+  const view=currentView();
+  let list=data.slice();
+  if(view==='active')        list=list.filter(r=>r.phase==='provisioning' && !r.cold);
+  else if(view==='attention')list=list.filter(r=>r.cold);
+  else if(view==='post')     list=list.filter(r=>r.phase==='training');
+  else if(view==='completed')list=list.filter(r=>r.phase==='done');
+  // 'all' = no filter
+  if(t) list=list.filter(r=>(r.first+' '+r.last+' '+r.email+' '+r.phone+' '+r.mgr+' '+r.by+' '+r.rid+' '+r.role+' '+r.phase+' '+r.next+' '+r.owner+' '+r.note).toLowerCase().includes(t));
+  render(list);
+}
+document.getElementById('q').addEventListener('input',applyFilters);
+document.getElementById('clearFilters').addEventListener('click',()=>{
+  document.getElementById('q').value='';
+  document.querySelector('input[name="view"][value="active"]').checked=true;
+  applyFilters();
+});
+
+/* ---------- row click → handoff to existing Edit User page ---------- */
+const overlay=document.getElementById('overlay');
+function openRecruit(rid){
+  const r=data.find(x=>x.rid===rid); if(!r) return;
+  document.getElementById('hName').textContent=`${r.first} ${r.last}`;
+  document.getElementById('hRole').textContent=ROLES[r.role].label;
+  document.getElementById('hRid').textContent=r.rid;
+  document.getElementById('hUid').textContent=r.uid||'(not yet created)';
+  document.getElementById('hProg').textContent= r.phase==='provisioning' ? `Onboarding — ${r.done}/${TOTAL_STEPS}` : r.phase==='training' ? `Training — ${r.train}/${TRAIN_TOTAL}` : 'Complete — fully active';
+  document.getElementById('hNext').textContent= r.cold ? `${r.next} · ${r.coldNote}` : r.next;
+  document.getElementById('openEditUser').onclick=()=>{
+    closeOverlay();
+    openEditUser(r);
+  };
+  overlay.classList.add('open');
+}
+function closeOverlay(){overlay.classList.remove('open');}
+document.getElementById('closeX').addEventListener('click',closeOverlay);
+document.getElementById('closeBtn').addEventListener('click',closeOverlay);
+overlay.addEventListener('click',e=>{if(e.target===overlay)closeOverlay();});
+
+/* ---------- Edit User modal ---------- */
+const euOverlay=document.getElementById('euOverlay');
+function setOpt(selId,val){
+  const sel=document.getElementById(selId); if(!sel||!val) return;
+  let opt=[...sel.options].find(o=>o.value===val||o.textContent===val);
+  if(!opt){opt=new Option(val,val);sel.add(opt);}
+  sel.value=opt.value; sel.style.color='var(--ink)';
+}
+function openEditUser(r){
+  const uname=(r.first[0]+r.last).toLowerCase().replace(/[^a-z]/g,'');
+  document.getElementById('euUsername').textContent=uname;
+  document.getElementById('euFirst').value=r.first;
+  document.getElementById('euLast').value=r.last;
+  document.getElementById('euUser').value=uname;
+  document.getElementById('euCEmail').value=r.email;
+  document.getElementById('euPEmail').value=r.email;
+  document.getElementById('euPhone').value=fmtPhone(r.phone);
+  document.getElementById('euUid').value=r.uid||'(pending)';
+  document.getElementById('euIni').textContent=(r.first[0]+r.last[0]).toUpperCase();
+  setOpt('euMgr',r.mgr);
+  setOpt('euBy',r.by);
+  euOverlay.classList.add('open');
+}
+function closeEditUser(){euOverlay.classList.remove('open');}
+document.getElementById('euClose').addEventListener('click',closeEditUser);
+document.getElementById('euCancel').addEventListener('click',closeEditUser);
+euOverlay.addEventListener('click',e=>{if(e.target===euOverlay)closeEditUser();});
+document.getElementById('euSave').addEventListener('click',function(){
+  const b=this;const html=b.innerHTML;b.textContent='✓ Saved';
+  setTimeout(()=>{b.innerHTML=html;},1200);
+});
+document.querySelectorAll('.eu-tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.eu-tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+}));
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ if(euOverlay.classList.contains('open'))closeEditUser(); else closeOverlay(); }
+});
+
+/* ---------- init ---------- */
+buildKpis();
+applyFilters();
+</script>
+</body>
+</html>
