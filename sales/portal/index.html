@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales Portal — Developer Handoff</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Manrope', system-ui, sans-serif; background: #FAFBFC; color: #1F2433; -webkit-font-smoothing: antialiased; padding: 48px 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #F2691A; margin-bottom: 12px; }
+  h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+  .lede { font-family: 'Jost', sans-serif; font-size: 17px; line-height: 1.55; color: #4A5164; max-width: 560px; margin-bottom: 36px; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+  @media (max-width: 560px) { .cards { grid-template-columns: 1fr; } }
+  .card { background: #fff; border: 1px solid #D9DDE3; border-radius: 8px; padding: 22px; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 10px; transition: box-shadow .12s, border-color .12s; box-shadow: 0 1px 2px rgba(20,28,51,0.06); }
+  .card:hover { box-shadow: 0 6px 20px rgba(20,28,51,0.10); border-color: rgba(90,115,159,0.4); }
+  .card .ico { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .card.view .ico { background: rgba(242,105,26,0.10); color: #F2691A; }
+  .card.dl .ico { background: rgba(90,115,159,0.12); color: #5A739F; }
+  .card h2 { font-size: 16px; font-weight: 700; }
+  .card p { font-family: 'Jost', sans-serif; font-size: 14px; line-height: 1.5; color: #6B7280; }
+  .card .go { margin-top: auto; font-size: 13px; font-weight: 700; color: #F2691A; display: flex; align-items: center; gap: 6px; }
+  .card.dl .go { color: #5A739F; }
+  .doc { background: #fff; border: 1px solid #D9DDE3; border-radius: 8px; padding: 24px 26px; box-shadow: 0 1px 2px rgba(20,28,51,0.06); }
+  .doc h3 { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #99A0AE; margin-bottom: 14px; }
+  .doc ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+  .doc li { font-family: 'Jost', sans-serif; font-size: 14px; line-height: 1.5; color: #4A5164; display: flex; gap: 10px; }
+  .doc li b { font-family: 'Manrope', sans-serif; font-weight: 700; color: #1F2433; }
+  .doc code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px; background: #F1F3F6; padding: 1px 6px; border-radius: 4px; color: #5A739F; }
+  .foot { margin-top: 28px; font-family: 'Jost', sans-serif; font-size: 13px; color: #99A0AE; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">Developer Handoff</div>
+    <h1>Sales Portal — Responsive Dashboard</h1>
+    <p class="lede">Hi-fi reference for the rep dashboard: welcome banner, KPIs, and Projects + Schedule surfaces that switch from dense tables to stacked cards across three breakpoints.</p>
+
+    <div class="cards">
+      <a class="card view" href="Sales-Portal-Redesign.html">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <h2>View the prototype</h2>
+        <p>Open the live design with the built-in screen-width control to test every breakpoint.</p>
+        <span class="go">Open &rarr;</span>
+      </a>
+
+      <a class="card dl" href="Sales-Portal-Redesign.html" download="Sales-Portal-Redesign.html">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <h2>Download the HTML</h2>
+        <p>Save the self-contained file (all assets inlined — works offline) for local reference.</p>
+        <span class="go">Download &darr;</span>
+      </a>
+    </div>
+
+    <div class="doc">
+      <h3>What's in this package</h3>
+      <ul>
+        <li><b>Screen width tweak</b> — floating slider (360–1440px) + Mobile / Tablet / Desktop presets, bottom-right of the prototype. A review harness, not product UI.</li>
+        <li><b>README.md</b> — full spec: layout, components, exact tokens, interactions, and state. A developer can rebuild from it alone.</li>
+        <li><b>Sources</b> — <code>_src_standalone.dc.html</code> holds the template + logic the standalone was built from.</li>
+      </ul>
+    </div>
+
+    <p class="foot">Files here are design references — recreate them in the target codebase's environment, don't ship the HTML directly. Built on the Core365 Design System.</p>
+  </div>
+</body>
+</html>

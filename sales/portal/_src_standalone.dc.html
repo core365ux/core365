@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../support.js"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="16" fill="#0C1219"/>
+    <rect x="34" y="30" width="32" height="40" rx="4" fill="none" stroke="#F2691A" stroke-width="3"/>
+    <rect x="40" y="37" width="20" height="3" rx="1.5" fill="#F2691A"/>
+    <rect x="40" y="44" width="20" height="3" rx="1.5" fill="#3A4654"/>
+    <rect x="40" y="51" width="20" height="3" rx="1.5" fill="#3A4654"/>
+  </svg>
+</template>
+<x-dc>
+<helmet>
+  <script>
+  (function () {
+    var VP_MIN = 360, VP_MAX = 1440, VP_DEF = 1440;
+    function apply(v) {
+      try { window.__dcSetProps(window.__dcRootName(), { viewport: v }); } catch (e) {}
+    }
+    function build() {
+      if (document.getElementById('vp-tweak-panel')) return;
+      var wrap = document.createElement('div');
+      wrap.id = 'vp-tweak-panel';
+      wrap.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:2147483000;background:#131A24;border:1px solid #2A3340;border-radius:12px;padding:12px 14px;width:230px;font-family:system-ui,sans-serif;box-shadow:0 10px 40px rgba(0,0,0,.5)';
+      var label = document.createElement('div');
+      label.style.cssText = 'display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8B93A1;margin-bottom:8px';
+      var name = document.createElement('span'); name.textContent = 'Screen width';
+      var val = document.createElement('span'); val.style.cssText = 'color:#F2691A;font-variant-numeric:tabular-nums'; val.textContent = VP_DEF + 'px';
+      label.appendChild(name); label.appendChild(val);
+      var slider = document.createElement('input');
+      slider.type = 'range'; slider.min = VP_MIN; slider.max = VP_MAX; slider.step = 10; slider.value = VP_DEF;
+      slider.style.cssText = 'width:100%;accent-color:#F2691A;cursor:pointer';
+      slider.addEventListener('input', function () { val.textContent = slider.value + 'px'; apply(+slider.value); });
+      var presets = document.createElement('div');
+      presets.style.cssText = 'display:flex;gap:6px;margin-top:10px';
+      [['Mobile',390],['Tablet',820],['Desktop',1440]].forEach(function (p) {
+        var b = document.createElement('button');
+        b.textContent = p[0];
+        b.style.cssText = 'flex:1;background:#1C2430;border:1px solid #2A3340;color:#C7CDD6;border-radius:6px;padding:5px 0;font-size:11px;font-weight:600;cursor:pointer';
+        b.addEventListener('click', function () { slider.value = p[1]; val.textContent = p[1] + 'px'; apply(p[1]); });
+        presets.appendChild(b);
+      });
+      wrap.appendChild(label); wrap.appendChild(slider); wrap.appendChild(presets);
+      document.body.appendChild(wrap);
+    }
+    function ready() {
+      if (window.__dcSetProps && window.__dcRootName) { build(); }
+      else { setTimeout(ready, 120); }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);
+    else ready();
+  })();
+  </script>
+  <link rel="stylesheet" href="../_ds/core365-design-system-dbcf5c60-08e9-4841-969e-77d55ab1ca0c/colors_and_type.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
+  <style>
+    html, body { margin: 0; background: #0A0E14; }
+    *, *::before, *::after { box-sizing: border-box; }
+    /* ---- responsive: tablet ---- */
+    @container c365frame (max-width: 900px) {
+      .c365-hdr-selects select { width: 150px !important; }
+    }
+    /* ---- responsive: phone ---- */
+    @container c365frame (max-width: 600px) {
+      .c365-hdr-selects { display: none !important; }
+      .c365-welcome { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; padding: 16px 18px !important; }
+      .c365-greeting { white-space: normal !important; font-size: 24px !important; }
+      .c365-welcome-date { text-align: left !important; display: flex !important; align-items: baseline !important; gap: 8px !important; }
+      .c365-welcome-date > div:first-child { font-size: 11px !important; }
+      .c365-d1-pad { padding: 14px 12px !important; }
+      .c365-switcher { flex-wrap: wrap !important; }
+      .c365-shortcuts-dock { display: none !important; }
+      .c365-fab { display: flex !important; }
+      .c365-proj-table { display: none !important; }
+      .c365-proj-cards { display: flex !important; }
+      .c365-sched-head { display: none !important; }
+      .c365-sched-row { display: flex !important; flex-wrap: wrap; align-items: center; gap: 4px 10px !important; margin: 8px 14px !important; padding: 11px 13px !important; border: 1px solid #2A3340; border-radius: 10px; background: #131A24 !important; }
+      .c365-sched-name { flex-basis: 100%; order: 3; font-size: 14px !important; white-space: normal !important; }
+      .c365-sched-time { order: 2; }
+      .c365-sched-setter { order: 4; }
+      .c365-sched-city { order: 5; }
+      .c365-sched-city::before { content: '·'; margin-right: 8px; color: #4E5765; }
+    }
+    .c365-fab { display: none; }
+    .c365-proj-cards { display: none; }
+  </style>
+</helmet>
+
+<div style="font-family: var(--font-sans); background: #0A0E14; min-height: 100vh; width: 100%; max-width: {{ frameWidth }}; margin: 0 auto; box-sizing: border-box; overflow-x: clip; container-type: inline-size; container-name: c365frame; box-shadow: {{ frameShadow }};">
+
+  <!-- ===== Header (shared) ===== -->
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; min-height: 58px; padding: 8px 20px; background: #0C1219; border-bottom: 1px solid #1C2430; box-shadow: 0 2px 12px rgba(0,0,0,0.3); position: relative; z-index: 5;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div style="display: flex; flex-direction: column; gap: 4px; cursor: pointer;">
+        <span style="width: 20px; height: 2px; background: #C7CDD6; border-radius: 2px;"></span>
+        <span style="width: 20px; height: 2px; background: #C7CDD6; border-radius: 2px;"></span>
+        <span style="width: 20px; height: 2px; background: #C7CDD6; border-radius: 2px;"></span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 9px;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 999px; background: conic-gradient(from 140deg, #F2691A, #E7505B, #5A739F, #34C77B, #F2691A); position: relative;">
+          <span style="position: absolute; inset: 4px; border-radius: 999px; background: #0C1219;"></span>
+        </span>
+        <span style="font-size: 19px; font-weight: 800; color: #F4F6F9; letter-spacing: -0.02em;">Glyde</span>
+      </div>
+    </div>
+    <div class="c365-hdr-selects" style="display: flex; align-items: center; gap: 10px; flex: 1 1 280px; justify-content: center; min-width: 0;">
+      <div style="position: relative; display: flex; align-items: center; flex: 1 1 140px; max-width: 190px; min-width: 0;">
+        <select style="appearance: none; -webkit-appearance: none; background: #FAFBFC; border: 1px solid #D9DDE3; border-radius: 6px; color: #1F2433; font-family: var(--font-sans); font-size: 13px; font-weight: 600; padding: 7px 30px 7px 12px; cursor: pointer; outline: none; width: 100%;"><option>Screen</option></select>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="position: absolute; right: 10px; pointer-events: none;"><path d="M6 9l6 6 6-6" stroke="#6E7785" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div style="position: relative; display: flex; align-items: center; flex: 1 1 140px; max-width: 190px; min-width: 0;">
+        <select style="appearance: none; -webkit-appearance: none; background: #FAFBFC; border: 1px solid #D9DDE3; border-radius: 6px; color: #1F2433; font-family: var(--font-sans); font-size: 13px; font-weight: 600; padding: 7px 30px 7px 12px; cursor: pointer; outline: none; width: 100%;"><option>Account</option></select>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="position: absolute; right: 10px; pointer-events: none;"><path d="M6 9l6 6 6-6" stroke="#6E7785" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 30px; border: 1px solid #2A3340; border-radius: 7px; color: #AEB6C2; font-size: 9px; font-weight: 800;">AI</span>
+      <span style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 999px; border: 1px solid #2A3340; color: #AEB6C2;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+    </div>
+  </div>
+
+  <!-- ===== Tabs (shared) ===== -->
+  <div style="display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 20px; background: #0C1219; border-bottom: 1px solid #1C2430;">
+    <span style="font-size: 14px; font-weight: 700; color: #FFFFFF; background: #F2691A; border-radius: 7px; padding: 7px 18px; box-shadow: 0 4px 12px rgba(242,105,26,0.35);">Personal</span>
+    <a href="Rankings.dc.html" style="text-decoration: none; font-size: 14px; font-weight: 600; color: #8B93A1; padding: 7px 16px; cursor: pointer;">Rankings</a>
+    <a href="Bank.dc.html" style="text-decoration: none; font-size: 14px; font-weight: 600; color: #8B93A1; padding: 7px 16px; cursor: pointer;">Bank</a>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- DIRECTION 1 — DEPTH -->
+  <!-- ============================================================ -->
+  <sc-if value="{{ v1 }}" hint-placeholder-val="{{ true }}">
+    <div class="c365-d1-pad" style="position: relative; padding: 22px 20px;">
+      <div style="position: absolute; inset: 0; background: radial-gradient(1100px 340px at 30% -120px, rgba(242,105,26,0.10), transparent 70%); pointer-events: none;"></div>
+      <div style="position: relative; width: 100%; display: flex; flex-direction: column; gap: 16px;">
+
+        <!-- welcome -->
+        <div class="c365-welcome" style="display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; background: linear-gradient(135deg, #1A2230, #141B26); border: 1px solid #2A3340; border-left: 3px solid #F2691A; border-radius: 14px; padding: 18px 22px; box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);">
+          <div style="flex: 1 1 240px; min-width: 0;">
+            <div class="c365-greeting" style="font-family: var(--font-sans); font-size: 30px; font-weight: 600; color: #F4F6F9; line-height: 1.12;">Welcome Stanford</div>
+            <div style="font-size: 15px; font-weight: 600; color: #C7CDD6; margin-top: 5px;">Your next win is one knock away.</div>
+          </div>
+          <div class="c365-welcome-date" style="text-align: right; flex: none;">
+            <div style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #6E7785;">Thursday</div>
+            <div style="font-size: 16px; font-weight: 700; color: #E4E8EE;">June 12, 2026</div>
+          </div>
+        </div>
+
+        <div style="border-radius: 14px; overflow: hidden; border: 1px solid #232C38; box-shadow: 0 10px 28px rgba(0,0,0,0.38);">
+          <dc-import name="Metrics Strip" hint-size="100%,142px"></dc-import>
+        </div>
+
+        <div style="display: flex; gap: 16px; align-items: stretch; flex-wrap: wrap;">
+          <div style="flex: 1 1 560px; min-width: 0; background: linear-gradient(180deg, #18202C, #121925); border: 1px solid #2A3340; border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; min-height: 360px; box-shadow: 0 10px 28px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.04);">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 22px;">
+                <span onClick="{{ setMine }}" style="font-size: 15px; font-weight: 700; color: {{ mineColor }}; border-bottom: {{ mineBorder }}; padding-bottom: 10px; cursor: pointer;">My Projects</span>
+                <span onClick="{{ setAll }}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700; color: {{ allColor }}; border-bottom: {{ allBorder }}; padding-bottom: 10px; cursor: pointer;">All Projects <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px; background: #131A24; border: 1px solid #2E3744; border-radius: 8px; padding: 7px 11px; min-width: 240px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6E7785" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+                  <input value="{{ query }}" onInput="{{ setQuery }}" placeholder="Search customer, rep or setter…" style="background: transparent; border: none; outline: none; color: #E4E8EE; font-family: var(--font-sans); font-size: 13px; width: 100%;">
+                </div>
+                <span style="display: inline-flex; color: #F2691A; cursor: pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M21 3l-9 9"/><path d="M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/></svg></span>
+              </div>
+            </div>
+            <sc-if value="{{ isAll }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-bottom: 12px;">
+                <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #F2A93B; margin-bottom: 9px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Managers</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 9px;">
+                  <div style="position: relative; display: flex; align-items: center;">
+                    <select value="{{ fOffice }}" onChange="{{ setOffice }}" style="appearance: none; -webkit-appearance: none; width: 100%; background: #131A24; border: 1px solid #2E3744; border-radius: 8px; color: #C7CDD6; font-family: var(--font-sans); font-size: 13px; font-weight: 600; padding: 9px 28px 9px 12px; cursor: pointer; outline: none;"><sc-for list="{{ officeOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.value }}" style="color: #1F2433;">{{ o.label }}</option></sc-for></select>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="position: absolute; right: 9px; pointer-events: none;"><path d="M6 9l6 6 6-6" stroke="#8B93A1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                  <div style="position: relative; display: flex; align-items: center;">
+                    <select value="{{ fRep }}" onChange="{{ setRep }}" style="appearance: none; -webkit-appearance: none; width: 100%; background: #131A24; border: 1px solid #2E3744; border-radius: 8px; color: #C7CDD6; font-family: var(--font-sans); font-size: 13px; font-weight: 600; padding: 9px 28px 9px 12px; cursor: pointer; outline: none;"><sc-for list="{{ repOpts }}" as="o" hint-placeholder-count="5"><option value="{{ o.value }}" style="color: #1F2433;">{{ o.label }}</option></sc-for></select>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="position: absolute; right: 9px; pointer-events: none;"><path d="M6 9l6 6 6-6" stroke="#8B93A1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                  <div style="position: relative; display: flex; align-items: center;">
+                    <select value="{{ fStatus }}" onChange="{{ setStatus }}" style="appearance: none; -webkit-appearance: none; width: 100%; background: #131A24; border: 1px solid #2E3744; border-radius: 8px; color: #C7CDD6; font-family: var(--font-sans); font-size: 13px; font-weight: 600; padding: 9px 28px 9px 12px; cursor: pointer; outline: none;"><sc-for list="{{ statusOpts }}" as="o" hint-placeholder-count="5"><option value="{{ o.value }}" style="color: #1F2433;">{{ o.label }}</option></sc-for></select>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="position: absolute; right: 9px; pointer-events: none;"><path d="M6 9l6 6 6-6" stroke="#8B93A1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                  <div style="position: relative; display: flex; align-items: center;">
+                    <select value="{{ sortBy }}" onChange="{{ setSort }}" style="appearance: none; -webkit-appearance: none; width: 100%; background: #131A24; border: 1px solid #2E3744; border-radius: 8px; color: #C7CDD6; font-family: var(--font-sans); font-size: 13px; font-weight: 600; padding: 9px 28px 9px 12px; cursor: pointer; outline: none;"><sc-for list="{{ sortOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.value }}" style="color: #1F2433;">{{ o.label }}</option></sc-for></select>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="position: absolute; right: 9px; pointer-events: none;"><path d="M6 9l6 6 6-6" stroke="#8B93A1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+            <div class="c365-proj-table" style="overflow-x: auto; margin: 0 -2px; padding: 0 2px;">
+             <div style="min-width: 640px;">
+            <div style="display: grid; grid-template-columns: 1.9fr 0.9fr 0.5fr 1.2fr 1.1fr 1.1fr 0.9fr; gap: 10px; padding: 0 10px 8px; border-bottom: 1px solid #2A3340;">
+              <span style="font-size: 11px; font-weight: 700; color: #8B93A1; letter-spacing: 0.04em; text-transform: uppercase;">Customer</span>
+              <span style="font-size: 11px; font-weight: 700; color: #8B93A1; letter-spacing: 0.04em; text-transform: uppercase;">Status</span>
+              <span style="font-size: 11px; font-weight: 700; color: #8B93A1; letter-spacing: 0.04em; text-transform: uppercase;">Size</span>
+              <span style="font-size: 11px; font-weight: 700; color: #8B93A1; letter-spacing: 0.04em; text-transform: uppercase;">Contract</span>
+              <span style="font-size: 11px; font-weight: 700; color: #8B93A1; letter-spacing: 0.04em; text-transform: uppercase;">Rep</span>
+              <span style="font-size: 11px; font-weight: 700; color: #8B93A1; letter-spacing: 0.04em; text-transform: uppercase;">Setter</span>
+              <span style="font-size: 11px; font-weight: 700; color: #8B93A1; letter-spacing: 0.04em; text-transform: uppercase;">Office</span>
+            </div>
+            <div style="margin-top: 6px; display: flex; flex-direction: column;">
+              <sc-for list="{{ projects }}" as="p" hint-placeholder-count="4">
+                <div style="display: grid; grid-template-columns: 1.9fr 0.9fr 0.5fr 1.2fr 1.1fr 1.1fr 0.9fr; gap: 10px; align-items: center; padding: 12px 10px; border-bottom: 1px solid #232C38;">
+                  <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #E4E8EE; min-width: 0;"><span style="width: 8px; height: 8px; border-radius: 999px; background: {{ p.dot }}; flex: none;"></span><span>{{ p.customer }}</span></span>
+                  <span style="font-size: 12px; font-weight: 700; color: {{ p.statusColor }}; background: {{ p.statusBg }}; border-radius: 999px; padding: 3px 10px; justify-self: start; white-space: nowrap;">{{ p.status }}</span>
+                  <span style="font-size: 14px; font-weight: 600; color: #C7CDD6;">{{ p.size }}</span>
+                  <span style="font-size: 14px; font-weight: 600; color: #C7CDD6; white-space: nowrap;">{{ p.contract }} <span style="color: #8B93A1;">({{ p.days }})</span></span>
+                  <span style="font-size: 14px; font-weight: 600; color: #C7CDD6;">{{ p.rep }}</span>
+                  <span style="font-size: 14px; font-weight: 600; color: #C7CDD6;">{{ p.setter }}</span>
+                  <span style="font-size: 14px; font-weight: 600; color: #C7CDD6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.office }}</span>
+                </div>
+              </sc-for>
+              <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+                <div style="padding: 30px 10px; text-align: center; font-size: 13px; color: #6E7785;">No projects match your search.</div>
+              </sc-if>
+            </div>
+             </div>
+            </div>
+
+            <div class="c365-proj-cards" style="flex-direction: column; gap: 10px; margin-top: 6px;">
+              <sc-for list="{{ projects }}" as="p" hint-placeholder-count="4">
+                <div style="background: #131A24; border: 1px solid #2A3340; border-radius: 12px; padding: 13px 14px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 11px;">
+                    <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: #E4E8EE; min-width: 0;"><span style="width: 8px; height: 8px; border-radius: 999px; background: {{ p.dot }}; flex: none;"></span><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.customer }}</span></span>
+                    <span style="font-size: 12px; font-weight: 700; color: {{ p.statusColor }}; background: {{ p.statusBg }}; border-radius: 999px; padding: 3px 10px; white-space: nowrap; flex: none;">{{ p.status }}</span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                      <span style="font-size: 10px; font-weight: 700; color: #6E7785; letter-spacing: 0.05em; text-transform: uppercase;">Contract</span>
+                      <span style="font-size: 13px; font-weight: 600; color: #C7CDD6;">{{ p.contract }} <span style="color: #8B93A1;">({{ p.days }})</span></span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                      <span style="font-size: 10px; font-weight: 700; color: #6E7785; letter-spacing: 0.05em; text-transform: uppercase;">Size</span>
+                      <span style="font-size: 13px; font-weight: 600; color: #C7CDD6;">{{ p.size }}</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                      <span style="font-size: 10px; font-weight: 700; color: #6E7785; letter-spacing: 0.05em; text-transform: uppercase;">Rep</span>
+                      <span style="font-size: 13px; font-weight: 600; color: #C7CDD6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.rep }}</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                      <span style="font-size: 10px; font-weight: 700; color: #6E7785; letter-spacing: 0.05em; text-transform: uppercase;">Setter</span>
+                      <span style="font-size: 13px; font-weight: 600; color: #C7CDD6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.setter }}</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; grid-column: 1 / -1;">
+                      <span style="font-size: 10px; font-weight: 700; color: #6E7785; letter-spacing: 0.05em; text-transform: uppercase;">Office</span>
+                      <span style="font-size: 13px; font-weight: 600; color: #C7CDD6;">{{ p.office }}</span>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+              <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+                <div style="padding: 30px 10px; text-align: center; font-size: 13px; color: #6E7785;">No projects match your search.</div>
+              </sc-if>
+            </div>
+            <div style="flex: 1;"></div>
+            <div style="padding-top: 12px;"><span style="font-size: 12px; color: #4E5765;">{{ countText }}</span></div>
+          </div>
+
+          <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+            <div style="flex: 1; min-height: 280px; display: flex; flex-direction: column; background: linear-gradient(180deg, #18202C, #121925); border: 1px solid #2A3340; border-radius: 14px; box-shadow: 0 10px 28px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.04); overflow: hidden;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 12px; flex: none; border-bottom: 1px solid #232C38;">
+                <span style="font-size: 15px; font-weight: 700; color: #F4F6F9;">Schedule</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div style="position: relative; display: flex; align-items: center;">
+                    <select style="appearance: none; -webkit-appearance: none; background: transparent; border: 1px solid #3F4A59; border-radius: 6px; color: #C7CDD6; font-family: var(--font-sans); font-size: 12px; font-weight: 600; padding: 5px 24px 5px 10px; cursor: pointer; outline: none;"><option>This Month</option></select>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="position: absolute; right: 8px; pointer-events: none;"><path d="M6 9l6 6 6-6" stroke="#8B93A1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                  <span style="display: inline-flex; color: #F2691A; cursor: pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M21 3l-9 9"/><path d="M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/></svg></span>
+                </div>
+              </div>
+              <div class="c365-sched-head" style="display: grid; grid-template-columns: 24px 74px 2fr 0.95fr 0.75fr; gap: 10px; padding: 9px 18px; border-bottom: 1px solid #232C38; flex: none;">
+                <span></span>
+                <span style="font-size: 10px; font-weight: 700; color: #6E7785; letter-spacing: 0.05em; text-transform: uppercase;">Time</span>
+                <span style="font-size: 10px; font-weight: 700; color: #6E7785; letter-spacing: 0.05em; text-transform: uppercase;">Customer</span>
+                <span style="font-size: 10px; font-weight: 700; color: #6E7785; letter-spacing: 0.05em; text-transform: uppercase;">Setter</span>
+                <span style="font-size: 10px; font-weight: 700; color: #6E7785; letter-spacing: 0.05em; text-transform: uppercase;">City</span>
+              </div>
+              <div style="flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 8px;">
+                <sc-for list="{{ schedule }}" as="day" hint-placeholder-count="2">
+                  <div style="padding: 9px 18px 5px; background: #11161E;"><span style="font-size: 12px; font-weight: 700; color: #8B93A1; letter-spacing: 0.02em;">{{ day.label }}</span></div>
+                  <sc-for list="{{ day.items }}" as="ev" hint-placeholder-count="3">
+                    <div class="c365-sched-row" style="display: grid; grid-template-columns: 24px 74px 2fr 0.95fr 0.75fr; gap: 10px; align-items: center; padding: 9px 18px; background: {{ ev.bg }};">
+                      <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 999px; background: #3A4654; color: #C7CDD6; font-size: 11px; font-weight: 700;">{{ ev.n }}</span>
+                      <span class="c365-sched-time" style="font-size: 13px; font-weight: 600; color: #AEB6C2; white-space: nowrap;">{{ ev.time }}</span>
+                      <span class="c365-sched-name" style="font-size: 13px; font-weight: 600; color: #E4E8EE; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ ev.name }}</span>
+                      <span class="c365-sched-setter" style="font-size: 13px; font-weight: 600; color: #C7CDD6; min-width: 0;">{{ ev.setter }}</span>
+                      <span class="c365-sched-city" style="font-size: 12px; font-weight: 600; color: #8B93A1; min-width: 0;">{{ ev.city }}</span>
+                    </div>
+                  </sc-for>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="c365-shortcuts-dock" style="position: sticky; bottom: 0; z-index: 4; padding-top: 14px; background: linear-gradient(180deg, rgba(10,14,20,0) 0%, #0A0E14 26%);">
+          <div style="border-radius: 14px; overflow: hidden; border: 1px solid #232C38; box-shadow: 0 -6px 26px rgba(0,0,0,0.5);">
+            <dc-import name="Shortcuts Grid" hint-size="100%,100px"></dc-import>
+          </div>
+        </div>
+
+        <button class="c365-fab" onClick="{{ fabToggle }}" style="position: fixed; right: 18px; bottom: 18px; z-index: 40; width: 56px; height: 56px; border-radius: 999px; background: #F2691A; border: none; box-shadow: 0 12px 26px rgba(242,105,26,0.5); cursor: pointer; align-items: center; justify-content: center; color: #FFFFFF;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        </button>
+        <sc-if value="{{ fabOpen }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ fabClose }}" style="position: fixed; inset: 0; z-index: 39; background: rgba(8,11,16,0.55); display: flex; align-items: flex-end;">
+            <div onClick="{{ stop }}" style="width: 100%; background: #11161E; border-top: 1px solid #232C38; border-radius: 18px 18px 0 0; box-shadow: 0 -16px 40px rgba(0,0,0,0.5);">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 4px;">
+                <span style="font-size: 14px; font-weight: 700; color: #F4F6F9;">Shortcuts</span>
+                <span onClick="{{ fabClose }}" style="display: inline-flex; color: #8B93A1; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></span>
+              </div>
+              <dc-import name="Shortcuts Grid" hint-size="100%,220px"></dc-import>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1360,&quot;height&quot;:1000},&quot;viewport&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1440,&quot;min&quot;:360,&quot;max&quot;:1440,&quot;step&quot;:10,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Preview&quot;,&quot;label&quot;:&quot;Screen width&quot;}}">
+class Component extends DCLogic {
+  state = { query: '', projTab: 'mine', fOffice: 'All', fRep: 'All', fStatus: 'All', sortBy: 'date', fabOpen: false };
+
+  renderVals() {
+    const statusStyle = {
+      'Active':     ['#34C77B', 'rgba(52,199,123,0.14)'],
+      'Permitting': ['#F2A93B', 'rgba(242,169,59,0.16)'],
+      'On Hold':    ['#8B93A1', 'rgba(139,147,161,0.16)'],
+      'Install':    ['#3DA8E0', 'rgba(61,168,224,0.14)'],
+      'Closed':     ['#5A739F', 'rgba(90,115,159,0.18)'],
+    };
+    const allRows = [
+      ['Jennifer Hayes','Active','4.1','05/20/26','23d','Nihanth Reddy','Marco Diaz','Phoenix','#3DA8E0',20260520],
+      ['Michael Alvarez','Active','8.2','06/02/26','36d','Nihanth Reddy','Priya Sharma','Phoenix','#34C77B',20260602],
+      ['Sandra Coleman','Active','5.6','05/28/26','31d','Nihanth Reddy','Liam Turner','Mesa','#3DA8E0',20260528],
+      ['Everett Household','Install','9.9','06/20/26','54d','Nihanth Reddy','Marco Diaz','Tucson','#34C77B',20260620],
+      ['The Bryant Family','Permitting','12.0','06/14/26','48d','Dana Kowalski','Marco Diaz','Tucson','#F2A93B',20260614],
+      ['Hector Delgado','On Hold','3.4','07/01/26','65d','Dana Kowalski','Priya Sharma','Phoenix','#8B93A1',20260701],
+      ['Derek Nakamura','Active','5.0','06/11/26','45d','Dana Kowalski','Liam Turner','Mesa','#3DA8E0',20260611],
+      ['Karen Whitfield','Closed','7.3','04/30/26','—','Sofia Reyes','Liam Turner','Mesa','#5A739F',20260430],
+      ['Olivia Grant','Permitting','10.5','06/25/26','59d','Sofia Reyes','Marco Diaz','Tucson','#F2A93B',20260625],
+      ['The Okafor Family','On Hold','4.7','07/05/26','69d','Sofia Reyes','Marco Diaz','Tucson','#8B93A1',20260705],
+      ['Marcus Bell','Active','6.1','06/08/26','42d','Marcus Lee','Priya Sharma','Phoenix','#34C77B',20260608],
+      ['Priscilla Vance','Install','8.8','06/18/26','52d','Marcus Lee','Priya Sharma','Phoenix','#34C77B',20260618],
+    ];
+    const user = 'Nihanth Reddy';
+    const isAll = this.state.projTab === 'all';
+    const fOffice = this.state.fOffice, fRep = this.state.fRep, fStatus = this.state.fStatus, sortBy = this.state.sortBy;
+    const q = (this.state.query || '').trim().toLowerCase();
+    const uniq = (i) => Array.from(new Set(allRows.map(r => r[i])));
+    const officeOpts = [{ value: 'All', label: 'All offices' }].concat(uniq(7).map(o => ({ value: o, label: o })));
+    const repOpts = [{ value: 'All', label: 'All reps' }].concat(uniq(5).map(o => ({ value: o, label: o })));
+    const statusOpts = [{ value: 'All', label: 'All statuses' }].concat(uniq(1).map(o => ({ value: o, label: o })));
+    const sortOpts = [{ value: 'date', label: 'Newest first' }, { value: 'size', label: 'Largest system' }, { value: 'customer', label: 'Customer A–Z' }];
+    const myTotal = allRows.filter(r => r[5] === user).length;
+    let list = allRows.slice();
+    if (!isAll) list = list.filter(r => r[5] === user);
+    else {
+      if (fOffice !== 'All') list = list.filter(r => r[7] === fOffice);
+      if (fRep !== 'All') list = list.filter(r => r[5] === fRep);
+      if (fStatus !== 'All') list = list.filter(r => r[1] === fStatus);
+    }
+    if (q) list = list.filter(r => [r[0], r[5], r[6], r[7]].some(s => s.toLowerCase().includes(q)));
+    if (sortBy === 'date') list = list.slice().sort((a, b) => b[9] - a[9]);
+    else if (sortBy === 'size') list = list.slice().sort((a, b) => parseFloat(b[2]) - parseFloat(a[2]));
+    else if (sortBy === 'customer') list = list.slice().sort((a, b) => a[0].localeCompare(b[0]));
+    const projects = list.map(r => ({
+      customer: r[0], status: r[1], size: r[2], contract: r[3], days: r[4],
+      rep: r[5], setter: r[6], office: r[7], dot: r[8],
+      statusColor: (statusStyle[r[1]] || ['#8B93A1'])[0],
+      statusBg: (statusStyle[r[1]] || ['', 'rgba(139,147,161,0.16)'])[1],
+    }));
+    const projTotal = isAll ? allRows.length : myTotal;
+
+    const sched = [
+      ['Today', [[1,'06:00 am','John Johnson','Marco Diaz','Phoenix'],[2,'10:00 am','Selha Graham','Priya Sharma','Mesa']]],
+      ['Tomorrow', [[1,'04:00 am','George Henderson','Liam Turner','Tucson'],[2,'08:00 am','Richard & Crystal Lapsley','Marco Diaz','Phoenix'],[3,'08:00 am','Michael Jasak','Priya Sharma','Mesa'],[4,'08:00 am','Rosemary & Jim Lees','Marco Diaz','Phoenix'],[5,'11:00 am','Sughosh & Dana Narayan','Liam Turner','Tucson'],[6,'02:00 pm','Lucy Shannon','Priya Sharma','Mesa']]],
+      ['06/15/2026', [[1,'02:00 pm','Vince Distefano','Marco Diaz','Phoenix'],[2,'08:00 am','John & Kelly Newman','Liam Turner','Tucson'],[3,'03:00 pm','Robert Myers','Priya Sharma','Mesa']]],
+      ['06/16/2026', [[1,'02:00 pm','Geoff Wright','Marco Diaz','Phoenix'],[2,'02:30 pm','Sara Jones','Priya Sharma','Mesa'],[3,'10:00 am','Mike Barry','Liam Turner','Tucson']]],
+    ];
+    let _si = 0;
+    const schedule = sched.map(([label, evs]) => ({
+      label,
+      items: evs.map(([n, time, name, setter, city]) => ({ n, time, name, setter, city, bg: (_si++ % 2 === 0) ? '#1B2430' : '#161E29' })),
+    }));
+
+    return {
+      v1: true,
+      frameWidth: (this.props.viewport ?? 1440) >= 1440 ? '100%' : (this.props.viewport ?? 1440) + 'px',
+      frameShadow: (this.props.viewport ?? 1440) >= 1440 ? 'none' : '0 0 0 1px #1C2430, 0 30px 80px rgba(0,0,0,0.5)',
+      schedule,
+      query: this.state.query,
+      setQuery: (e) => this.setState({ query: e.target.value }),
+      projects,
+      noResults: projects.length === 0,
+      countText: 'Showing ' + projects.length + ' of ' + projTotal + ' projects',
+      isAll,
+      mineColor: isAll ? '#8B93A1' : '#F4F6F9',
+      mineBorder: isAll ? '2px solid transparent' : '2px solid #F2691A',
+      allColor: isAll ? '#F4F6F9' : '#8B93A1',
+      allBorder: isAll ? '2px solid #F2691A' : '2px solid transparent',
+      setMine: () => this.setState({ projTab: 'mine' }),
+      setAll: () => this.setState({ projTab: 'all' }),
+      fOffice, fRep, fStatus, sortBy,
+      officeOpts, repOpts, statusOpts, sortOpts,
+      setOffice: (e) => this.setState({ fOffice: e.target.value }),
+      setRep: (e) => this.setState({ fRep: e.target.value }),
+      setStatus: (e) => this.setState({ fStatus: e.target.value }),
+      setSort: (e) => this.setState({ sortBy: e.target.value }),
+      fabOpen: this.state.fabOpen,
+      fabToggle: () => this.setState({ fabOpen: !this.state.fabOpen }),
+      fabClose: () => this.setState({ fabOpen: false }),
+      stop: (e) => e.stopPropagation(),
+    };
+  }
+}
+</script>
+</body>
+</html>
