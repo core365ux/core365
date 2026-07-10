@@ -1,0 +1,332 @@
+/* ============================================================
+   Core365 — Foundations: Color & Type
+   ============================================================
+   Brand color:    #F2691A  (Core365 Orange)
+   Save / accent:  #5A739F  (Steel Blue)
+   Panel header:   #E2E2E2  (Neutral panel)
+   Alert red:      #E7505B
+   Affirm green:   #08A742  (success / done state)
+   Module chrome:  #F6F6F6  (light module background)
+   Hold yellow:    #FCD24A  (intermediate / hold state)
+   Fonts:          Manrope (default/UI), Jost (paragraphs)
+   ------------------------------------------------------------ */
+
+/* Webfonts — local variable TTFs shipped with the design system. */
+@font-face {
+  font-family: 'Manrope';
+  src: url('fonts/Manrope-VariableFont_wght.ttf') format('truetype-variations'),
+       url('fonts/Manrope-VariableFont_wght.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Jost';
+  src: url('fonts/Jost-VariableFont_wght.ttf') format('truetype-variations'),
+       url('fonts/Jost-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Jost';
+  src: url('fonts/Jost-Italic-VariableFont_wght.ttf') format('truetype-variations'),
+       url('fonts/Jost-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-VariableFont_wght.ttf') format('truetype-variations'),
+       url('fonts/JetBrainsMono-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-Italic-VariableFont_wght.ttf') format('truetype-variations'),
+       url('fonts/JetBrainsMono-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* ---------- Brand palette ---------- */
+  --c365-orange:        #F2691A;   /* Primary brand */
+  --c365-orange-600:    #D55812;   /* Pressed / hover */
+  --c365-orange-500:    #F2691A;
+  --c365-orange-400:    #F7884A;
+  --c365-orange-300:    #FBAE82;
+  --c365-orange-200:    #FDD3BB;
+  --c365-orange-100:    #FEEAD9;
+  --c365-orange-50:     #FFF5EE;
+
+  --c365-steel:         #5A739F;   /* Save buttons / secondary action */
+  --c365-steel-600:     #485E85;
+  --c365-steel-500:     #5A739F;
+  --c365-steel-400:     #7E94BA;
+  --c365-steel-300:     #A8B8D2;
+  --c365-steel-200:     #CFD8E6;
+  --c365-steel-100:     #E5ECF4;
+  --c365-steel-50:      #F3F6FB;
+
+  /* ---------- Affirmative / hold / module chrome (spec) ---------- */
+  --c365-affirm:        #08A742;   /* Affirmative — completed / approved */
+  --c365-affirm-600:    #07873A;
+  --c365-affirm-bg:     #E1F4E7;
+
+  --c365-hold:          #FCD24A;   /* Intermediate / on hold */
+  --c365-hold-600:      #D9A91A;
+  --c365-hold-fg:       #6B5300;   /* Text-on-yellow */
+  --c365-hold-bg:       #FFF4C7;
+
+  --c365-module:        #F6F6F6;   /* Light module chrome */
+
+  /* ---------- Neutrals ---------- */
+  --c365-ink:           #1F2433;   /* Primary text */
+  --c365-ink-2:         #3A4151;   /* Secondary text */
+  --c365-ink-3:         #6B7384;   /* Tertiary / meta */
+  --c365-ink-4:         #99A0AE;   /* Disabled / placeholder */
+
+  --c365-line:          #D9DDE3;   /* Default border */
+  --c365-line-2:        #E6E9EE;   /* Subtle divider */
+  --c365-panel:         #E2E2E2;   /* Panel header (spec) */
+  --c365-track:         #F6F4F0;   /* Segmented / toggle track (warm) */
+  --c365-surface:       #FFFFFF;   /* Card / sheet */
+  --c365-surface-2:     #F7F8FA;   /* App background tint */
+  --c365-surface-3:     #F1F3F6;   /* Sunken / table stripe */
+  --c365-bg:            #FAFBFC;   /* Page background */
+
+  /* ---------- Semantic ---------- */
+  --c365-success:       #2BA67A;
+  --c365-success-bg:    #E6F5EE;
+  --c365-warning:       #E89B1E;
+  --c365-warning-bg:    #FBEFD4;
+  --c365-danger:        #E7505B;   /* Alert red (spec) */
+  --c365-danger-600:    #C8404A;
+  --c365-danger-bg:     #FCE6E8;
+  --c365-info:          #578FC7;
+  --c365-info-bg:       #E4EEF8;
+
+  /* ---------- Semantic foreground / background tokens ---------- */
+  --fg-1: var(--c365-ink);
+  --fg-2: var(--c365-ink-2);
+  --fg-3: var(--c365-ink-3);
+  --fg-4: var(--c365-ink-4);
+  --fg-on-brand: #FFFFFF;
+
+  --bg-1: var(--c365-surface);
+  --bg-2: var(--c365-surface-2);
+  --bg-3: var(--c365-surface-3);
+  --bg-app: var(--c365-bg);
+
+  --border-1: var(--c365-line);
+  --border-2: var(--c365-line-2);
+
+  --accent: var(--c365-orange);
+  --accent-fg: #FFFFFF;
+  --link: var(--c365-steel-600);
+
+  /* ---------- Typography ---------- */
+  --font-sans:  'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body:  'Jost', 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:  'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Type scale — UI-density first */
+  --fs-12: 12px;   --lh-12: 16px;
+  --fs-13: 13px;   --lh-13: 18px;
+  --fs-14: 14px;   --lh-14: 20px;
+  --fs-16: 16px;   --lh-16: 24px;
+  --fs-18: 18px;   --lh-18: 26px;
+  --fs-20: 20px;   --lh-20: 28px;
+  --fs-24: 24px;   --lh-24: 32px;
+  --fs-30: 30px;   --lh-30: 38px;
+  --fs-36: 36px;   --lh-36: 44px;
+  --fs-48: 48px;   --lh-48: 56px;
+  --fs-60: 60px;   --lh-60: 68px;
+
+  --fw-light: 300;      /* @kind font */
+  --fw-regular: 400;    /* @kind font */
+  --fw-medium: 500;     /* @kind font */
+  --fw-semibold: 600;   /* @kind font */
+  --fw-bold: 700;       /* @kind font */
+  --fw-extrabold: 800;  /* @kind font */
+
+  --tracking-tight: -0.02em;
+  --tracking-snug:  -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide:  0.04em;
+  --tracking-caps:  0.08em;
+
+  /* ---------- Spacing scale (4px base) ---------- */
+  --sp-0: 0;     /* @kind spacing */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 32px;
+  --sp-8: 40px;
+  --sp-9: 48px;
+  --sp-10: 64px;
+  --sp-11: 80px;
+  --sp-12: 96px;
+
+  /* ---------- Radius ---------- */
+  --r-xs: 3px;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-2xl: 24px;
+  --r-pill: 999px;
+
+  /* ---------- Shadow / elevation ---------- */
+  --shadow-1: 0 1px 0 rgba(20, 28, 51, 0.04), 0 1px 2px rgba(20, 28, 51, 0.06);
+  --shadow-2: 0 2px 4px rgba(20, 28, 51, 0.06), 0 4px 12px rgba(20, 28, 51, 0.06);
+  --shadow-3: 0 8px 16px rgba(20, 28, 51, 0.08), 0 16px 32px rgba(20, 28, 51, 0.08);
+  --shadow-pop: 0 12px 32px rgba(20, 28, 51, 0.16);
+  --ring-focus: 0 0 0 3px rgba(242, 105, 26, 0.28);
+  --ring-danger: 0 0 0 3px rgba(231, 80, 91, 0.28);
+
+  /* ---------- Motion ---------- */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);    /* @kind other */
+  --ease-in-out: cubic-bezier(0.5, 0, 0.2, 1);   /* @kind other */
+  --dur-fast: 120ms;   /* @kind other */
+  --dur-base: 180ms;   /* @kind other */
+  --dur-slow: 280ms;   /* @kind other */
+}
+
+/* ============================================================
+   Semantic typographic styles
+   ============================================================ */
+.h-display {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-extrabold);
+  font-size: var(--fs-60);
+  line-height: var(--lh-60);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-1);
+}
+.h1 {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-48);
+  line-height: var(--lh-48);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-1);
+}
+.h2 {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-36);
+  line-height: var(--lh-36);
+  letter-spacing: var(--tracking-snug);
+  color: var(--fg-1);
+}
+.h3 {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-24);
+  line-height: var(--lh-24);
+  letter-spacing: var(--tracking-snug);
+  color: var(--fg-1);
+}
+.h4 {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-20);
+  line-height: var(--lh-20);
+  color: var(--fg-1);
+}
+.h5 {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-16);
+  line-height: var(--lh-16);
+  color: var(--fg-1);
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--c365-orange);
+}
+
+.p, p {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-16);
+  line-height: var(--lh-16);
+  color: var(--fg-2);
+}
+.p-lead {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-20);
+  line-height: var(--lh-20);
+  color: var(--fg-2);
+}
+.p-sm {
+  font-family: var(--font-body);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+  color: var(--fg-3);
+}
+
+.ui {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+  color: var(--fg-1);
+}
+.ui-sm {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-13);
+  line-height: var(--lh-13);
+  color: var(--fg-2);
+}
+.label {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--fg-2);
+  letter-spacing: var(--tracking-snug);
+}
+.caption {
+  font-family: var(--font-sans);
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  color: var(--fg-3);
+}
+.code, code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--bg-3);
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+  color: var(--fg-1);
+}
+
+/* ============================================================
+   Base resets used by previews & UI kit
+   ============================================================ */
+.c365-reset {
+  font-family: var(--font-sans);
+  color: var(--fg-1);
+  background: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}

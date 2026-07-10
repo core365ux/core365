@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/core365-design-system-dbcf5c60-08e9-4841-969e-77d55ab1ca0c/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/core365-design-system-dbcf5c60-08e9-4841-969e-77d55ab1ca0c/styles.css">
+  <script src="_ds/core365-design-system-dbcf5c60-08e9-4841-969e-77d55ab1ca0c/_ds_bundle.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; background: #FAFBFC; }
+    a { color: #485E85; text-decoration: none; }
+    a:hover { color: #485E85; text-decoration: underline; }
+    @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  </style>
+</helmet>
+
+<div data-screen-label="Account Master" style="display:flex;height:100vh;overflow:hidden;background:var(--bg-app);font-family:var(--font-sans);color:var(--c365-ink);-webkit-font-smoothing:antialiased">
+
+  <!-- ============ Sidebar ============ -->
+  <aside style="width:228px;flex-shrink:0;background:var(--c365-surface);border-right:1px solid var(--c365-line-2);display:flex;flex-direction:column;min-height:0">
+    <div style="height:56px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--c365-line-2);flex-shrink:0">
+      <img src="assets/core365-logo-dark.png" alt="Core365" style="height:24px">
+    </div>
+    <div style="padding:12px 12px 8px;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--c365-line);border-radius:6px;background:var(--c365-surface-2);color:var(--c365-ink-4);font-size:13px;cursor:text">
+        <i data-lucide="search" style="width:14px;height:14px;display:inline-flex"></i>
+        <span>Quick navigation</span>
+      </div>
+    </div>
+    <nav style="flex:1;overflow-y:auto;padding:2px 0 8px;min-height:0">
+      <sc-for list="{{ navItems }}" as="nav" hint-placeholder-count="10">
+        <div onClick="{{ nav.onSelect }}" style="display:flex;align-items:center;gap:10px;padding:7px 12px;margin:1px 8px;border-radius:6px;background:{{ nav.bg }};color:{{ nav.fg }};font-size:13px;font-weight:{{ nav.fw }};cursor:pointer;position:relative;transition:background 120ms,color 120ms" style-hover="background:var(--c365-surface-3)">
+          <i data-lucide="{{ nav.icon }}" style="width:16px;height:16px;display:inline-flex;flex-shrink:0"></i>
+          <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nav.label }}</span>
+        </div>
+      </sc-for>
+    </nav>
+    <div style="padding:12px 16px;border-top:1px solid var(--c365-line-2);flex-shrink:0">
+      <div style="font-size:11px;color:var(--c365-ink-4);line-height:16px">Core365 Standard · v13.0.0</div>
+      <div style="font-size:11px;color:var(--c365-ink-4);line-height:16px">Client v13.0.0 · 07/09/2026</div>
+    </div>
+  </aside>
+
+  <!-- ============ Main ============ -->
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+
+    <!-- Top header -->
+    <header style="height:56px;flex-shrink:0;background:var(--c365-surface);border-bottom:1px solid var(--c365-line-2);display:flex;align-items:center;gap:14px;padding:0 20px">
+      
+      <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
+        
+        
+        
+        
+      </div>
+      <select onChange="{{ onScreenSelect }}" style="font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--c365-ink-2);border:1px solid var(--c365-line);border-radius:6px;background:var(--c365-surface);padding:6px 8px;cursor:pointer">
+        <option>Screen: Master</option>
+        <option>Screen: Work Orders</option>
+        <option>Screen: Payments</option>
+        <option>Screen: Documents</option>
+      </select>
+      <select onChange="{{ onAccountSelect }}" style="font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--c365-ink-2);border:1px solid var(--c365-line);border-radius:6px;background:var(--c365-surface);padding:6px 8px;cursor:pointer">
+        <option>Account: 353733</option>
+        <option>Account: 353734</option>
+        <option>Account: 353802</option>
+      </select>
+      <button onClick="{{ onBell }}" title="Notifications" style="width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border:none;background:transparent;border-radius:6px;color:var(--c365-ink-3);cursor:pointer;position:relative" style-hover="background:var(--c365-surface-3);color:var(--c365-ink)">
+        <i data-lucide="bell" style="width:18px;height:18px;display:inline-flex"></i>
+        <span style="position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--c365-orange);border:1.5px solid #fff"></span>
+      </button>
+      <div style="display:flex;align-items:center;gap:8px;padding-left:12px;border-left:1px solid var(--c365-line-2)">
+        <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Avatar" dc-props="{{ avatarProps }}" hint-size="30px,30px"></x-import>
+        <div style="line-height:1.2">
+          <div style="font-size:13px;font-weight:600">Jacob Olson</div>
+          <div style="font-size:11px;color:var(--c365-ink-3)">{{ clock }}</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Stat strip -->
+    <sc-if value="{{ showStatStrip }}" hint-placeholder-val="{{ true }}">
+      <div style="flex-shrink:0;display:grid;grid-template-columns:repeat(8,1fr);gap:10px;padding:12px 20px 0">
+        <button onClick="{{ onBalance }}" title="Balance due — open Accounting" style="text-align:left;cursor:pointer;background:var(--c365-danger-bg);border:1px solid var(--c365-danger);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow-1);transition:box-shadow 120ms" style-hover="box-shadow:var(--shadow-2)">
+          <div style="display:flex;align-items:center;gap:5px"><i data-lucide="wallet" style="width:12px;height:12px;color:var(--c365-danger-600)"></i><span style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--c365-danger-600)">Balance Due</span><span title="Aging bucket" style="font-size:9px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:var(--c365-danger-600);background:#fff;border:1px solid var(--c365-danger);padding:0 5px;border-radius:999px">31+</span></div>
+          <div style="font-family:var(--font-mono);font-size:18px;font-weight:700;line-height:24px;color:var(--c365-danger-600)">$91.98</div>
+        </button>
+        <button onClick="{{ onTickets }}" title="Open tickets — includes downtime credit request" style="text-align:left;cursor:pointer;background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow-1);transition:border-color 120ms,box-shadow 120ms" style-hover="border-color:var(--c365-orange-300);box-shadow:var(--shadow-2)">
+          <div style="display:flex;align-items:center;gap:5px"><i data-lucide="ticket" style="width:12px;height:12px;color:var(--c365-orange)"></i><span style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--c365-ink-3)">SERVICE TICKETS</span></div>
+          <div style="font-size:18px;font-weight:700;line-height:24px;color:var(--c365-ink)">0</div>
+        </button>
+        <div style="background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow-1)">
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--c365-ink-3)">OB / IB Calls</div>
+          <div style="font-size:18px;font-weight:700;line-height:24px;color:var(--c365-ink)">0 <span style="color:var(--c365-ink-4);font-weight:500">/</span> 0</div>
+        </div>
+        <div style="background:var(--c365-hold-bg);border:1px solid var(--c365-hold-600);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow-1)">
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--c365-hold-fg)">Holds</div>
+          <div style="font-size:18px;font-weight:700;line-height:24px;color:var(--c365-hold-fg)">1</div>
+        </div>
+        <div style="background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow-1)">
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--c365-ink-3)">AGREEMENT LENGTH</div>
+          <div style="font-size:18px;font-weight:700;line-height:24px;color:var(--c365-ink)">4</div>
+        </div>
+        <button onClick="{{ onPoints }}" title="Points — equipment &amp; equipment requests" style="text-align:left;cursor:pointer;background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow-1);transition:border-color 120ms,box-shadow 120ms" style-hover="border-color:var(--c365-orange-300);box-shadow:var(--shadow-2)">
+          <div style="display:flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="package" aria-hidden="true" data-om-id="634304f3:69" style="width: 12px; height: 12px; color: var(--c365-orange);" class="lucide lucide-package"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><path d="m7.5 4.27 9 5.15"></path></svg><span style="font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--c365-ink-3);">Equipment Value</span></div>
+          <div style="font-size:18px;font-weight:700;line-height:24px;color:var(--c365-ink)">0.25</div>
+        </button>
+        <div style="background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow-1)">
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--c365-ink-3)">Risk Level</div>
+          <div style="font-size:18px;font-weight:700;line-height:24px;color:var(--c365-ink)">0</div>
+        </div>
+        <div style="background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;padding:8px 12px;box-shadow:var(--shadow-1)">
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--c365-ink-3)">Creation Cost</div>
+          <div style="font-size:18px;font-weight:700;line-height:24px;color:var(--c365-ink)">26x</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- Content grid -->
+    <div style="flex:1;overflow:auto;min-height:0">
+      <div style="display:grid;grid-template-columns:minmax(320px,28fr) minmax(320px,28fr) minmax(380px,34fr);gap:12px;align-items:start;padding:12px 20px 24px;min-width:1240px">
+
+        <!-- ===== Column A: Customer (top) + Alarm.com ===== -->
+        <div style="display:flex;flex-direction:column;gap:12px;min-width:0;height:835px;overflow:hidden">
+
+          <!-- Account header card -->
+          <section style="flex-shrink:0;display:flex;align-items:center;gap:12px;background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;box-shadow:var(--shadow-1);padding:12px 16px">
+            <i data-lucide="house" style="width:24px;height:24px;color:var(--c365-orange);flex-shrink:0"></i>
+            <span style="flex:1;min-width:0;font-family:var(--font-sans);font-size:20px;font-weight:700;letter-spacing:-0.01em;color:var(--c365-ink)">{{ accountTypeLabel }}</span>
+            <span style="font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--c365-ink-3);background:var(--c365-surface-3);padding:2px 8px;border-radius:4px">#353733</span>
+            <span style="font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--c365-ink-3);background:var(--c365-surface-3);padding:2px 8px;border-radius:4px">#13712651</span>
+          </section>
+
+          <!-- Customer -->
+          <section style="flex-shrink:0;background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;box-shadow:var(--shadow-1);overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px 6px 12px;background:var(--c365-orange-50);border-bottom:1px solid var(--c365-orange-200)">
+              <div style="display:flex;align-items:center;gap:8px;min-width:0">
+                <span style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#A8430C"><i data-lucide="user" style="width:14px;height:14px"></i>Customer</span>
+                <span title="Account language" style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:var(--c365-steel-600);background:var(--c365-steel-50);border:1px solid var(--c365-steel-200);padding:1px 6px;border-radius:999px"><i data-lucide="languages" style="width:10px;height:10px"></i>{{ langLabel }}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" dc-props="{{ iconBtn }}" title="Homeowner verification" hint-size="auto,26px"><i data-lucide="user-check" style="width:15px;height:15px;display:inline-flex"></i></x-import>
+                <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" dc-props="{{ iconBtn }}" title="Master account configuration" hint-size="auto,26px"><i data-lucide="network" style="width:15px;height:15px;display:inline-flex"></i></x-import>
+                <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,26px" dc-props="{{ iconBtn }}" title="Edit"><i data-lucide="settings" style="width:15px;height:15px;display:inline-flex"></i></x-import>
+              </div>
+            </div>
+            <div style="padding:9px 12px 8px;display:flex;flex-direction:column;gap:8px">
+              <div style="background:var(--c365-surface-2);border:1px solid var(--c365-line-2);border-radius:6px;padding:7px 12px;display:grid;grid-template-columns:max-content 1fr;gap:5px 14px">
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Customer</span>
+              <span style="font-size:12.5px;font-weight:600">Jacob Daniel Olson (103)</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Customer 2</span>
+              <span style="font-size:12.5px;font-weight:600">Sarah Olson (104)</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Business</span>
+              <span style="font-size:12.5px;font-weight:600;color:var(--c365-ink-4)">—</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Status</span>
+              <span><x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Badge" variant="overdue" hint-size="auto,20px">Pending cancel — NOC</x-import></span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Phone</span>
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">(801) 555-2384</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Alt Phone</span>
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">(801) 555-0164</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Email</span>
+              <a href="#" style="font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">jacob.olson@email.com</a>
+              </div>
+              <div style="background:var(--c365-surface-2);border:1px solid var(--c365-line-2);border-radius:6px;padding:7px 12px;display:grid;grid-template-columns:max-content 1fr;gap:5px 14px">
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Site Name</span>
+              <span style="font-size:12.5px;font-weight:600">Olson Residence</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Address</span>
+              <span style="font-size:12.5px;font-weight:600">1284 E Hollywood Ave</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">City / State / Zip</span>
+              <span style="font-size:12.5px;font-weight:600">Salt Lake City, UT 84105</span>
+              </div>
+            </div>
+            
+            <div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-top:1px solid var(--c365-line-2)">
+              <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">Surveys</x-import>
+              <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">Letters</x-import>
+              <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">Email template</x-import>
+            </div>
+          </section>
+
+          <!-- Alarm.com -->
+          <section style="flex:1;min-height:0;overflow-y:auto;background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;box-shadow:var(--shadow-1)">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px 6px 12px;background:var(--c365-orange-50);border-bottom:1px solid var(--c365-orange-200)">
+              <div style="display:flex;align-items:center;gap:8px;min-width:0">
+                <span style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#A8430C"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield-check" aria-hidden="true" data-om-id="38fd7d8c:138" style="width: 14px; height: 14px;" class="lucide lucide-shield-check"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>Signals</span>
+                <span title="Signal strength — out of service" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--c365-danger-600);background:var(--c365-danger-bg);padding:2px 9px;border-radius:999px">
+                  <span style="display:inline-flex;align-items:flex-end;gap:1.5px;height:11px">
+                    <span style="width:3px;height:4px;background:var(--c365-danger-600);border-radius:1px"></span>
+                    <span style="width:3px;height:6px;background:var(--c365-danger-600);border-radius:1px"></span>
+                    <span style="width:3px;height:8px;background:var(--c365-danger-600);border-radius:1px"></span>
+                    <span style="width:3px;height:11px;background:var(--c365-danger-200,#f3b6bb);border-radius:1px;opacity:.4"></span>
+                  </span>
+                  Out of service
+                </span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" dc-props="{{ iconBtn }}" title="Refresh signals" hint-size="auto,26px"><i data-lucide="refresh-cw" style="width:15px;height:15px;display:inline-flex"></i></x-import>
+                <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,26px" dc-props="{{ iconBtn }}" title="Edit"><i data-lucide="settings" style="width:15px;height:15px;display:inline-flex"></i></x-import>
+              </div>
+            </div>
+            <div style="padding:9px 12px 8px;display:flex;flex-direction:column;gap:8px">
+              <div style="background:var(--c365-surface-2);border:1px solid var(--c365-line-2);border-radius:6px;padding:7px 12px;display:grid;grid-template-columns:max-content 1fr;gap:5px 14px">
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Verbal Password</span>
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">bluebird</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">CSID</span>
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">AQ730285</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Panel Type</span>
+              <span style="font-size:12.5px;font-weight:600">IQ4 VZN 319</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Alarm.com #</span>
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">13712651</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Permit #</span>
+              <span style="font-size:12.5px;font-weight:600;color:var(--c365-ink-4)">—</span>
+              
+              
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Sys Type</span>
+              <span style="font-size:12.5px;font-weight:600">ADC Automation</span>
+              </div>
+              <div style="background:var(--c365-surface-2);border:1px solid var(--c365-line-2);border-radius:6px;padding:7px 12px;display:flex;gap:16px">
+              <div style="flex:1;min-width:0;display:grid;grid-template-columns:max-content 1fr;gap:5px 12px;align-content:start">
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Online Date</span>
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">10/05/2021</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Last Signal</span>
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">07/08/2026</span>
+              </div>
+              <div style="flex:1;min-width:0;display:grid;grid-template-columns:max-content 1fr;gap:5px 12px;align-content:start">
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Offline Date</span>
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">12/08/2025</span>
+              <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Installer Code</span>
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">5820</span>
+              </div>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-top:1px solid var(--c365-line-2)">
+              <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">On / off test</x-import>
+              <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">History / EC's</x-import>
+              <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">Incident</x-import>
+            </div>
+          </section>
+        </div>
+
+        <!-- ===== Column B: Accordions in one scrollable container ===== -->
+        <div style="display:flex;flex-direction:column;min-width:0;height:835px;box-sizing:border-box;background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;box-shadow:var(--shadow-1);overflow:hidden">
+          <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 14px;border-bottom:1px solid var(--c365-line-2);background:var(--c365-surface-2)">
+            <span style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#A8430C"><i data-lucide="folders" style="width:14px;height:14px"></i>Sales, Billing, &amp;&nbsp; Agreement</span>
+            <div style="display:flex;align-items:center;gap:20px">
+              <button onClick="{{ onExpandToggle }}" style="display:inline-flex;align-items:center;gap:6px;border:none;background:transparent;cursor:pointer;font-family:var(--font-sans);font-size:13px;font-weight:600;color:#A8430C" style-hover="color:var(--c365-orange-600)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M8 12h8"></path><path d="M12 8v8" style="opacity:{{ expandPlusOpacity }}"></path></svg>{{ expandToggleLabel }}</button>
+            </div>
+          </div>
+          <div style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:12px">
+
+          <!-- Accordion: Sales and Install -->
+          <section style="flex-shrink:0;background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;box-shadow:var(--shadow-1);overflow:hidden">
+            <div onClick="{{ toggleSales }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px 6px 12px;background:var(--c365-orange-50);border-bottom:1px solid var(--c365-orange-200);cursor:pointer;user-select:none;min-height:42px;box-sizing:border-box">
+              <span style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#A8430C"><i data-lucide="hard-hat" style="width:14px;height:14px"></i>Sales and Install</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span onClick="{{ stop }}" style="display:flex;align-items:center">
+                  <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,26px" dc-props="{{ iconBtn }}" title="Edit"><i data-lucide="settings" style="width:15px;height:15px;display:inline-flex"></i></x-import>
+                </span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8430C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 150ms;transform:{{ salesRot }}"><path d="m6 9 6 6 6-6"></path></svg>
+              </div>
+            </div>
+            <sc-if value="{{ accSales }}" hint-placeholder-val="{{ true }}">
+              <div>
+                <div style="padding:9px 12px 8px;display:flex;flex-direction:column;gap:8px">
+                  <div style="display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;padding:0 2px;align-items:center">
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Office</span>
+                    <span style="display:inline-flex;align-items:center;gap:6px"><span style="font-size:12.5px;font-weight:600">Corporate — SHD</span><span title="Sub-office" style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:var(--c365-steel-600);background:var(--c365-steel-50);border:1px solid var(--c365-steel-200);padding:1px 6px;border-radius:999px">Sub-Office</span></span>
+                  </div>
+                  <div style="background:var(--c365-surface-2);border:1px solid var(--c365-line-2);border-radius:6px;padding:7px 12px;display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;align-items:center">
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Sales Manager</span>
+                    <span style="font-size:12.5px;font-weight:600">Marcus Reed</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Sales Rep</span>
+                    <span style="display:inline-flex;align-items:center;gap:6px"><span style="font-size:12.5px;font-weight:600">Tyler Grant</span></span>
+                  </div>
+                  <div style="background:var(--c365-surface-2);border:1px solid var(--c365-line-2);border-radius:6px;padding:7px 12px;display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;align-items:center">
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Tech Manager</span>
+                    <span style="font-size:12.5px;font-weight:600;color:var(--c365-ink-4)">—</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Tech</span>
+                    <span style="display:inline-flex;align-items:center;gap:6px"><span style="font-size:12.5px;font-weight:600">Dominic Sisi</span></span>
+                  </div>
+                </div>
+                
+                <div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-top:1px solid var(--c365-line-2)">
+                  <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">Adjust payroll</x-import>
+                  <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">Payroll change</x-import>
+                  <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">Payroll detail</x-import>
+                  
+                </div>
+              </div>
+            </sc-if>
+          </section>
+
+          <!-- Accordion: Billing -->
+          <section style="flex-shrink:0;background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;box-shadow:var(--shadow-1);overflow:hidden">
+            <div onClick="{{ toggleBilling }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px 6px 12px;background:var(--c365-orange-50);border-bottom:1px solid var(--c365-orange-200);cursor:pointer;user-select:none;min-height:42px;box-sizing:border-box">
+              <div style="display:flex;align-items:center;gap:8px;min-width:0">
+                <span style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#A8430C"><i data-lucide="credit-card" style="width:14px;height:14px"></i>Billing</span>
+                <span title="Paid in full" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:var(--c365-danger-600);background:var(--c365-danger-bg);padding:1px 7px;border-radius:999px">Paid in full: No</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span onClick="{{ stop }}" style="display:flex;align-items:center;gap:6px">
+                  <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" dc-props="{{ iconBtn }}" title="Tax info" hint-size="auto,26px"><i data-lucide="receipt-text" style="width:15px;height:15px;display:inline-flex"></i></x-import>
+                  <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onEditPayment }}" hint-size="auto,26px" dc-props="{{ iconBtn }}" title="Edit"><i data-lucide="settings" style="width:15px;height:15px;display:inline-flex"></i></x-import>
+                </span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8430C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 150ms;transform:{{ billingRot }}"><path d="m6 9 6 6 6-6"></path></svg>
+              </div>
+            </div>
+            <sc-if value="{{ accBilling }}" hint-placeholder-val="{{ true }}">
+              <div>
+                <div style="display:flex;gap:12px;align-items:flex-start;padding:9px 14px 6px">
+                <div style="flex:1 1 0;min-width:0;display:grid;grid-template-columns:minmax(0,max-content) minmax(0,1fr);gap:5px 12px">
+                  <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Type</span>
+                  <span style="font-size:12.5px;font-weight:600">CC</span>
+                  <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Tax Exempt</span>
+                  <span style="font-size:12.5px;font-weight:600">No</span>
+                  <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Billing Cycle</span>
+                  <span style="font-size:12.5px;font-weight:600">18th</span>
+                  
+                  
+                  <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Last Paid</span>
+                  <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">10/18/2026</span>
+                  <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Last Paid Amt</span>
+                  <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">$45.99</span>
+                  <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Class Code</span>
+                  <span style="font-size:12.5px;font-weight:600">NC</span>
+                </div>
+                <div style="flex:1 1 0;min-width:0;background:var(--c365-surface-2);border:1px solid var(--c365-line-2);border-radius:6px;padding:8px 12px">
+                  <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--c365-ink-3);margin-bottom:4px">Monthly fees</div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;padding:2px 0">
+                    <span style="font-size:12px;color:var(--c365-ink-2)">Financing</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">$61.20</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;padding:2px 0">
+                    <span style="font-size:12px;color:var(--c365-ink-2)">Monitoring</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">$45.99</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;padding:2px 0">
+                    <span style="font-size:12px;color:var(--c365-ink-2)">Direct invoice</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">$0.00</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;padding:2px 0">
+                    <span style="font-size:12px;color:var(--c365-ink-2)">Taxes</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">$3.22</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;padding:4px 0 0;border-top:1px solid var(--c365-line-2);margin-top:4px">
+                    <span style="font-size:12px;font-weight:700">RMR total</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:700">$49.21</span>
+                  </div>
+                </div>
+                </div>
+                <div style="margin:6px 14px 10px;border:1px solid var(--c365-line-2);border-radius:6px;overflow:hidden">
+                  <div style="display:grid;grid-template-columns:1fr auto auto;gap:0 16px;padding:5px 12px;background:var(--c365-panel)">
+                    <span style="font-size:10px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--c365-ink-2)">Aging</span>
+                    <span style="font-size:10px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--c365-ink-2);text-align:right;min-width:52px">SHD</span>
+                    <span style="font-size:10px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--c365-ink-2);text-align:right;min-width:52px">Total</span>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr auto auto;gap:0 16px;padding:3px 12px">
+                    <span style="font-size:12px;color:var(--c365-ink-2)">Cur – 30</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;text-align:right;min-width:52px;color:var(--c365-ink-3)">$0.00</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;text-align:right;min-width:52px;color:var(--c365-ink-3)">$0.00</span>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr auto auto;gap:0 16px;padding:3px 12px;background:var(--c365-surface-3)">
+                    <span style="font-size:12px;color:var(--c365-ink-2)">31 – 60</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;text-align:right;min-width:52px;color:var(--c365-ink-3)">$0.00</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;text-align:right;min-width:52px;color:var(--c365-ink-3)">$0.00</span>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr auto auto;gap:0 16px;padding:3px 12px">
+                    <span style="font-size:12px;color:var(--c365-ink-2)">61 – 90</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;text-align:right;min-width:52px;color:var(--c365-ink-3)">$0.00</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;text-align:right;min-width:52px;color:var(--c365-ink-3)">$0.00</span>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr auto auto;gap:0 16px;padding:3px 12px;background:var(--c365-surface-3)">
+                    <span style="font-size:12px;color:var(--c365-ink-2)">91 – 120</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;text-align:right;min-width:52px;color:var(--c365-ink-3)">$0.00</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;text-align:right;min-width:52px;color:var(--c365-ink-3)">$0.00</span>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr auto auto;gap:0 16px;padding:3px 12px">
+                    <span style="font-size:12px;color:var(--c365-ink-2)">Over 120</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:600;text-align:right;min-width:52px;color:var(--c365-danger-600)">$91.98</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:600;text-align:right;min-width:52px;color:var(--c365-danger-600)">$91.98</span>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr auto auto;gap:0 16px;padding:4px 12px;border-top:1px solid var(--c365-line-2)">
+                    <span style="font-size:12px;font-weight:700">Total</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;text-align:right;min-width:52px">$91.98</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;text-align:right;min-width:52px">$91.98</span>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+          </section>
+
+          <!-- Accordion: Contract -->
+          <section style="flex-shrink:0;background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;box-shadow:var(--shadow-1);overflow:hidden">
+            <div onClick="{{ toggleContract }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px 6px 12px;background:var(--c365-orange-50);border-bottom:1px solid var(--c365-orange-200);cursor:pointer;user-select:none;min-height:42px;box-sizing:border-box">
+              <span style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#A8430C"><i data-lucide="file-signature" style="width:14px;height:14px"></i>Contract</span>
+              <div style="display:flex;align-items:center;gap:8px">
+                
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8430C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 150ms;transform:{{ contractRot }}"><path d="m6 9 6 6 6-6"></path></svg>
+              </div>
+            </div>
+            <sc-if value="{{ accContract }}" hint-placeholder-val="{{ true }}">
+              <div>
+                <div style="padding:9px 12px 8px;display:flex;flex-direction:column;gap:8px">
+                  <div style="background:var(--c365-surface-2);border:1px solid var(--c365-line-2);border-radius:6px;padding:7px 12px;display:grid;grid-template-columns:max-content 1fr;gap:5px 14px">
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Account Owner</span>
+                    <span style="font-size:12.5px;font-weight:600">SafeHome Direct</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">In / Out Holdback</span>
+                    <span style="display:inline-flex;align-items:baseline;gap:6px"><span style="font-size:12.5px;font-weight:600">In</span><span style="font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--c365-ink-3)">06/20/2021</span></span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Takeover</span>
+                    <span style="font-size:12.5px;font-weight:600">Yes</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-4);white-space:nowrap;padding-left:12px">Takeover For</span>
+                    <span style="font-size:12.5px;font-weight:600">Vivint</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Created Date</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">05/03/2021</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Contract Date</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">05/18/2021</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Install Date</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">11/23/2021</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Term / Renewal</span>
+                    <span style="font-size:12.5px;font-weight:600">60 mo / 12 mo</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Contract End Date</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">03/23/2027</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Contract Addendum</span>
+                    <span style="font-size:12.5px;font-weight:600;color:var(--c365-ink-4)">—</span>
+                  </div>
+                  <div style="background:var(--c365-surface-2);border:1px solid var(--c365-line-2);border-radius:6px;padding:7px 12px;display:grid;grid-template-columns:max-content 1fr;gap:5px 14px">
+                    
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Manifest Name</span>
+                    <span style="font-size:12.5px;font-weight:600">JUN-21-B</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Manifest Date</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">06/30/2021</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Corp Check Date</span>
+                    <span style="font-size:12.5px;font-weight:600;color:var(--c365-ink-4)">—</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Purchase Date</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">06/01/2021</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Funded Date</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">06/14/2021</span>
+                  </div>
+                  <div style="background:var(--c365-surface-2);border:1px solid var(--c365-line-2);border-radius:6px;padding:7px 12px;display:grid;grid-template-columns:max-content 1fr;gap:5px 14px">
+                    <span style="grid-column:1/-1;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--c365-ink-3)">Cancellation</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Request to Cancel</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--c365-danger-600)">10/12/2026</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">NOC Date</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--c365-danger-600)">11/26/2026</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Cure Date</span>
+                    <span style="font-family:var(--font-mono);font-size:12px;font-weight:500">11/01/2026</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Save Date</span>
+                    <span style="font-size:12.5px;font-weight:600;color:var(--c365-ink-4)">—</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Attrition Date 1</span>
+                    <span style="font-size:12.5px;font-weight:600;color:var(--c365-ink-4)">—</span>
+                    <span style="font-size:12px;font-weight:500;color:var(--c365-ink-3);white-space:nowrap">Attrition Date 2</span>
+                    <span style="font-size:12.5px;font-weight:600;color:var(--c365-ink-4)">—</span>
+                  </div>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-top:1px solid var(--c365-line-2)">
+                  <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">Account info</x-import>
+                  <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">ESign</x-import>
+                  
+                  <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">Retention</x-import>
+                </div>
+              </div>
+            </sc-if>
+          </section>
+          </div>
+        </div>
+
+        <!-- ===== Column C: Notes / Messages + Actions ===== -->
+        <div style="display:flex;flex-direction:column;gap:12px;min-width:0;height:835px;overflow:hidden">
+          <section style="flex:1;min-height:0;background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;box-shadow:var(--shadow-1);overflow:hidden;display:flex;flex-direction:column">
+            <div style="display:flex;background:var(--c365-surface);border-bottom:1px solid var(--c365-line)">
+              <sc-for list="{{ tabItems }}" as="t" hint-placeholder-count="8">
+                <button onClick="{{ t.onSelect }}" title="{{ t.label }}" style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;padding:11px 0 9px;border:none;background:transparent;cursor:pointer;color:{{ t.color }};border-bottom:2px solid {{ t.underline }};transition:color 120ms" style-hover="color:#A8430C">
+                  <i data-lucide="{{ t.icon }}" style="width:18px;height:18px"></i>
+                  <sc-if value="{{ t.badge }}" hint-placeholder-val="{{ false }}">
+                    <span style="position:absolute;top:4px;right:calc(50% - 17px);min-width:15px;height:15px;padding:0 3px;border-radius:999px;background:var(--c365-danger);color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1.5px #fff">{{ t.badge }}</span>
+                  </sc-if>
+                </button>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 12px;background:var(--c365-surface-2);border-bottom:1px solid var(--c365-line-2)">
+              <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--c365-ink-2)">{{ activeTabLabel }} · {{ currentCount }}</span>
+              <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,26px">View all</x-import>
+            </div>
+            <div style="flex:1;min-height:0;overflow-y:auto">
+              <sc-for list="{{ currentList }}" as="note" hint-placeholder-count="5">
+                <article style="display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--c365-line-2)">
+                  <div style="width:30px;height:30px;flex-shrink:0;border-radius:8px;background:{{ note.iconBg }};display:flex;align-items:center;justify-content:center;color:{{ note.catColor }}">
+                    <i data-lucide="{{ note.icon }}" style="width:15px;height:15px"></i>
+                  </div>
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                      <span style="font-size:10.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:{{ note.catColor }}">{{ note.cat }}</span>
+                      <span style="font-family:var(--font-mono);font-size:11px;font-weight:500;color:var(--c365-ink-4)">{{ note.when }}</span>
+                    </div>
+                    <div style="font-size:13px;line-height:19px;color:var(--c365-ink);margin-top:2px">{{ note.body }}</div>
+                    <div style="font-size:11px;color:var(--c365-ink-3);margin-top:3px">{{ note.who }}</div>
+                  </div>
+                </article>
+              </sc-for>
+            </div>
+            <div style="border-top:1px solid var(--c365-line);background:var(--c365-surface-2);padding:10px 14px 12px;display:flex;flex-direction:column;gap:8px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <label style="display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:var(--c365-ink-2)">Primary Reason
+                  <select value="{{ primaryReason }}" onChange="{{ onPrimaryReason }}" style="font-family:var(--font-sans);font-size:12.5px;color:var(--c365-ink);border:1px solid var(--c365-line);border-radius:6px;background:var(--c365-surface);padding:6px 8px;cursor:pointer">
+                    <option value="">Select</option>
+                    <option value="moving">Moving</option>
+                    <option value="financial">Financial hardship</option>
+                    <option value="service">Service issues</option>
+                    <option value="competitor">Competitor offer</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+                <label style="display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:var(--c365-ink-2)">Secondary Reason
+                  <select value="{{ secondaryReason }}" onChange="{{ onSecondaryReason }}" style="font-family:var(--font-sans);font-size:12.5px;color:var(--c365-ink);border:1px solid var(--c365-line);border-radius:6px;background:var(--c365-surface);padding:6px 8px;cursor:pointer">
+                    <option value="">Select</option>
+                    <option value="price">Price increase</option>
+                    <option value="equipment">Equipment issues</option>
+                    <option value="response">Response time</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+              </div>
+              <textarea value="{{ noteText }}" onChange="{{ onNoteInput }}" maxLength="900" placeholder="Add a note to this account…" rows="3" style="font-family:var(--font-sans);font-size:13px;line-height:19px;color:var(--c365-ink);border:1px solid var(--c365-line);border-radius:6px;background:var(--c365-surface);padding:8px 10px;resize:vertical;outline:none" style-focus="box-shadow:var(--ring-focus);border-color:var(--c365-orange-300)"></textarea>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <span style="font-size:11px;color:var(--c365-ink-4)">{{ remaining }} characters remaining</span>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--c365-danger-600);cursor:pointer">
+                    <input type="checkbox" checked="{{ critical }}" onChange="{{ toggleCritical }}" style="accent-color:var(--c365-danger);width:14px;height:14px;cursor:pointer">Critical
+                  </label>
+                  <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="primary" size="sm" on-click="{{ addNote }}" hint-size="auto,28px">Add note</x-import>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Account Actions (under tabbed panel) -->
+          <sc-if value="{{ showActionsRail }}" hint-placeholder-val="{{ true }}">
+            <section style="background:var(--c365-surface);border:1px solid var(--c365-line);border-radius:8px;box-shadow:var(--shadow-1);overflow:hidden">
+              <div style="padding:7px 12px;background:var(--c365-orange-50);border-bottom:1px solid var(--c365-orange-200)">
+                <span style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#A8430C"><i data-lucide="zap" style="width:14px;height:14px"></i>Actions</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:12px;flex-wrap:wrap">
+                <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">QA form</x-import>
+                <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onAction }}" hint-size="auto,28px">Issues</x-import>
+                <x-import component-from-global-scope="Core365DesignSystem_dbcf5c.Button" variant="secondary" size="sm" on-click="{{ onRiskLevel }}" hint-size="auto,28px">Risk Level</x-import>
+                <span style="flex:1;min-width:180px;font-size:11px;line-height:15px;color:var(--c365-ink-4)">Lifecycle, proactive calls &amp; change log all live here.</span>
+              </div>
+            </section>
+          </sc-if>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <sc-if value="{{ toastMsg }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--c365-ink);color:#fff;font-size:13px;font-weight:500;padding:10px 18px;border-radius:8px;box-shadow:var(--shadow-3);z-index:100;animation:toastIn 180ms cubic-bezier(0.2,0.7,0.2,1);white-space:nowrap">{{ toastMsg }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;showStatStrip&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Layout&quot; },
+  &quot;showActionsRail&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Layout&quot; }
+}">
+class Component extends DCLogic {
+  state = {
+    activeNav: 'security',
+    accountType: 'residential',
+    tab: 'history',
+    noteText: '',
+    critical: false,
+    primaryReason: '',
+    secondaryReason: '',
+    flagSpanish: false,
+    flagVip: true,
+    flagVeteran: false,
+    accordions: { sales: true, billing: true, contract: true },
+    toastMsg: '',
+    clock: '',
+    notes: [
+      { when: '10/18/2026 2:06 PM', who: 'Dana Whitfield · Admin', cat: 'Critical', icon: 'alert-triangle', body: 'Customer submitted request to cancel. Offered 2 free months — pending response by 10/25.' },
+      { when: '10/18/2026 1:44 PM', who: 'Dana Whitfield · Admin', cat: 'Correspondence', icon: 'mail', body: 'FedEx shipping label created. Tracking #7713 0925 1147.' },
+      { when: '10/03/2026 9:15 AM', who: 'System · Auto', cat: 'Billing', icon: 'credit-card', body: 'Payment declined — card ending 4421 expired. Retry scheduled 10/10.' },
+      { when: '09/28/2026 4:02 PM', who: 'Dominic Sisi · Tech', cat: 'Service', icon: 'wrench', body: 'Panel offline since 9/26. Customer notified; battery replacement quoted.' },
+      { when: '08/14/2026 1:30 PM', who: 'Dana Whitfield · Admin', cat: 'Correspondence', icon: 'mail', body: 'Renewal notice mailed.' },
+      { when: '07/02/2026 10:22 AM', who: 'Tyler Grant · Sales', cat: 'General', icon: 'message-square', body: 'Customer added smoke detector to system. RMR updated.' },
+    ],
+    messages: [
+      { when: '10/17/2026 11:02 AM', who: 'SMS · Delivered', cat: 'Outbound', icon: 'message-circle', body: '"Hi Jacob, your return shipping label is on the way — check your email for tracking."' },
+      { when: '10/12/2026 3:40 PM', who: 'Email · Opened 10/13', cat: 'Outbound', icon: 'mail', body: 'Retention offer sent — 2 free months of monitoring.' },
+    ],
+    contact: [
+      { when: '10/18/2026 2:12 PM', who: 'Jacob Olson · Customer', cat: 'Contact', icon: 'user', body: 'Called in about cancellation — will keep monitoring if price holds.' },
+      { when: '09/12/2026 10:05 AM', who: 'Jacob Olson · Customer', cat: 'Contact', icon: 'user', body: 'Updated preferred contact to mobile; best reached after 5 PM.' },
+    ],
+    activity: [
+      { when: '09/26/2026 3:40 AM', who: 'System · Panel', cat: 'Service', icon: 'activity', body: 'Panel reported offline — loss of cellular signal.' },
+      { when: '07/08/2026 6:00 AM', who: 'System · Panel', cat: 'General', icon: 'activity', body: 'Daily test signal received — system healthy.' },
+    ],
+    documents: [
+      { when: '10/18/2026 1:44 PM', who: 'Dana Whitfield · Admin', cat: 'Correspondence', icon: 'file', body: 'FedEx return label generated (PDF).' },
+      { when: '05/18/2021', who: 'e-Sign · Vault', cat: 'Correspondence', icon: 'file', body: 'Signed monitoring agreement on file.' },
+    ],
+    calls: [
+      { when: '10/17/2026 4:22 PM', who: 'Outbound · 2m 14s', cat: 'Calls', icon: 'phone-outgoing', body: 'Retention call — left voicemail re: 2 free months.' },
+      { when: '10/12/2026 11:03 AM', who: 'Inbound · 6m 02s', cat: 'Calls', icon: 'phone-incoming', body: 'Customer requested cancellation; reason logged as competitor offer.' },
+    ],
+    automations: [
+      { when: '10/10/2026 12:00 AM', who: 'Dunning · Auto', cat: 'Billing', icon: 'zap', body: 'Auto-retry scheduled for declined card on 10/10.' },
+      { when: '10/03/2026 9:16 AM', who: 'Notify · Auto', cat: 'Billing', icon: 'zap', body: 'Payment-failed email sent to customer.' },
+    ],
+    tasks: [
+      { when: 'Due 10/25/2026', who: 'Assigned · Dana Whitfield', cat: 'Critical', icon: 'square-check-big', body: 'Follow up on retention offer before NOC date.' },
+      { when: 'Due 10/20/2026', who: 'Assigned · Billing', cat: 'Billing', icon: 'square-check-big', body: 'Confirm updated card on file after retry.' },
+    ],
+  };
+
+  componentDidMount() {
+    this._iconTimer = setInterval(() => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+        clearInterval(this._iconTimer);
+        this._iconTimer = null;
+      }
+    }, 100);
+    this._tick = () => {
+      const t = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      if (t !== this.state.clock) this.setState({ clock: t });
+    };
+    this._tick();
+    this._clockTimer = setInterval(this._tick, 30000);
+  }
+
+  componentDidUpdate() {
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  componentWillUnmount() {
+    if (this._iconTimer) clearInterval(this._iconTimer);
+    if (this._clockTimer) clearInterval(this._clockTimer);
+    if (this._toastTimer) clearTimeout(this._toastTimer);
+  }
+
+  toast(msg) {
+    if (this._toastTimer) clearTimeout(this._toastTimer);
+    this.setState({ toastMsg: msg });
+    this._toastTimer = setTimeout(() => this.setState({ toastMsg: '' }), 2600);
+  }
+
+  toggleAcc(key) {
+    this.setState((st) => ({ accordions: { ...st.accordions, [key]: !st.accordions[key] } }));
+  }
+
+  renderVals() {
+    const s = this.state;
+    const CAT = {
+      Critical: { color: 'var(--c365-danger-600)', bg: 'var(--c365-danger-bg)' },
+      Billing: { color: 'var(--c365-steel-600)', bg: 'var(--c365-steel-50)' },
+      Service: { color: 'var(--c365-warning)', bg: 'var(--c365-warning-bg)' },
+      Correspondence: { color: 'var(--c365-ink-3)', bg: 'var(--c365-surface-3)' },
+      General: { color: 'var(--c365-ink-3)', bg: 'var(--c365-surface-3)' },
+      Outbound: { color: 'var(--c365-steel-600)', bg: 'var(--c365-steel-50)' },
+      Contact: { color: 'var(--c365-steel-600)', bg: 'var(--c365-steel-50)' },
+      Calls: { color: 'var(--c365-danger-600)', bg: 'var(--c365-danger-bg)' },
+      Note: { color: '#A8430C', bg: 'var(--c365-orange-50)' },
+    };
+    const decorate = (list) => list.map((n) => {
+      const c = CAT[n.cat] || CAT.General;
+      return { ...n, catColor: c.color, iconBg: c.bg, icon: n.icon || 'sticky-note' };
+    });
+
+    const NAV = [
+      { id: 'exec', icon: 'layout-dashboard', label: 'Executive Console' },
+      { id: 'security', icon: 'shield', label: 'Security' },
+      { id: 'renewable', icon: 'sun', label: 'Renewable Energy' },
+      { id: 'pest', icon: 'bug', label: 'Pest Control' },
+      { id: 'toolkit', icon: 'wrench', label: 'Toolkit' },
+      { id: 'directory', icon: 'book-user', label: 'Directory — RE' },
+      { id: 'schedule', icon: 'calendar', label: 'Schedule' },
+      { id: 'workorders', icon: 'clipboard-list', label: 'Work Orders (EWOS)' },
+      { id: 'fleet', icon: 'truck', label: 'Fleet Management' },
+      { id: 'forms', icon: 'file-text', label: 'Forms 365' },
+      { id: 'step', icon: 'footprints', label: 'Step 365' },
+      { id: 'learn', icon: 'graduation-cap', label: 'Learn 365' },
+      { id: 'tasks', icon: 'list-checks', label: 'Task Management' },
+      { id: 'hr', icon: 'users', label: 'HR 365' },
+      { id: 'admin', icon: 'settings', label: 'Administration' },
+    ];
+    const navItems = NAV.map((n) => {
+      const active = s.activeNav === n.id;
+      return {
+        ...n,
+        bg: active ? 'var(--c365-orange-50)' : 'transparent',
+        fg: active ? '#A8430C' : 'var(--c365-ink-2)',
+        fw: active ? 700 : 500,
+        onSelect: () => {
+          this.setState({ activeNav: n.id });
+          if (n.id !== 'security') this.toast(n.label + ' — module not part of this prototype');
+        },
+      };
+    });
+
+    const TYPE_LABELS = {
+      residential: 'Residential',
+      residential_renter: 'Residential Renter',
+      business: 'Business',
+      business_renter: 'Business Renter',
+      commercial: 'Commercial',
+      commercial_renter: 'Commercial Renter',
+    };
+
+    const streams = {
+      history: s.notes,
+      contact: s.contact,
+      activity: s.activity,
+      documents: s.documents,
+      calls: s.calls,
+      messages: s.messages,
+      automations: s.automations,
+      tasks: s.tasks,
+    };
+    const TABS = [
+      { id: 'history', icon: 'history', label: 'Activity feed' },
+      { id: 'contact', icon: 'user', label: 'Contact' },
+      { id: 'activity', icon: 'activity', label: 'System activity' },
+      { id: 'documents', icon: 'file', label: 'Documents' },
+      { id: 'calls', icon: 'phone', label: 'Calls', idleColor: 'var(--c365-danger)' },
+      { id: 'messages', icon: 'users', label: 'Messages' },
+      { id: 'automations', icon: 'zap', label: 'Automations' },
+      { id: 'tasks', icon: 'square-check-big', label: 'Tasks', badge: s.tasks.length },
+    ];
+    const activeTabMeta = TABS.find((t) => t.id === s.tab) || TABS[0];
+    const tabItems = TABS.map((t) => {
+      const active = s.tab === t.id;
+      return {
+        icon: t.icon,
+        label: t.label,
+        badge: t.badge || false,
+        color: active ? '#A8430C' : (t.idleColor || 'var(--c365-ink-3)'),
+        underline: active ? 'var(--c365-orange)' : 'transparent',
+        onSelect: () => this.setState({ tab: t.id }),
+      };
+    });
+    const currentList = decorate(streams[s.tab] || []);
+
+    return {
+      showStatStrip: this.props.showStatStrip ?? true,
+      showActionsRail: this.props.showActionsRail ?? true,
+      clock: s.clock,
+      navItems,
+      avatarProps: { name: 'Jacob Olson', size: 30, color: '#5A739F' },
+      btnFull: { style: { width: '100%', justifyContent: 'center' } },
+      iconBtn: { style: { padding: 0, width: 28, height: 28 } },
+
+      langLabel: s.flagSpanish ? 'ES' : 'EN',
+      accountType: s.accountType,
+      accountTypeLabel: TYPE_LABELS[s.accountType] || 'Residential',
+      onAccountType: (e) => { this.setState({ accountType: e.target.value }); this.toast('Account type → ' + (TYPE_LABELS[e.target.value] || e.target.value)); },
+
+      accSales: s.accordions.sales,
+      accBilling: s.accordions.billing,
+      accContract: s.accordions.contract,
+      salesRot: s.accordions.sales ? 'rotate(180deg)' : 'rotate(0deg)',
+      billingRot: s.accordions.billing ? 'rotate(180deg)' : 'rotate(0deg)',
+      contractRot: s.accordions.contract ? 'rotate(180deg)' : 'rotate(0deg)',
+      stop: (e) => e.stopPropagation(),
+      toggleSales: () => this.toggleAcc('sales'),
+      toggleBilling: () => this.toggleAcc('billing'),
+      toggleContract: () => this.toggleAcc('contract'),
+      expandToggleLabel: (s.accordions.sales && s.accordions.billing && s.accordions.contract) ? 'Collapse all' : 'Expand all',
+      expandPlusOpacity: (s.accordions.sales && s.accordions.billing && s.accordions.contract) ? 0 : 1,
+      onExpandToggle: () => {
+        const allOpen = s.accordions.sales && s.accordions.billing && s.accordions.contract;
+        const v = !allOpen;
+        this.setState({ accordions: { sales: v, billing: v, contract: v } });
+      },
+
+      tabItems,
+      currentList,
+      currentCount: currentList.length,
+      activeTabLabel: activeTabMeta.label,
+
+      noteText: s.noteText,
+      remaining: 900 - s.noteText.length,
+      critical: s.critical,
+      primaryReason: s.primaryReason,
+      secondaryReason: s.secondaryReason,
+      onNoteInput: (e) => this.setState({ noteText: e.target.value }),
+      toggleCritical: (e) => this.setState({ critical: e.target.checked }),
+      onPrimaryReason: (e) => this.setState({ primaryReason: e.target.value }),
+      onSecondaryReason: (e) => this.setState({ secondaryReason: e.target.value }),
+      addNote: () => {
+        const text = s.noteText.trim();
+        if (!text) { this.toast('Type a note first'); return; }
+        const now = new Date();
+        const when = (now.getMonth() + 1).toString().padStart(2, '0') + '/' + now.getDate().toString().padStart(2, '0') + '/' + now.getFullYear() + ' ' + now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        const note = { when, who: 'Jacob Olson · Admin', cat: s.critical ? 'Critical' : 'Note', icon: s.critical ? 'alert-triangle' : 'sticky-note', body: text };
+        this.setState({ notes: [note, ...s.notes], noteText: '', critical: false, tab: 'history' });
+        this.toast('Note added to account');
+      },
+
+      flagSpanish: s.flagSpanish,
+      flagVip: s.flagVip,
+      flagVeteran: s.flagVeteran,
+      toggleSpanish: (e) => this.setState({ flagSpanish: e.target.checked }),
+      toggleVip: (e) => this.setState({ flagVip: e.target.checked }),
+      toggleVeteran: (e) => this.setState({ flagVeteran: e.target.checked }),
+
+      toastMsg: s.toastMsg,
+      onAction: (e) => {
+        const label = (e.currentTarget.textContent || 'Action').trim();
+        this.toast(label + ' — opens in the full app');
+      },
+      onBalance: () => this.toast('Opening Accounting — balance $91.98'),
+      onAccounting: () => this.toast('Opening Accounting — invoices, credits & finance'),
+      onEditPayment: () => this.toast('Edit payment info — raising RMR auto-sends eSign for signature'),
+      onTickets: () => this.toast('New ticket — downtime credit request included in setup'),
+      onPoints: () => this.toast('Points — equipment & equipment requests'),
+      onInspection: (e) => { if (e && e.preventDefault) e.preventDefault(); this.toast('Inspection — housed under Tech'); },
+      onRiskLevel: () => this.toast('Risk Level — lifecycle, proactive calls & change log'),
+      onBell: () => this.toast('Notifications — opens in the full app'),
+      onScreenSelect: (e) => this.toast(e.target.value + ' — screen switch not part of this prototype'),
+      onAccountSelect: (e) => this.toast(e.target.value + ' — account switch not part of this prototype'),
+    };
+  }
+}
+</script>
+</body>
+</html>
