@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Core365 Template: Simple Form" description="Minimal Core365 settings dialog — compact modal shell with a header Change Log link and Close/Save footer. A blank-body starting point for simple single-panel forms." -->
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Jost:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <script src="./ds-base.js"></script>
+  <link href="./kit/simpleForm-v2-responsive.css" rel="stylesheet" />
+  <link href="./kit/simpleForm-v2.css" rel="stylesheet" />
+  <!-- React/ReactDOM are provided by the DC runtime (window.React/window.ReactDOM).
+       Do NOT load them again from CDN here — a second copy nulls the hooks
+       dispatcher ("Cannot read properties of null (reading 'useState')"). We only
+       need Babel to transpile the kit's .jsx at runtime. -->
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script>
+    // Babel only auto-transpiles <script type="text/babel"> present at page
+    // load. The design system's form lives in sibling .jsx files that we pull
+    // in at runtime, so we fetch -> transform -> eval them in dependency order,
+    // then mount the canonical master/detail form.
+    (function boot() {
+      if (!window.Babel || !window.React || !window.ReactDOM) { return setTimeout(boot, 30); }
+      var base = './kit/';
+      var files = ['tokens.jsx', 'changeLog.jsx', 'simpleForm-v2.jsx'];
+      if (window.__sfBooted) return;
+      window.__sfBooted = true;
+      (async function () {
+        try {
+          for (var i = 0; i < files.length; i++) {
+            var res = await fetch(base + files[i]);
+            var code = await res.text();
+            var out = Babel.transform(code, { presets: ['react'], filename: files[i] }).code;
+            var s = document.createElement('script');
+            s.textContent = out;
+            document.head.appendChild(s);
+          }
+          (function paint() {
+            var el = document.getElementById('sf-root');
+            if (!el || !window.SimpleFormPrototypeV2) { return setTimeout(paint, 30); }
+            if (el.__sfMounted) return;
+            el.__sfMounted = true;
+            ReactDOM.createRoot(el).render(React.createElement(window.SimpleFormPrototypeV2));
+          })();
+        } catch (err) {
+          console.error('Setting Form template failed to load kit:', err);
+        }
+      })();
+    })();
+  </script>
+  <style>
+    html, body { margin: 0; padding: 0; background: #f0eee9; font-family: 'Manrope', -apple-system, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    * { box-sizing: border-box; }
+  </style>
+</helmet>
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px;">
+  <div id="sf-root" style="display: flex; align-items: center; justify-content: center;">
+    <div style="width: 1280px; height: 720px; border-radius: 6px; border: 1px solid #D9DDE3; background: #fff; display: flex; align-items: center; justify-content: center; color: #99A0AE; font-size: 14px;">Loading settings form…</div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

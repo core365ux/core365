@@ -1,0 +1,13 @@
+/* ============================================================
+   Core365 — Global stylesheet entry
+   ============================================================
+   Single import surface for consumers of the Core365 design
+   system. Linking this one file brings in every token, @font-face
+   rule, and semantic type class.
+
+   Kit-internal stylesheets (ui_kits/core365-settings/simpleForm-v2*.css)
+   are component-scoped artboard styles, not global tokens — they are
+   loaded directly by the kit / templates that use them, so they are
+   intentionally NOT imported here.
+   ------------------------------------------------------------ */
+@import url("colors_and_type.css");
