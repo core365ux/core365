@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dev Handoff — Queue Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --orange:#F2691A; --orange-soft:#FFF5EE; --orange-border:#FDD3BB;
+    --steel:#5A739F; --ink:#1F2433; --ink2:#3A4151; --ink3:#6B7384; --ink4:#99A0AE;
+    --surface:#fff; --bg:#FAFBFC; --line:#D9DDE3; --line-soft:#E6E9EE;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:'Manrope',-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  body{padding:48px 24px 72px;}
+  .wrap{max-width:840px;margin:0 auto;}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--orange);}
+  h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:10px 0 8px;}
+  .lead{font-family:'Jost',sans-serif;font-size:16px;line-height:1.55;color:var(--ink2);margin:0;max-width:60ch;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:32px 0 8px;}
+  a.card{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px 22px 20px;
+    box-shadow:0 1px 2px rgba(20,28,51,.06);transition:box-shadow .15s,border-color .15s,transform .06s;}
+  a.card:hover{box-shadow:0 4px 14px rgba(20,28,51,.10);border-color:rgba(90,115,159,.4);}
+  a.card:active{transform:translateY(.5px);}
+  .card .tile{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .tile.brand{background:var(--orange-soft);border:1px solid var(--orange-border);color:var(--orange);}
+  .tile.steel{background:#F3F6FB;border:1px solid #C9D4E6;color:var(--steel);}
+  .card h2{font-size:16px;font-weight:700;margin:0;letter-spacing:-.01em;}
+  .card p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink3);}
+  .card .go{margin-top:2px;font-size:13px;font-weight:600;color:var(--orange);display:inline-flex;align-items:center;gap:6px;}
+  a.card.steel .go{color:var(--steel);}
+  .section{margin-top:40px;}
+  .section h3{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4);margin:0 0 14px;}
+  .files{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .frow{display:flex;gap:14px;align-items:baseline;padding:12px 18px;border-top:1px solid var(--line-soft);}
+  .frow:first-child{border-top:none;}
+  .frow code{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;color:var(--ink);background:#F6F4F0;
+    border:1px solid var(--line-soft);border-radius:5px;padding:2px 7px;white-space:nowrap;}
+  .frow span{font-size:13px;color:var(--ink3);line-height:1.45;}
+  .note{margin-top:18px;font-size:12.5px;color:var(--ink4);line-height:1.5;}
+  .foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink4);}
+  svg{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Core365 · Developer Handoff</div>
+  <h1>Queue Settings — Contact Thresholds</h1>
+  <p class="lead">Settings for when a project appears in the queue, based on days since last contact — per method (Email, SMS, Phone Call, System Note), with independent thresholds for Active vs. On Hold projects and a per-condition Counted / Ignored toggle.</p>
+
+  <div class="grid">
+    <a class="card" href="SimpleForm.dc.html">
+      <div class="tile brand">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg>
+      </div>
+      <h2>Open the interactive screen</h2>
+      <p>The working prototype — Desktop matrix and Mobile card layout, live toggles and day steppers.</p>
+      <span class="go">View prototype →</span>
+    </a>
+
+    <a class="card steel" href="README.md">
+      <div class="tile steel">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h6M8 17h4"/></svg>
+      </div>
+      <h2>Read the developer README</h2>
+      <p>Full spec: layout, state shape, tokens, interactions, and file map — enough to rebuild from scratch.</p>
+      <span class="go">Open README →</span>
+    </a>
+  </div>
+
+  <a class="card" href="." style="flex-direction:row;align-items:center;gap:16px;margin-top:16px;">
+    <div class="tile brand" style="width:44px;height:44px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg>
+    </div>
+    <div style="flex:1;">
+      <h2>Download the packaged files</h2>
+      <p>All source needed to run and rebuild the screen — prototype HTML, the JSX kit, and the Core365 design-system bundle (tokens, styles, fonts).</p>
+    </div>
+    <span class="go">Download package →</span>
+  </a>
+  <p class="note">The complete package is also delivered as a downloadable <strong>.zip</strong> in chat. Contents mirror the file map below.</p>
+
+  <div class="section">
+    <h3>What's in the package</h3>
+    <div class="files">
+      <div class="frow"><code>SimpleForm.dc.html</code><span>Entry screen — boots the prototype and mounts the settings form.</span></div>
+      <div class="frow"><code>kit/simpleForm-v2.jsx</code><span>The screen's layout + logic (matrix, mobile cards, stepper, toggles, defaults). Start here.</span></div>
+      <div class="frow"><code>kit/tokens.jsx</code><span>Shared primitives — Button, Toggle, Pill, Segmented, FormCard, inputs, icons, color tokens.</span></div>
+      <div class="frow"><code>kit/changeLog.jsx</code><span>Optional Change Log modal + sample audit data.</span></div>
+      <div class="frow"><code>kit/*.css</code><span>Supporting classes (header extras + shared template styles).</span></div>
+      <div class="frow"><code>ds-base.js</code><span>Loads the Core365 design-system bundle and stylesheets.</span></div>
+      <div class="frow"><code>_ds/core365-…/</code><span>Core365 design system — tokens (colors_and_type.css), styles, bundle, fonts.</span></div>
+      <div class="frow"><code>README.md</code><span>The full developer spec.</span></div>
+    </div>
+    <p class="note">These are <strong>design references in HTML/React</strong>, not production code — recreate the design in your codebase's existing environment and patterns. Serve over HTTP to run locally (the page fetches JSX at runtime).</p>
+  </div>
+
+  <div class="foot">Core365 Design System · Queue Settings handoff</div>
+</div>
+</body>
+</html>
