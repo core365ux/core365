@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Jost:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    html, body { margin: 0; padding: 0; background: #FAFBFC; font-family: 'Manrope', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    * { box-sizing: border-box; }
+    a { color: #5A739F; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</helmet>
+<div style="min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 64px 24px;">
+  <div style="width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 28px;">
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #F2691A;">Core365 · Design handoff</div>
+      <h1 style="margin: 0; font-size: 32px; line-height: 40px; font-weight: 700; letter-spacing: -0.02em; color: #1F2433;">General Phase Settings</h1>
+      <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 16px; line-height: 1.55; color: #6B7384; text-wrap: pretty; max-width: 60ch;">Notification controls for phases completed out of sequence — enable or disable per user group. Everything a developer needs to rebuild this in the product is in the package below.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+      <a href="design_handoff_general_phase_settings.zip" download="design_handoff_general_phase_settings.zip" style="display: flex; flex-direction: column; gap: 8px; padding: 20px; background: #fff; border: 1px solid #D9DDE3; border-radius: 8px; box-shadow: 0 1px 2px rgba(20,28,51,0.06);" style-hover="border-color: rgba(90,115,159,0.3); box-shadow: 0 2px 4px rgba(20,28,51,0.06), 0 4px 12px rgba(20,28,51,0.06);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F2691A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="M7 10l5 5 5-5" /><path d="M12 15V3" /></svg>
+          <span style="font-size: 16px; font-weight: 600; color: #1F2433;">Download handoff package</span>
+        </div>
+        <span style="font-family: 'Jost', sans-serif; font-size: 14px; line-height: 1.5; color: #6B7384;">ZIP · README spec, prototype source, standalone preview — 4.1 MB</span>
+      </a>
+
+      <a href="design_handoff_general_phase_settings/preview.html" target="_blank" style="display: flex; flex-direction: column; gap: 8px; padding: 20px; background: #fff; border: 1px solid #D9DDE3; border-radius: 8px; box-shadow: 0 1px 2px rgba(20,28,51,0.06);" style-hover="border-color: rgba(90,115,159,0.3); box-shadow: 0 2px 4px rgba(20,28,51,0.06), 0 4px 12px rgba(20,28,51,0.06);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5A739F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6" /><path d="M10 14 21 3" /><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5" /></svg>
+          <span style="font-size: 16px; font-weight: 600; color: #1F2433;">Open standalone preview</span>
+        </div>
+        <span style="font-family: 'Jost', sans-serif; font-size: 14px; line-height: 1.5; color: #6B7384;">Single self-contained HTML file — interactive, works offline</span>
+      </a>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #D9DDE3; border-radius: 8px; overflow: hidden;">
+      <div style="background: #E2E2E2; border-bottom: 1px solid #D9DDE3; padding: 9px 16px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #6B7384;">What's inside</div>
+      <div style="display: flex; flex-direction: column; padding: 4px 0;">
+        <div style="display: flex; gap: 16px; padding: 11px 16px; border-bottom: 1px solid #E6E9EE;">
+          <span style="width: 200px; flex: 0 0 auto; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #1F2433;">README.md</span>
+          <span style="font-family: 'Jost', sans-serif; font-size: 14px; color: #6B7384;">Full spec: layout, tokens, states, data model</span>
+        </div>
+        <div style="display: flex; gap: 16px; padding: 11px 16px; border-bottom: 1px solid #E6E9EE;">
+          <span style="width: 200px; flex: 0 0 auto; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #1F2433;">preview.html</span>
+          <span style="font-family: 'Jost', sans-serif; font-size: 14px; color: #6B7384;">Offline interactive preview</span>
+        </div>
+        <div style="display: flex; gap: 16px; padding: 11px 16px; border-bottom: 1px solid #E6E9EE;">
+          <span style="width: 200px; flex: 0 0 auto; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #1F2433;">kit/simpleForm-v2.jsx</span>
+          <span style="font-family: 'Jost', sans-serif; font-size: 14px; color: #6B7384;">The dialog — start here</span>
+        </div>
+        <div style="display: flex; gap: 16px; padding: 11px 16px;">
+          <span style="width: 200px; flex: 0 0 auto; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #1F2433;">kit/tokens.jsx</span>
+          <span style="font-family: 'Jost', sans-serif; font-size: 14px; color: #6B7384;">Tokens + primitives (Toggle, Btn, FormCard)</span>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin: 0; font-family: 'Jost', sans-serif; font-size: 14px; line-height: 1.55; color: #99A0AE; max-width: 60ch;">The bundled HTML is a design reference, not production code — rebuild it with the product's existing Core365 components and patterns.</p>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
