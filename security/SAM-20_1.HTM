@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Performance | Sam 2.0</title>
+<style>
+  :root{
+    --shd-cyan:#23ade8;
+    --shd-cyan-dark:#0891b2;
+    --onyx:#1a1d24;
+    --onyx-2:#242830;
+    --bg:#f4f6f8;
+    --card-bg:#ffffff;
+    --border:#e2e5ea;
+    --border-strong:#d1d5db;
+    --text:#1a1d24;
+    --text-muted:#6b7280;
+    --text-faint:#9ca3af;
+    --danger:#dc2626;
+    --danger-bg:#fef2f2;
+    --success:#16a34a;
+    --success-bg:#f0fdf4;
+    --warning:#d97706;
+    --warning-bg:#fffbeb;
+    --radius:5px;
+    --shadow-card:0 1px 2px rgba(16,20,30,0.06), 0 1px 1px rgba(16,20,30,0.04);
+    --shadow-card-hover:0 2px 8px rgba(16,20,30,0.08);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-size:13px;
+    line-height:1.4;
+  }
+  /* ---------- Top bar ---------- */
+  .topbar{
+    background:var(--onyx);
+    color:#fff;
+    padding:10px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:3px solid var(--shd-cyan);
+  }
+  .topbar-left{display:flex;align-items:center;gap:12px;}
+  .brand{
+    display:flex;align-items:center;gap:8px;
+    font-weight:700;font-size:14px;letter-spacing:.2px;
+  }
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--shd-cyan);}
+  .breadcrumb{color:#9aa4b2;font-size:12px;}
+  .breadcrumb b{color:#fff;font-weight:600;}
+  .topbar-right{display:flex;align-items:center;gap:14px;}
+  .access-badge{
+    background:rgba(35,173,232,0.16);
+    border:1px solid rgba(35,173,232,0.4);
+    color:#7fd4f7;
+    padding:3px 9px;
+    border-radius:var(--radius);
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.3px;
+    text-transform:uppercase;
+  }
+  .user-chip{
+    display:flex;align-items:center;gap:8px;
+    font-size:12px;color:#e7eaef;
+  }
+  .avatar{
+    width:26px;height:26px;border-radius:50%;
+    background:var(--shd-cyan-dark);
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;color:#fff;
+  }
+  /* ---------- Page shell ---------- */
+  .page{max-width:1320px;margin:0 auto;padding:20px;}
+  .page-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+  .page-title{font-size:20px;font-weight:700;color:var(--onyx);}
+  .page-sub{font-size:12.5px;color:var(--text-muted);margin-top:2px;}
+  .mock-flag{
+    font-size:11px;color:var(--text-faint);font-style:italic;
+  }
+  .page-header-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+  .sync-status{
+    font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;
+  }
+  .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block;flex-shrink:0;}
+  .filter-note{font-size:10.5px;color:var(--text-faint);font-style:italic;}
+  /* ---------- Controls panel (two-row) ---------- */
+  .controls{
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-card);
+    padding:12px 14px;
+    margin-bottom:18px;
+  }
+  .controls-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  .controls-row + .controls-row{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+  .control-group{display:flex;align-items:center;gap:8px;}
+  .control-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;}
+  .pill-group{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:2px;}
+  .pill{
+    border:none;background:transparent;padding:5px 12px;font-size:12px;font-weight:600;
+    color:var(--text-muted);border-radius:3px;cursor:pointer;transition:all .12s ease;
+  }
+  .pill.active{background:var(--shd-cyan);color:#fff;box-shadow:var(--shadow-card);}
+  .pill:hover:not(.active){color:var(--text);}
+  .toggle-inline{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;user-select:none;}
+  .toggle-inline input{accent-color:var(--shd-cyan);width:14px;height:14px;cursor:pointer;}
+  .btn{
+    border:1px solid var(--border-strong);background:#fff;color:var(--text);
+    padding:6px 13px;border-radius:var(--radius);font-size:12px;font-weight:600;
+    cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .12s ease;
+  }
+  .btn:hover{border-color:var(--shd-cyan);color:var(--shd-cyan-dark);box-shadow:var(--shadow-card);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;border-color:var(--border-strong);color:var(--text-muted);}
+  .btn:disabled:hover{border-color:var(--border-strong);color:var(--text-muted);box-shadow:none;}
+  .btn-primary{background:var(--shd-cyan);border-color:var(--shd-cyan);color:#fff;}
+  .btn-primary:hover{background:var(--shd-cyan-dark);border-color:var(--shd-cyan-dark);color:#fff;}
+  .spacer{flex:1;}
+  .select-input{
+    border:1px solid var(--border-strong);background:#fff;color:var(--text);
+    padding:6px 10px;border-radius:var(--radius);font-size:12px;font-weight:600;
+    cursor:pointer;font-family:inherit;
+  }
+  .select-input:hover{border-color:var(--shd-cyan);}
+  .select-input:focus{outline:none;border-color:var(--shd-cyan);box-shadow:0 0 0 2px rgba(35,173,232,0.18);}
+  /* ---------- Program health banner ---------- */
+  .health-banner{
+    display:flex;align-items:center;gap:14px;padding:14px 18px;
+    border-radius:var(--radius);border:1px solid var(--border);margin-bottom:16px;
+  }
+  .health-banner.healthy{background:var(--success-bg);border-color:rgba(22,163,74,0.3);}
+  .health-banner.watch{background:var(--warning-bg);border-color:rgba(217,119,6,0.3);}
+  .health-banner.declining{background:var(--danger-bg);border-color:rgba(220,38,38,0.3);}
+  .health-banner.neutral{background:var(--bg);border-color:var(--border);}
+  .health-pill{
+    flex-shrink:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+    padding:6px 13px;border-radius:20px;color:#fff;white-space:nowrap;
+  }
+  .health-pill.healthy{background:var(--success);}
+  .health-pill.watch{background:var(--warning);}
+  .health-pill.declining{background:var(--danger);}
+  .health-pill.neutral{background:var(--text-faint);}
+  .health-text{font-size:13px;color:var(--text);line-height:1.5;}
+  /* ---------- KPI cards ---------- */
+  .kpi-hero-wrap{margin-bottom:16px;}
+  .kpi-group{margin-bottom:16px;}
+  .kpi-group-label{
+    font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;
+    letter-spacing:.5px;margin-bottom:8px;padding-left:2px;
+  }
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+    gap:10px;
+  }
+  .kpi-card{
+    background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow-card);padding:12px 14px;
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .kpi-label{font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;}
+  .kpi-value{font-size:19px;font-weight:700;color:var(--onyx);letter-spacing:-.2px;}
+  .kpi-delta{font-size:11px;font-weight:600;display:flex;align-items:center;gap:3px;}
+  .kpi-delta.up{color:var(--success);}
+  .kpi-delta.down{color:var(--danger);}
+  .kpi-delta.neutral{color:var(--text-faint);}
+  .kpi-caption{font-size:9.5px;color:var(--text-faint);font-style:italic;margin-top:-1px;cursor:help;}
+  .kpi-card.emphasis{grid-column:span 1;border-color:var(--shd-cyan);background:linear-gradient(180deg,#f0faff 0%,#ffffff 60%);}
+  .kpi-card.tint-good{border-left:3px solid var(--success);background:linear-gradient(90deg, rgba(22,163,74,0.07), transparent 45%);}
+  .kpi-card.tint-bad{border-left:3px solid var(--danger);background:linear-gradient(90deg, rgba(220,38,38,0.07), transparent 45%);}
+  .kpi-card.hero{padding:16px 22px;}
+  .kpi-card.hero .kpi-label{font-size:11px;}
+  .kpi-card.hero .kpi-value{font-size:28px;}
+  .kpi-card.hero .kpi-delta{font-size:12px;}
+  /* ---------- Section blocks ---------- */
+  .section{
+    background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow-card);margin-bottom:18px;overflow:hidden;
+  }
+  .section-head{
+    padding:12px 16px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;
+    cursor:pointer;user-select:none;
+  }
+  .chevron{display:inline-block;font-size:10px;color:var(--text-muted);width:10px;flex-shrink:0;}
+  .section-title{font-size:13.5px;font-weight:700;color:var(--onyx);}
+  .section-note{font-size:11px;color:var(--text-faint);}
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;}
+  thead th{
+    background:var(--bg);color:var(--text-muted);font-weight:600;font-size:10.5px;
+    text-transform:uppercase;letter-spacing:.3px;text-align:right;padding:8px 12px;
+    border-bottom:1px solid var(--border);position:sticky;top:0;
+  }
+  thead th:first-child, tbody td:first-child{
+    position:sticky;left:0;background:var(--card-bg);text-align:left;z-index:1;
+    box-shadow:1px 0 0 var(--border);
+  }
+  thead th:first-child{background:var(--bg);z-index:2;}
+  tbody td{padding:7px 12px;text-align:right;border-bottom:1px solid var(--border);color:var(--text);}
+  tbody tr:nth-child(even) td{background:#fafbfc;}
+  tbody tr:nth-child(even) td:first-child{background:#fafbfc;}
+  tbody tr.total-row td{
+    font-weight:700;background:#eef7fd !important;border-top:1.5px solid var(--shd-cyan);
+    border-bottom:1.5px solid var(--shd-cyan);
+  }
+  .row-label{font-weight:600;color:var(--text);}
+  .neg{color:var(--danger);}
+  .yoy-badge{
+    display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:700;
+    padding:1px 6px;border-radius:10px;
+  }
+  .yoy-badge.up{background:var(--success-bg);color:var(--success);}
+  .yoy-badge.down{background:var(--danger-bg);color:var(--danger);}
+  /* ---------- YTD summary ---------- */
+  .ytd-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:0;}
+  .ytd-table-col{padding:14px 16px;border-right:1px solid var(--border);}
+  .ytd-bars-col{padding:14px 16px;}
+  .bar-row{margin-bottom:12px;}
+  .bar-row-head{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;}
+  .bar-row-head .cat{font-weight:600;color:var(--text);}
+  .bar-track{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;display:flex;gap:2px;}
+  .bar-seg{height:100%;border-radius:3px;}
+  .bar-seg.y25{background:#94d3f0;}
+  .bar-seg.y26{background:var(--shd-cyan);}
+  .bar-legend{display:flex;gap:14px;font-size:10.5px;color:var(--text-muted);margin-top:10px;}
+  .legend-dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:middle;}
+  .avg-table{width:100%;border-collapse:collapse;font-size:12px;}
+  .avg-table th{text-align:right;font-size:10.5px;color:var(--text-muted);text-transform:uppercase;padding:6px 10px;border-bottom:1px solid var(--border);}
+  .avg-table th:first-child{text-align:left;}
+  .avg-table td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);}
+  .avg-table td:first-child{text-align:left;font-weight:600;}
+  .avg-table tr.total-row td{font-weight:700;background:#eef7fd;border-top:1.5px solid var(--shd-cyan);border-bottom:1.5px solid var(--shd-cyan);}
+  /* sparkline */
+  .spark{display:block;margin-top:2px;}
+  /* ---------- Manual entry / edit mode ---------- */
+  .btn-edit{position:relative;}
+  .btn-edit.active{background:var(--onyx);border-color:var(--onyx);color:#fff;}
+  .btn-edit.active:hover{background:var(--onyx-2);border-color:var(--onyx-2);color:#fff;}
+  .manual-tag{
+    display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;
+    color:var(--shd-cyan-dark);background:rgba(35,173,232,0.12);border:1px solid rgba(35,173,232,0.3);
+    border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:middle;
+  }
+  tr.editable-row td:first-child{background:#f7fcff;}
+  tr.editable-row:nth-child(even) td:first-child{background:#eff9ff;}
+  input.cell-input{
+    width:78px;text-align:right;font-size:12px;font-family:inherit;color:var(--text);
+    border:1px solid var(--border-strong);border-radius:3px;padding:3px 6px;background:#fffdf5;
+  }
+  input.cell-input:focus{outline:none;border-color:var(--shd-cyan);box-shadow:0 0 0 2px rgba(35,173,232,0.18);background:#fff;}
+  .history-btn{
+    border:none;background:none;color:var(--shd-cyan-dark);font-size:11px;font-weight:600;
+    cursor:pointer;display:flex;align-items:center;gap:4px;
+  }
+  .history-btn:hover{text-decoration:underline;}
+  .audit-panel{
+    border-top:1px solid var(--border);background:var(--bg);padding:10px 16px;
+    max-height:220px;overflow-y:auto;
+  }
+  .audit-empty{font-size:12px;color:var(--text-faint);padding:6px 0;}
+  .audit-entry{
+    font-size:11.5px;padding:6px 0;border-bottom:1px dashed var(--border);
+    display:flex;justify-content:space-between;gap:10px;
+  }
+  .audit-entry:last-child{border-bottom:none;}
+  .audit-entry .what{color:var(--text);}
+  .audit-entry .what b{font-weight:700;}
+  .audit-entry .vals{color:var(--text-muted);}
+  .audit-entry .meta{color:var(--text-faint);white-space:nowrap;}
+  .edit-note{font-size:11px;color:var(--shd-cyan-dark);background:rgba(35,173,232,0.08);border:1px solid rgba(35,173,232,0.25);border-radius:var(--radius);padding:6px 10px;margin:0 16px 12px;}
+  /* ---------- Yearly Trend table ---------- */
+  #yearlyTable thead th{position:static;}
+  .yearly-year-head{text-align:center !important;background:var(--bg);border-left:2px solid var(--border-strong);}
+  .yearly-subhead th{font-size:9.5px;padding:5px 12px;background:#fff;border-bottom:2px solid var(--border-strong);}
+  .yearly-subhead th:first-child{background:#fff;}
+  .yearly-val{font-weight:700;color:var(--onyx);}
+  .diff-cell{color:var(--shd-cyan-dark);font-weight:600;}
+  .na-cell{color:var(--text-faint);font-style:italic;font-weight:400;}
+  .pct-cell{font-weight:700;}
+  .pct-cell.up{background:var(--success-bg) !important;color:var(--success);}
+  .pct-cell.down{background:var(--danger-bg) !important;color:var(--danger);}
+  footer.page-footer{
+    text-align:center;font-size:11px;color:var(--text-faint);padding:16px 0 30px;
+  }
+  @media print{
+    .topbar, .controls{display:none;}
+    .page{padding:0;max-width:100%;}
+    .section{box-shadow:none;border:1px solid #ccc;}
+  }
+  @media (max-width:1100px){
+    .ytd-grid{grid-template-columns:1fr;}
+    .ytd-table-col{border-right:none;border-bottom:1px solid var(--border);}
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="brand"><span class="dot"></span>SAM 2.0</div>
+      <div class="breadcrumb">Reporting &nbsp;/&nbsp; <b>Financial Performance</b></div>
+    </div>
+    <div class="topbar-right">
+      <span class="access-badge">Director / Owner Access</span>
+      <div class="user-chip">
+        <div class="avatar">AC</div>
+        <span>Aaron Craft &middot; Admin</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Financial Performance</div>
+        <div class="page-sub" id="pageSub">Cost, income, and RMR performance by month &mdash; company-wide, all channels</div>
+      </div>
+      <div class="page-header-right">
+        <div class="mock-flag">Mockup data shown &middot; not connected to live figures</div>
+        <div class="sync-status" id="syncStatus"></div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="controls-row">
+        <div class="control-group">
+          <span class="control-label">Team</span>
+          <select class="select-input" id="teamFilter">
+            <option value="all">All Teams</option>
+            <option value="alpha">Team Alpha</option>
+            <option value="bravo">Team Bravo</option>
+            <option value="charlie">Team Charlie</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <span class="control-label">Lead Source</span>
+          <select class="select-input" id="sourceFilter">
+            <option value="all">All Sources</option>
+            <option value="vendorA">Vendor A</option>
+            <option value="vendorB">Vendor B</option>
+            <option value="organic">Organic</option>
+            <option value="referral">Referral</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <span class="control-label">Year</span>
+          <div class="pill-group" id="yearPills">
+            <button class="pill active" data-year="2025">2025</button>
+            <button class="pill" data-year="2026">2026 (YTD)</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <span class="control-label">View</span>
+          <div class="pill-group" id="viewPills">
+            <button class="pill active" data-view="trend">Monthly Trend</button>
+            <button class="pill" data-view="ytd">YTD Summary</button>
+            <button class="pill" data-view="yearly">Yearly Trend</button>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <label class="toggle-inline">
+          <input type="checkbox" id="yoyToggle" checked>
+          Show year-over-year comparison
+        </label>
+      </div>
+      <div class="controls-row">
+        <div class="control-group">
+          <span class="control-label">Period</span>
+          <span id="periodLabel" style="font-size:12px;color:var(--text-muted);">Jan &ndash; Dec 2025</span>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn btn-edit" id="editModeBtn">✎ Edit Manual Costs</button>
+        <button class="btn" onclick="window.print()">🖨 Export / Print</button>
+        <button class="btn btn-primary" disabled title="Mockup only">⬇ Export CSV</button>
+      </div>
+    </div>
+
+    <!-- Program health -->
+    <div id="healthBanner"></div>
+
+    <!-- KPI cards -->
+    <div class="kpi-group">
+      <div class="kpi-grid" id="kpiTopGrid"></div>
+    </div>
+    <div class="kpi-group">
+      <div class="kpi-group-label">Portfolio Health</div>
+      <div class="kpi-grid" id="kpiHealthGrid"></div>
+    </div>
+
+    <!-- Monthly Trend View -->
+    <div id="trendView">
+      <div class="section">
+        <div class="section-head" id="costsHead">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="chevron" id="costsChevron">▸</span>
+            <div class="section-title">Costs</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="section-note" id="costsNote">Marketing, equipment, technician, labor, lead gen &amp; chargebacks</div>
+            <button class="history-btn" id="historyBtn">🕘 History <span id="historyCount"></span></button>
+          </div>
+        </div>
+        <div class="section-body" id="costsBody" style="display:none;">
+          <div class="edit-note" id="editNote" style="display:none;">Edit mode is on. <b>Marketing Expenses</b> and <b>Lead Gen Cost</b> are manually entered &mdash; click a cell below to update it. All other rows sync automatically from Sam 2.0.</div>
+          <div class="table-wrap">
+            <table id="costsTable"></table>
+          </div>
+          <div class="audit-panel" id="auditPanel" style="display:none;"></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-head" id="incomeHead">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="chevron" id="incomeChevron">▸</span>
+            <div class="section-title">Income</div>
+          </div>
+          <div class="section-note">Installs, activation &amp; equipment revenue, RMR &amp; net gain/cost</div>
+        </div>
+        <div class="section-body" id="incomeBody" style="display:none;">
+          <div class="table-wrap">
+            <table id="incomeTable"></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- YTD Summary View -->
+    <div id="ytdView" style="display:none;">
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">YTD Totals &amp; Average Per Account</div>
+          <div class="section-note">2025 vs 2026 cost efficiency comparison</div>
+        </div>
+        <div class="ytd-grid">
+          <div class="ytd-table-col">
+            <table class="avg-table" id="avgTable"></table>
+          </div>
+          <div class="ytd-bars-col">
+            <div style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:12px;">Cost Per Account &mdash; 2025 vs 2026</div>
+            <div id="barsWrap"></div>
+            <div class="bar-legend">
+              <span><span class="legend-dot" style="background:#94d3f0;"></span>2025</span>
+              <span><span class="legend-dot" style="background:var(--shd-cyan);"></span>2026 YTD</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Yearly Trend View -->
+    <div id="yearlyView" style="display:none;">
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">Yearly Totals</div>
+          <div class="section-note">Year-over-year totals, dollar change &amp; percent change</div>
+        </div>
+        <div class="table-wrap">
+          <table id="yearlyTable"></table>
+        </div>
+      </div>
+    </div>
+
+    <footer class="page-footer">Sam 2.0 &middot; Financial Performance &middot; Director/Owner access only &middot; Mockup for design reference</footer>
+  </div>
+
+<script>
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const Y25 = {
+  installs: [30,28,26,34,36,36,36,36,44,43,50,59],
+  mkt: [3412.43,4159.22,3633.83,3807.14,3422.65,3617.43,4406.75,4362.54,4093.52,4339.78,3495.18,4120.26],
+  equip: [8554.12,9204.25,8952.97,9837.63,10758.0,9631.47,9749.82,10696.75,14757.4,12850.62,14827.01,15938.29],
+  tech: [900,840,780,1020,1080,1080,1080,1080,1320,1290,1500,1770],
+  labor: [12967.27,11489.59,11727.48,13118.48,14510.79,14944.72,14226.53,13790.69,21041.97,17819.6,22021.05,25735.65],
+  lead: [13861.02,12397.39,10217.0,16891.91,15287.77,13930.92,17050.54,13588.69,22555.04,21885.58,24310.65,26984.95],
+  cb: [-559,-607,-588,-537,-268,-306,-221,-134,-689,-583,-151,-352],
+  rmr: [49.94,48.06,49.31,52.43,51.53,48.7,48.7,50.34,47.89,51.16,51.58,52.39],
+  act: [1607.24,1460.38,1175.48,1448.22,1566.65,1114.55,1507.23,1077.73,2243.32,1421.56,1245.81,1036.1],
+  equip_sales: [0,0,0,0,0,0,0,0,0,0,0,0],
+  gross_cost: [39694.84,38090.45,35311.28,44675.16,45059.21,43204.54,46513.64,43518.67,63767.93,58185.58,66153.89,74549.15],
+  net: [38087.6,36630.07,34135.8,43226.94,43492.56,42089.99,45006.41,42440.94,61524.61,56764.02,64908.08,73513.05],
+  total_rmr: [1498.2,1345.68,1282.06,1782.62,1855.08,1753.2,1753.2,1812.24,2107.16,2199.88,2579.0,3091.01],
+  creation_mult: [26.5,28.3,27.5,25.1,24.3,24.6,26.5,24.0,30.3,26.4,25.7,24.1],
+};
+const Y26 = {
+  installs: [51,50,42,42,39,30,21],
+  mkt: [2993.77,3525.79,2767.13,2779.43,2955.15,2871.45,3596.42],
+  equip: [17143.68,15570.04,15658.6,16049.88,13256.94,9097.27,6986.71],
+  tech: [1530,1500,1260,1260,1170,900,630],
+  labor: [23514.19,23436.19,22533.48,21124.84,21361.87,15841.3,10610.84],
+  lead: [31113.99,28933.14,21219.78,23880.48,21589.24,15983.86,10445.39],
+  cb: [-653,0,-1365,-1761,-2429,-2415,-3179],
+  rmr: [50.16,48.13,50.8,52.23,48.33,50.14,50.53],
+  act: [807.91,1857.84,1618.58,642.08,1689.23,520.65,371.62],
+  equip_sales: [0,0,0,0,0,0,0],
+  gross_cost: [76295.63,72965.16,63438.99,65094.63,60333.2,44693.88,32269.36],
+  net: [75487.72,71107.32,61820.41,64452.55,58643.97,44173.23,31897.74],
+  total_rmr: [2558.16,2406.5,2133.6,2193.66,1884.87,1504.2,1061.13],
+  creation_mult: [29.8,30.3,29.7,29.7,32.0,29.7,30.4],
+};
+// Attrition rate per year (the one figure not derived from the monthly arrays in this mockup)
+const META = {
+  2025: { attrition: 5.4 },
+  2026: { attrition: 1.8 }
+};
+
+// Fields with no automatic data source elsewhere in Sam 2.0 — entered manually by Director/Owner
+const MANUAL_FIELDS = ['mkt', 'lead'];
+const FIELD_LABELS = { mkt: 'Marketing Expenses', lead: 'Lead Gen Cost' };
+
+// Team and Lead Source breakdowns. Each segment is a share of company installs/$ plus a small
+// RMR/attrition adjustment, so filtering produces a distinct, internally-consistent slice rather
+// than just re-labeling the same totals. Shares within each group sum to 1.
+const TEAMS = {
+  all:     { label:'All Teams',    share:1,    rmrAdj:0,    attritionAdj:0   },
+  alpha:   { label:'Team Alpha',   share:0.42, rmrAdj:+1.4, attritionAdj:-0.9 },
+  bravo:   { label:'Team Bravo',   share:0.33, rmrAdj:-0.6, attritionAdj:+0.3 },
+  charlie: { label:'Team Charlie', share:0.25, rmrAdj:-0.3, attritionAdj:+1.1 },
+};
+const SOURCES = {
+  all:      { label:'All Sources', share:1,    rmrAdj:0    },
+  vendorA:  { label:'Vendor A',    share:0.38, rmrAdj:+1.8 },
+  vendorB:  { label:'Vendor B',    share:0.27, rmrAdj:-0.4 },
+  organic:  { label:'Organic',     share:0.20, rmrAdj:-1.2 },
+  referral: { label:'Referral',    share:0.15, rmrAdj:+2.5 },
+};
+
+// Returns the (possibly filtered) monthly dataset for a year, based on the current Team/Lead
+// Source selection. Returns the raw base object untouched when no filter is active, so the
+// manual-edit handler (which always writes to Y25/Y26 directly) stays correct.
+function getYearData(year){
+  const base = year===2025 ? Y25 : Y26;
+  const team = TEAMS[state.team], source = SOURCES[state.source];
+  if(state.team==='all' && state.source==='all') return base;
+
+  const factor = team.share * source.share;
+  const rmrAdj = team.rmrAdj + source.rmrAdj;
+  const scaleMoney = arr => arr.map(v => Math.round(v*factor*100)/100);
+  const scaleInt = arr => arr.map(v => Math.max(0, Math.round(v*factor)));
+
+  const installs = scaleInt(base.installs);
+  const mkt = scaleMoney(base.mkt);
+  const equip = scaleMoney(base.equip);
+  const tech = scaleMoney(base.tech);
+  const labor = scaleMoney(base.labor);
+  const lead = scaleMoney(base.lead);
+  const cb = scaleMoney(base.cb);
+  const act = scaleMoney(base.act);
+  const equip_sales = scaleMoney(base.equip_sales);
+  const rmr = base.rmr.map(v => Math.round((v+rmrAdj)*100)/100);
+  const gross_cost = installs.map((_,i) => Math.round((mkt[i]+equip[i]+tech[i]+labor[i]+lead[i])*100)/100);
+  const total_rmr = installs.map((n,i) => Math.round(n*rmr[i]*100)/100);
+  const net = installs.map((_,i) => Math.round((gross_cost[i]-(act[i]+equip_sales[i]))*100)/100);
+  const creation_mult = installs.map((_,i) => total_rmr[i] ? Math.round((gross_cost[i]/total_rmr[i])*10)/10 : 0);
+
+  return { installs, mkt, equip, tech, labor, lead, cb, rmr, act, equip_sales, gross_cost, net, total_rmr, creation_mult };
+}
+
+// Change log for manually-entered values (user, timestamp, old -> new). Seeded with sample history.
+let auditLog = [
+  { field: 'Lead Gen Cost', year: 2025, month: 'Dec', oldValue: 24310.65, newValue: 26984.95, user: 'Aaron Craft', ts: 'Jan 3, 2026, 9:14 AM' },
+  { field: 'Marketing Expenses', year: 2026, month: 'May', oldValue: 2700.00, newValue: 2955.15, user: 'Aaron Craft', ts: 'Jun 2, 2026, 11:47 AM' },
+];
+
+function computeSummary(year){
+  const y = getYearData(year);
+  const sum = arr => arr.reduce((a,b)=>a+b,0);
+  const installs = sum(y.installs);
+  const mkt = sum(y.mkt), equip = sum(y.equip), tech = sum(y.tech), labor = sum(y.labor), lead = sum(y.lead), cb = sum(y.cb);
+  const grossCost = mkt + equip + tech + labor + lead;
+  const equipSales = sum(y.equip_sales);
+  const activation = sum(y.act);
+  const grossIncome = activation + equipSales; // Activation $ + Equipment Sales
+  const net = grossCost - grossIncome;
+  const avgRmr = y.rmr.length ? y.rmr.reduce((a,b)=>a+b,0) / y.rmr.length : 0;
+  const totalRmr = sum(y.total_rmr);
+  // Attrition adjusts by Team (retention is a rep/team behavior, not a lead-source one), so a
+  // Team filter can meaningfully change this; Lead Source does not.
+  const attrition = Math.max(0, META[year].attrition + TEAMS[state.team].attritionAdj);
+  // Active RMR: what's still on the books after attrition — derived directly from Total RMR,
+  // so Attrition, Total RMR, and Active RMR always agree with each other.
+  const activeRmr = totalRmr * (1 - attrition/100);
+  // Creation Multiple: cost to create $1 of NEW RMR this period (matches the monthly row definition)
+  const creationMult = totalRmr ? grossCost / totalRmr : 0;
+  // Active Multiple: cost relative to RMR still active/retained (a distinct figure from Creation Multiple)
+  const activeMultiple = activeRmr ? grossCost / activeRmr : 0;
+  return { installs, mkt, equip, tech, labor, lead, cb, grossCost, activation, equipSales, grossIncome, net, totalRmr, activeRmr, avgRmr, creationMult, activeMultiple, attrition };
+}
+
+let state = { year: 2025, view: 'trend', yoy: true, editMode: false, team: 'all', source: 'all' };
+
+function isFiltered(){
+  return state.team !== 'all' || state.source !== 'all';
+}
+
+function fmtUSD(v, decimals){
+  const d = decimals===undefined?0:decimals;
+  const sign = v<0 ? '-' : '';
+  return sign + '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+}
+function fmtNum(v){ return v.toLocaleString('en-US'); }
+function pctDelta(curr, prev){
+  if(!prev) return null;
+  return ((curr-prev)/Math.abs(prev))*100;
+}
+// Shared by the KPI delta badges, card tinting, and the health banner, so "favorable vs
+// unfavorable" is judged identically everywhere on the screen.
+function deltaInfo(curr, prev, invert){
+  const d = pctDelta(curr, prev);
+  if(d===null) return { d:null, cls:'neutral' };
+  const good = invert ? d<0 : d>0;
+  const cls = Math.abs(d) < 0.5 ? 'neutral' : (good ? 'up':'down');
+  return { d, cls };
+}
+function deltaBadgeHtml(info){
+  if(info.d===null) return '<span class="kpi-delta neutral">— no prior data</span>';
+  const arrow = info.d>0 ? '▲' : (info.d<0 ? '▼' : '—');
+  return `<span class="kpi-delta ${info.cls}">${arrow} ${Math.abs(info.d).toFixed(1)}% vs 2025</span>`;
+}
+
+function kpiCardHtml(c, showYoy, featured){
+  let badgeHtml = '<span class="kpi-delta neutral">&nbsp;</span>';
+  let tintClass = '';
+  if(showYoy){
+    const info = deltaInfo(c.raw, c.priorRaw, c.invert);
+    badgeHtml = deltaBadgeHtml(info);
+    tintClass = info.cls==='up' ? 'tint-good' : info.cls==='down' ? 'tint-bad' : '';
+  }
+  return `
+    <div class="kpi-card ${featured?'emphasis':''} ${tintClass}">
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value">${c.value}</div>
+      ${c.caption ? `<div class="kpi-caption" title="${c.tooltip||c.caption}">${c.caption}</div>` : ''}
+      ${badgeHtml}
+    </div>`;
+}
+
+function joinNarrative(parts){
+  if(parts.length===0) return '';
+  if(parts.length===1) return parts[0];
+  return parts.slice(0,-1).join(', ') + ', and ' + parts[parts.length-1];
+}
+function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// Synthesizes the KPI deltas into one plain-language verdict, instead of leaving the reader to
+// average 11 cards in their head. Uses the same favorable/unfavorable judgment as the card tints.
+function computeHealthStatus(){
+  const s = computeSummary(state.year);
+  const prior = state.year===2026 ? computeSummary(2025) : null;
+
+  if(!prior){
+    return {
+      tier:'neutral', pill:'Baseline Year',
+      text:`${state.year} is the earliest year in this data set, so there's no prior year to compare against yet. Switch to 2026 to see a year-over-year health read.`
+    };
+  }
+
+  const installsPct = pctDelta(s.installs, prior.installs);
+  const costPerInstallPct = pctDelta(s.grossCost/s.installs, prior.grossCost/prior.installs);
+  const creationMultPct = pctDelta(s.creationMult, prior.creationMult);
+  const activeMultPct = pctDelta(s.activeMultiple, prior.activeMultiple);
+  const attritionDiff = s.attrition - prior.attrition; // percentage points, not % change
+
+  const signals = [
+    { pct:installsPct, bad: installsPct!==null && installsPct<-5, good: installsPct!==null && installsPct>5,
+      phrase: `creation volume is down ${Math.abs(installsPct).toFixed(0)}% year-over-year` },
+    { pct:costPerInstallPct, bad: costPerInstallPct!==null && costPerInstallPct>5, good: costPerInstallPct!==null && costPerInstallPct<-5,
+      phrase: `cost per install is up ${Math.abs(costPerInstallPct).toFixed(0)}%` },
+    { pct:creationMultPct, bad: creationMultPct!==null && creationMultPct>5, good: creationMultPct!==null && creationMultPct<-5,
+      phrase: `the Creation Multiple is up ${Math.abs(creationMultPct).toFixed(0)}% (now ${s.creationMult.toFixed(1)}x)` },
+    { pct:activeMultPct, bad: activeMultPct!==null && activeMultPct>5, good: activeMultPct!==null && activeMultPct<-5,
+      phrase: `the Active Multiple is up ${Math.abs(activeMultPct).toFixed(0)}% (now ${s.activeMultiple.toFixed(1)}x)` },
+    { pct:attritionDiff, bad: attritionDiff>0.5, good: attritionDiff<-0.5,
+      phrase: `attrition is up ${Math.abs(attritionDiff).toFixed(1)} points (now ${s.attrition.toFixed(1)}%)` },
+  ];
+
+  const badSignals = signals.filter(x=>x.bad).sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
+  const goodSignals = signals.filter(x=>x.good).sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
+
+  let tier, pill;
+  if(badSignals.length===0){ tier='healthy'; pill='Healthy'; }
+  else if(badSignals.length===1){ tier='watch'; pill='Needs Attention'; }
+  else { tier='declining'; pill='Declining'; }
+
+  let text;
+  if(badSignals.length===0 && goodSignals.length>0){
+    text = capitalize(joinNarrative(goodSignals.slice(0,2).map(g=>g.phrase))) + ' — the program is trending favorably year-over-year.';
+  } else if(badSignals.length===0){
+    text = 'Metrics are holding roughly flat year-over-year — no major moves in either direction.';
+  } else {
+    const shown = badSignals.slice(0,2).map(b=>b.phrase);
+    const rest = badSignals.length - shown.length;
+    text = capitalize(joinNarrative(shown)) + (rest>0 ? `, plus ${rest} other metric${rest>1?'s':''} trending unfavorably.` : '.');
+  }
+
+  return { tier, pill, text };
+}
+
+function renderHealthBanner(){
+  const h = computeHealthStatus();
+  document.getElementById('healthBanner').innerHTML = `
+    <div class="health-banner ${h.tier}">
+      <span class="health-pill ${h.tier}">${h.pill}</span>
+      <span class="health-text">${h.text}</span>
+    </div>`;
+}
+
+function renderKPIs(){
+  const s = computeSummary(state.year);
+  const prior = state.year===2026 ? computeSummary(2025) : null;
+  const showYoy = state.yoy && prior;
+
+  // The headline numbers for judging creation health at a glance
+  const topCards = [
+    { label:'Total Installs', value: fmtNum(s.installs), raw:s.installs, priorRaw: prior?prior.installs:null },
+    { label:'Average RMR', value: fmtUSD(s.avgRmr,2), raw:s.avgRmr, priorRaw: prior?prior.avgRmr:null },
+    { label:'Creation Multiple', value: s.creationMult.toFixed(1)+'x', raw:s.creationMult, priorRaw: prior?prior.creationMult:null, invert:true,
+      caption:'Cost ÷ RMR created', tooltip:'Gross Account Cost divided by Total RMR (RMR created). Measures how efficiently the sales/creation engine turns spend into new RMR — unaffected by retention.' },
+    { label:'Total RMR', value: fmtUSD(s.totalRmr,2), raw:s.totalRmr, priorRaw: prior?prior.totalRmr:null,
+      caption:'RMR created this period', tooltip:'New monthly recurring revenue signed this period, before any attrition.' },
+  ];
+
+  // Is what we created sticking around?
+  const healthCards = [
+    { label:'Active RMR', value: fmtUSD(s.activeRmr), raw:s.activeRmr, priorRaw: prior?prior.activeRmr:null,
+      caption:'Total RMR after attrition', tooltip:'Total RMR reduced by the Attrition rate — the RMR still actually on the books.' },
+    { label:'Active Multiple', value: s.activeMultiple.toFixed(1)+'x', raw:s.activeMultiple, priorRaw: prior?prior.activeMultiple:null, invert:true,
+      caption:'Cost ÷ RMR retained', tooltip:'Gross Account Cost divided by Active RMR (RMR after attrition). Always ≥ Creation Multiple — the gap between the two is the cost of attrition.' },
+    { label:'Attrition', value: s.attrition.toFixed(1)+'%', raw:s.attrition, priorRaw: prior?prior.attrition:null, invert:true },
+    { label:'Chargeback Total', value: fmtUSD(s.cb), raw:s.cb, priorRaw: prior?prior.cb:null, invert:true },
+  ];
+
+  document.getElementById('kpiTopGrid').innerHTML = topCards.map(c => kpiCardHtml(c, showYoy, true)).join('');
+  document.getElementById('kpiHealthGrid').innerHTML = healthCards.map(c => kpiCardHtml(c, showYoy, false)).join('');
+}
+
+function monthHeaders(n){
+  return MONTHS.slice(0,n).map(m=>`<th>${m}</th>`).join('') + '<th>Total</th>';
+}
+
+function costRow(label, arr, opts={}){
+  const total = arr.reduce((a,b)=>a+b,0);
+  const isEditable = opts.key && MANUAL_FIELDS.includes(opts.key) && state.editMode;
+  const cells = arr.map((v,i) => {
+    if(isEditable){
+      return `<td><input type="number" step="0.01" min="0" class="cell-input" data-key="${opts.key}" data-idx="${i}" value="${v}"></td>`;
+    }
+    return `<td class="${v<0?'neg':''}">${v===0?'—':fmtUSD(v)}</td>`;
+  }).join('');
+  const tag = opts.key && MANUAL_FIELDS.includes(opts.key) ? '<span class="manual-tag">Manual</span>' : '';
+  const rowClass = [opts.total?'total-row':'', opts.key && MANUAL_FIELDS.includes(opts.key) ? 'editable-row' : ''].filter(Boolean).join(' ');
+  return `<tr${rowClass?` class="${rowClass}"`:''}>
+    <td class="row-label">${label}${tag}</td>${cells}
+    <td class="${total<0?'neg':''}">${total===0 && !opts.total ? '—' : fmtUSD(total)}</td>
+  </tr>`;
+}
+
+function renderTrendTables(){
+  const y = getYearData(state.year);
+  const n = y.installs.length;
+  document.getElementById('periodLabel').textContent =
+    state.year===2025 ? 'Jan – Dec 2025' : `Jan – ${MONTHS[n-1]} 2026 (YTD)`;
+
+  document.getElementById('editNote').style.display = state.editMode ? '' : 'none';
+  document.getElementById('costsNote').style.display = state.editMode ? 'none' : '';
+
+  const costsTable = document.getElementById('costsTable');
+  costsTable.innerHTML = `
+    <thead><tr><th>Category</th>${monthHeaders(n)}</tr></thead>
+    <tbody>
+      ${costRow('Marketing Expenses', y.mkt, {key:'mkt'})}
+      ${costRow('Lead Gen Cost', y.lead, {key:'lead'})}
+      ${costRow('Labor', y.labor)}
+      ${costRow('Equipment Costs', y.equip)}
+      ${costRow('Technician Costs', y.tech)}
+      ${costRow('Chargeback Amount', y.cb)}
+      ${costRow('Gross Account Cost', y.gross_cost, {total:true})}
+    </tbody>`;
+
+  const incomeTable = document.getElementById('incomeTable');
+  incomeTable.innerHTML = `
+    <thead><tr><th>Category</th>${monthHeaders(n)}</tr></thead>
+    <tbody>
+      <tr><td class="row-label">Total Installs</td>${y.installs.map(v=>`<td>${v}</td>`).join('')}<td>${y.installs.reduce((a,b)=>a+b,0)}</td></tr>
+      ${costRow('Activation $', y.act)}
+      ${costRow('Equipment Sales', y.equip_sales)}
+      ${costRow('Gross Account Income', y.act.map((v,i)=>v+y.equip_sales[i]), {total:true})}
+      <tr><td class="row-label">Average RMR</td>${y.rmr.map(v=>`<td>${fmtUSD(v,2)}</td>`).join('')}<td>${fmtUSD(y.rmr.reduce((a,b)=>a+b,0)/y.rmr.length,2)}</td></tr>
+      <tr><td class="row-label">Total RMR</td>${y.total_rmr.map(v=>`<td>${fmtUSD(v,2)}</td>`).join('')}<td>${fmtUSD(y.total_rmr.reduce((a,b)=>a+b,0),2)}</td></tr>
+      <tr><td class="row-label">Creation Multiple</td>${y.creation_mult.map(v=>`<td>${v.toFixed(1)}x</td>`).join('')}<td>${(y.creation_mult.reduce((a,b)=>a+b,0)/y.creation_mult.length).toFixed(1)}x</td></tr>
+      ${costRow('Net Gain/Cost', y.net, {total:true})}
+    </tbody>`;
+}
+
+function renderYTDSummary(){
+  const s25 = computeSummary(2025), s26 = computeSummary(2026);
+  const rows = [
+    { label:'Marketing', v25:s25.mkt, v26:s26.mkt, key:'mkt' },
+    { label:'Lead Gen Cost', v25:s25.lead, v26:s26.lead, key:'lead' },
+    { label:'Labor Cost', v25:s25.labor, v26:s26.labor },
+    { label:'Equipment Cost', v25:s25.equip, v26:s26.equip },
+    { label:'Technician Costs', v25:s25.tech, v26:s26.tech },
+    { label:'Combined Lead Cost', v25:s25.mkt+s25.lead, v26:s26.mkt+s26.lead },
+  ];
+  const avgTable = document.getElementById('avgTable');
+  avgTable.innerHTML = `
+    <thead><tr><th>Category</th><th>2025 Total</th><th>2025 Avg/Acct</th><th>2026 YTD Total</th><th>2026 Avg/Acct</th></tr></thead>
+    <tbody>
+      ${rows.map(r => `<tr>
+        <td>${r.label}${r.key?'<span class="manual-tag">Manual</span>':''}</td>
+        <td>${fmtUSD(r.v25)}</td>
+        <td>${fmtUSD(r.v25/s25.installs,2)}</td>
+        <td>${fmtUSD(r.v26)}</td>
+        <td>${fmtUSD(r.v26/s26.installs,2)}</td>
+      </tr>`).join('')}
+      <tr class="total-row">
+        <td>Total Installs</td><td>${fmtNum(s25.installs)}</td><td>—</td><td>${fmtNum(s26.installs)}</td><td>—</td>
+      </tr>
+    </tbody>`;
+
+  const maxAvg = Math.max(...rows.map(r => Math.max(r.v25/s25.installs, r.v26/s26.installs)));
+  const barsWrap = document.getElementById('barsWrap');
+  barsWrap.innerHTML = rows.map(r => {
+    const a25 = r.v25/s25.installs, a26 = r.v26/s26.installs;
+    const w25 = (a25/maxAvg*100).toFixed(1), w26 = (a26/maxAvg*100).toFixed(1);
+    const delta = pctDelta(a26, a25);
+    const badgeCls = delta>0 ? 'down' : 'up';
+    const badge = `<span class="yoy-badge ${badgeCls}">${delta>0?'▲':'▼'} ${Math.abs(delta).toFixed(0)}%</span>`;
+    return `
+      <div class="bar-row">
+        <div class="bar-row-head"><span class="cat">${r.label}</span><span>${fmtUSD(a25,0)} → ${fmtUSD(a26,0)} ${badge}</span></div>
+        <div class="bar-track">
+          <div class="bar-seg y25" style="width:${w25}%"></div>
+          <div class="bar-seg y26" style="width:${w26}%"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderAuditPanel(){
+  document.getElementById('historyCount').textContent = auditLog.length ? `(${auditLog.length})` : '';
+  const panel = document.getElementById('auditPanel');
+  if(!auditLog.length){
+    panel.innerHTML = '<div class="audit-empty">No manual edits yet.</div>';
+    return;
+  }
+  panel.innerHTML = auditLog.map(e => `
+    <div class="audit-entry">
+      <span class="what"><b>${e.field}</b> &mdash; ${e.month} ${e.year}</span>
+      <span class="vals">${fmtUSD(e.oldValue,2)} &rarr; ${fmtUSD(e.newValue,2)}</span>
+      <span class="meta">${e.user} &middot; ${e.ts}</span>
+    </div>
+  `).join('');
+}
+
+// Years shown in the Yearly Trend table. Extend this array as more full years of history land.
+const YEARS = [2025, 2026];
+
+function getYearlyMetrics(year){
+  const s = computeSummary(year);
+  return { net: s.net, installs: s.installs, avgRmr: s.avgRmr, totalRmr: s.totalRmr, creationMult: s.creationMult };
+}
+
+const YEARLY_ROWS = [
+  { key:'net', label:'Net Gain/Cost', fmt:v=>fmtUSD(v), invert:true },
+  { key:'installs', label:'Total Installs', fmt:v=>fmtNum(v), invert:false },
+  { key:'avgRmr', label:'Average RMR', fmt:v=>fmtUSD(v,2), invert:false },
+  { key:'totalRmr', label:'Total RMR', fmt:v=>fmtUSD(v,2), invert:false },
+  { key:'creationMult', label:'Creation Multiple', fmt:v=>v.toFixed(0), invert:true },
+];
+
+function diffText(row, diff){
+  const s = row.fmt(diff);
+  return diff >= 0 ? '+' + s : s;
+}
+
+function renderYearlyTrend(){
+  const metricsByYear = YEARS.map(y => getYearlyMetrics(y));
+  const yearHeadCells = YEARS.map(y => `<th colspan="3" class="yearly-year-head">${y}${y===2026?' (YTD)':''}</th>`).join('');
+  const subHeadCells = YEARS.map(() => '<th>Total</th><th>YoY Diff</th><th>Percent Change</th>').join('');
+
+  const bodyRows = YEARLY_ROWS.map(row => {
+    const cells = YEARS.map((y, i) => {
+      const val = metricsByYear[i][row.key];
+      const valCell = `<td class="yearly-val">${row.fmt(val)}</td>`;
+      if(i===0){
+        return valCell + `<td class="na-cell">NA</td><td class="na-cell">NA</td>`;
+      }
+      const prevVal = metricsByYear[i-1][row.key];
+      const diff = val - prevVal;
+      const pct = pctDelta(val, prevVal);
+      const good = row.invert ? pct < 0 : pct > 0;
+      const cls = Math.abs(pct) < 0.5 ? '' : (good ? 'up' : 'down');
+      return valCell + `<td class="diff-cell">${diffText(row, diff)}</td><td class="pct-cell ${cls}">${pct>=0?'+':''}${pct.toFixed(0)}%</td>`;
+    }).join('');
+    return `<tr><td class="row-label">${row.label}</td>${cells}</tr>`;
+  }).join('');
+
+  const table = document.getElementById('yearlyTable');
+  table.innerHTML = `
+    <thead>
+      <tr><th>Yearly Totals</th>${yearHeadCells}</tr>
+      <tr class="yearly-subhead"><th></th>${subHeadCells}</tr>
+    </thead>
+    <tbody>${bodyRows}</tbody>`;
+}
+
+function render(){
+  updateEditButtonState();
+  updatePageSub();
+  renderHealthBanner();
+  renderKPIs();
+  renderAuditPanel();
+  document.getElementById('trendView').style.display = state.view==='trend' ? '' : 'none';
+  document.getElementById('ytdView').style.display = state.view==='ytd' ? '' : 'none';
+  document.getElementById('yearlyView').style.display = state.view==='yearly' ? '' : 'none';
+  if(state.view==='trend') renderTrendTables();
+  else if(state.view==='ytd') renderYTDSummary();
+  else renderYearlyTrend();
+}
+
+document.getElementById('yearPills').addEventListener('click', e=>{
+  const btn = e.target.closest('.pill');
+  if(!btn) return;
+  document.querySelectorAll('#yearPills .pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  state.year = parseInt(btn.dataset.year,10);
+  render();
+});
+document.getElementById('viewPills').addEventListener('click', e=>{
+  const btn = e.target.closest('.pill');
+  if(!btn) return;
+  document.querySelectorAll('#viewPills .pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  state.view = btn.dataset.view;
+  render();
+});
+document.getElementById('yoyToggle').addEventListener('change', e=>{
+  state.yoy = e.target.checked;
+  render();
+});
+
+function nowStamp(){
+  return new Date().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
+}
+
+// Manual-entry edits always write to the true company-wide book (Y25/Y26), so editing is only
+// available in the unfiltered "All Teams / All Sources" view — otherwise the cell values shown
+// are a scaled slice, not the real dollar figures that should be corrected.
+function updateEditButtonState(){
+  const btn = document.getElementById('editModeBtn');
+  const filtered = isFiltered();
+  if(filtered && state.editMode){
+    state.editMode = false;
+    btn.classList.remove('active');
+    btn.textContent = '✎ Edit Manual Costs';
+  }
+  btn.disabled = filtered;
+  btn.title = filtered ? 'Reset Team and Lead Source to "All" to edit manual costs' : '';
+}
+
+document.getElementById('editModeBtn').addEventListener('click', ()=>{
+  if(isFiltered()) return;
+  state.editMode = !state.editMode;
+  const btn = document.getElementById('editModeBtn');
+  btn.classList.toggle('active', state.editMode);
+  btn.textContent = state.editMode ? '✓ Done Editing' : '✎ Edit Manual Costs';
+  if(state.editMode){
+    if(state.view!=='trend'){
+      state.view = 'trend';
+      document.querySelectorAll('#viewPills .pill').forEach(p=>p.classList.remove('active'));
+      document.querySelector('#viewPills [data-view="trend"]').classList.add('active');
+    }
+    const body = document.getElementById('costsBody');
+    if(body.style.display === 'none'){
+      body.style.display = '';
+      document.getElementById('costsChevron').textContent = '▾';
+    }
+  }
+  render();
+});
+
+document.getElementById('historyBtn').addEventListener('click', (e)=>{
+  e.stopPropagation(); // don't also trigger the Costs accordion toggle
+  const body = document.getElementById('costsBody');
+  const panel = document.getElementById('auditPanel');
+  const opening = panel.style.display === 'none';
+  if(opening && body.style.display === 'none'){
+    body.style.display = '';
+    document.getElementById('costsChevron').textContent = '▾';
+  }
+  panel.style.display = opening ? '' : 'none';
+});
+
+// Costs / Income accordions — closed by default, expand on click to review raw monthly data.
+function setupAccordion(headId, bodyId, chevronId){
+  const head = document.getElementById(headId);
+  const body = document.getElementById(bodyId);
+  const chevron = document.getElementById(chevronId);
+  head.addEventListener('click', ()=>{
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : '';
+    chevron.textContent = isOpen ? '▸' : '▾';
+  });
+}
+setupAccordion('costsHead', 'costsBody', 'costsChevron');
+setupAccordion('incomeHead', 'incomeBody', 'incomeChevron');
+
+// Delegated change handler for editable cost cells (Marketing Expenses, Lead Gen Cost)
+document.getElementById('costsTable').addEventListener('change', e=>{
+  const input = e.target;
+  if(!input.classList || !input.classList.contains('cell-input')) return;
+  const key = input.dataset.key;
+  const idx = parseInt(input.dataset.idx, 10);
+  const y = state.year===2025 ? Y25 : Y26;
+  const oldVal = y[key][idx];
+  let newVal = parseFloat(input.value);
+  if(isNaN(newVal) || newVal < 0){
+    input.value = oldVal;
+    return;
+  }
+  newVal = Math.round(newVal * 100) / 100;
+  if(newVal === oldVal) return;
+
+  y[key][idx] = newVal;
+  // recompute dependent totals for this month
+  y.gross_cost[idx] = y.mkt[idx] + y.equip[idx] + y.tech[idx] + y.labor[idx] + y.lead[idx];
+  y.net[idx] = y.gross_cost[idx] - (y.act[idx] + y.equip_sales[idx]);
+  y.creation_mult[idx] = y.total_rmr[idx] ? Math.round((y.gross_cost[idx] / y.total_rmr[idx]) * 10) / 10 : 0;
+
+  auditLog.unshift({
+    field: FIELD_LABELS[key], year: state.year, month: MONTHS[idx],
+    oldValue: oldVal, newValue: newVal, user: 'Aaron Craft', ts: nowStamp()
+  });
+
+  render();
+});
+
+// Team / Lead Source filters — actually re-slice every number on the screen (KPIs, Monthly
+// Trend, YTD Summary, Yearly Trend all read through getYearData()/computeSummary()).
+const TEAM_SUBTITLES = { all:'company-wide', alpha:'Team Alpha', bravo:'Team Bravo', charlie:'Team Charlie' };
+const SOURCE_SUBTITLES = { all:'all channels', vendorA:'Vendor A', vendorB:'Vendor B', organic:'Organic', referral:'Referral' };
+function updatePageSub(){
+  document.getElementById('pageSub').textContent =
+    `Cost, income, and RMR performance by month — ${TEAM_SUBTITLES[state.team]}, ${SOURCE_SUBTITLES[state.source]}`;
+}
+document.getElementById('teamFilter').addEventListener('change', e=>{
+  state.team = e.target.value;
+  render();
+});
+document.getElementById('sourceFilter').addEventListener('change', e=>{
+  state.source = e.target.value;
+  render();
+});
+
+// Freshness indicator for auto-synced fields (Installs, RMR, Activation, Equipment, Technician, Labor, Chargebacks).
+// Set once at load — manually-entered fields (Marketing, Lead Gen) are tracked separately via the History panel.
+document.getElementById('syncStatus').innerHTML = `<span class="sync-dot"></span>Auto-synced fields as of ${nowStamp()}`;
+
+render();
+</script>
+</body>
+</html>
